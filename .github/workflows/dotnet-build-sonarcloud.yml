@@ -1,0 +1,73 @@
+name: Dotnet Build with SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main ]
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_CORE_VERSION: 5.0.x
+      BUILD_PATH: ./src/Airslip.IntegrationHub.sln
+      SONAR_PROJECT_KEY: airslip-ltd_integration-hub
+      TEST_RESULT_NAME: Integration-Hub Test Results
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Setup .NET Core SDK 3.1.412
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.412
+    - name: Add SonarCloud Scanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Add nuget feed
+      run: dotnet nuget add source --username ${{ secrets.PACKAGE_USER }} --password ${{ secrets.PACKAGE_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/airslip-ltd/index.json"
+    - name: Begin SonarScanner
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        dotnet sonarscanner begin \
+          /k:"${{ env.SONAR_PROJECT_KEY }}" \
+          /o:"airslip-ltd" \
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.vstest.reportsPaths=**/*.trx  \
+          /d:sonar.cs.opencover.reportsPaths=***/coverage.opencover.xml \
+          /d:sonar.coverage.exclusions="**Test*.cs" 
+    - name: Install dependencies
+      run: dotnet restore ${{ env.BUILD_PATH }}
+    - name: Build
+      run: dotnet build ${{ env.BUILD_PATH }} --no-restore
+    - name: Test
+      run: |
+        dotnet test ${{ env.BUILD_PATH }} \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory TestResults/ \
+          --logger "trx;LogFileName=unittests.trx" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        cd TestResults
+        ls
+
+    - name: Generate Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: ${{ env.TEST_RESULT_NAME }}
+        path: '**/*.trx'
+        reporter: dotnet-trx
+
+    - name: End SonarScanner
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
