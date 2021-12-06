@@ -7,6 +7,7 @@ using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
+using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -61,6 +62,31 @@ namespace Airslip.IntegrationHub.Functions
 
             return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(
                 new AuthCallbackGeneratorResponse(callbackUrl));
+        }
+        
+        [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AuthorisationResponse), Description = "Details of the account that has been setup")]
+        [Function("AuthorisationCallback")]
+        public static async Task<HttpResponseData> Callback(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/callback")]
+            HttpRequestData req,
+            string provider,
+            FunctionContext executionContext)
+        {
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            IExternalAuthService externalAuthService = executionContext.InstanceServices.GetService<IExternalAuthService>() ?? throw new NotImplementedException();
+            bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
+
+            if(!supportedProvider)
+            {
+                logger.Warning("Unsupported provider {Provider}", provider);
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+            
+            AuthorisationCallBackBase callbackParams = externalAuthService.GetQueryParams(parsedProvider, req.Url.Query);
+            
+            return await req.CommonResponseHandler<AuthorisationCallBackBase>(callbackParams);
         }
     }
 }
