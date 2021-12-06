@@ -1,0 +1,11 @@
+﻿<Project>
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+</Project>

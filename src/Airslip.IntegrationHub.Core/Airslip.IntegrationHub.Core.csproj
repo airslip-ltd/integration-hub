@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\common.props" />
+	
+	<ItemGroup>
+		<PackageReference Include="Airslip.Common.Types" Version="3.6.2" />
+		<PackageReference Include="Airslip.Common.Utilities" Version="3.6.12" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+	</ItemGroup>
+
+</Project>
