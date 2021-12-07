@@ -41,7 +41,8 @@ namespace Airslip.IntegrationHub.Functions
             IExternalAuthService externalAuthService = executionContext.InstanceServices.GetService<IExternalAuthService>() ?? throw new NotImplementedException();
             
             KeyAuthenticationResult authenticationResult = await authService.Handle(req);
-            
+            logger.Information("Testing");
+
             if (authenticationResult.AuthResult != AuthResult.Success)
             {
                 logger.Error("Authorisation unsuccessful {ErrorMessage}", authenticationResult.Message);

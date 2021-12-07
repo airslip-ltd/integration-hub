@@ -34,19 +34,16 @@ namespace Airslip.IntegrationHub
                 })
                 .ConfigureFunctionsWorkerDefaults()
                 .ConfigureOpenApi()
-                .ConfigureServices(services =>
+                .ConfigureHostConfiguration(builder =>
                 {
-                    IConfiguration config = new ConfigurationBuilder()
-                        .AddDefaultConfig(args)
-                        .Build();
-                    
-                    Logger logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(config)
-                        .CreateLogger();
-                    
-                    services
-                        .AddSingleton<ILogger>(_ => logger);
-                    
+                    builder.AddDefaultConfig(args);
+                })
+                .UseSerilog((context, config) =>
+                {
+                    config.ReadFrom.Configuration(context.Configuration);
+                })
+                .ConfigureServices((context, services) =>
+                {
                     services
                         .AddFluentValidation(options =>
                         {
@@ -61,20 +58,20 @@ namespace Airslip.IntegrationHub
                             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                             options.Converters.Add(new JsonStringEnumConverter());
                         })
-                        .Configure<EnvironmentSettings>(config.GetSection(nameof(EnvironmentSettings)))
-                        .Configure<PublicApiSettings>(config.GetSection(nameof(PublicApiSettings)))
-                        .Configure<ApiKeyValidationSettings>(config.GetSection(nameof(ApiKeyValidationSettings)))
-                        .Configure<EncryptionSettings>(config.GetSection(nameof(EncryptionSettings)))
+                        .Configure<EnvironmentSettings>(context.Configuration.GetSection(nameof(EnvironmentSettings)))
+                        .Configure<PublicApiSettings>(context.Configuration.GetSection(nameof(PublicApiSettings)))
+                        .Configure<ApiKeyValidationSettings>(context.Configuration.GetSection(nameof(ApiKeyValidationSettings)))
+                        .Configure<EncryptionSettings>(context.Configuration.GetSection(nameof(EncryptionSettings)))
                         .Configure<ApiBehaviorOptions>(options =>
                         {
                             options.SuppressModelStateInvalidFilter = true;
                         });
     
                     services
-                        .AddAirslipFunctionAuth(config);
+                        .AddAirslipFunctionAuth(context.Configuration);
 
                     services
-                        .AddProviderAuthorisation(config);
+                        .AddProviderAuthorisation(context.Configuration);
 
                     services
                         .UseHealthChecks();
