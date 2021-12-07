@@ -10,6 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Airslip.Common.Functions" Version="3.6.2" />
 		<PackageReference Include="Airslip.Common.Monitoring" Version="3.6.0" />
 		<PackageReference Include="Airslip.Common.Auth.AspNetCore" Version="3.7.4" />
 		<PackageReference Include="Airslip.Common.Services.AutoMapper" Version="3.7.0" />

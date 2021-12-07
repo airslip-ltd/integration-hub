@@ -4,6 +4,7 @@ using Airslip.Common.Auth.Functions.Interfaces;
 using Airslip.Common.Auth.Models;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
+using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Responses;

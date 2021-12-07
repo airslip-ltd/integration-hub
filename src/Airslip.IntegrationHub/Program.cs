@@ -1,4 +1,5 @@
 using Airslip.Common.Auth.Functions.Extensions;
+using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
 using Airslip.Common.Types.Configuration;
