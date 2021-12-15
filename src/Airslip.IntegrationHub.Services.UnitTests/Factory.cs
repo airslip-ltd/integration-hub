@@ -26,7 +26,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                         BaseUri = "https://{0}.myshopify.com",
                         ClientId = "client-id",
                         ClientSecret = "client-secret",
-                        RedirectUri = "http://localhost:7071/v1/auth"
+                        RedirectUri = "http://localhost:31201/v1/auth/callback"
                     }
                 }
             }

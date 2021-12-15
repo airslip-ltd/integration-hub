@@ -28,7 +28,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
 
         [Theory]
         [InlineData(PosProviders.Shopify,
-            "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_all_orders,read_products,read_inventory&redirect_uri=http://localhost:7071/v1/auth&state=account-id&grant_options[]=per-user",
+            "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_all_orders,read_products,read_inventory&redirect_uri=http://localhost:31201/v1/auth/callback&state=account-id&grant_options[]=per-user",
             "account-id", "airslip-development", true)]
         [InlineData(PosProviders.Vend,
             "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=http://localhost:38101/v1/auth&state=account-id",
