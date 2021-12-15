@@ -1,10 +1,12 @@
-﻿using Airslip.Common.Types.Configuration;
+﻿using Airslip.Common.Security.Implementations;
+using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 
 namespace Airslip.IntegrationHub.Core.Implementations
 {
@@ -62,6 +64,16 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
+        }
+
+        public bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings, string hmacKey)
+        {
+            KeyValuePair<string, string> hmacKeyValuePair = queryStrings.Get(hmacKey);
+            string hmacValue = hmacKeyValuePair.Value;
+            queryStrings.Remove(hmacKeyValuePair);
+            ProviderSetting providerSetting = _providerSettings.GetSettingByName(provider.ToString());
+
+            return HmacCipher.Validate(queryStrings, hmacValue, providerSetting.ClientSecret);
         }
 
         private static string GetInternalProviderName(string provider)

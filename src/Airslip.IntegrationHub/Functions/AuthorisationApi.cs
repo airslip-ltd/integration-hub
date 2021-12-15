@@ -18,6 +18,9 @@ using Serilog;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using Airslip.Common.Utilities.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -81,19 +84,42 @@ namespace Airslip.IntegrationHub.Functions
         }
 
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
-        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse),
-            Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AuthorisationResponse),
-            Description = "Details of the account that has been setup")]
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AuthorisationResponse), Description = "Details of the account that has been setup")]
         [Function("AuthorisationCallback")]
         public static async Task<HttpResponseData> Callback(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/auth/{provider}/callback")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/callback/{provider}")]
             HttpRequestData req,
             string provider,
             FunctionContext executionContext)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
-                             throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+
+            bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
+
+            if (!supportedProvider)
+            {
+                logger.Warning("Unsupported provider {Provider}", provider);
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+            
+            List<KeyValuePair<string, string>>? queryStrings = req.Url.Query.GetQueryParams()?.ToList();
+
+            if (queryStrings is null)
+            {
+                logger.Warning("There are no query strings");
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+            
+            bool isValid = providerDiscoveryService.Validate(parsedProvider, queryStrings, "hmac");
+            
+            if (!isValid)
+            {
+                logger.Warning("Hmac is invalid");
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
             IntegrationMiddlewareClient httpClient =
                 executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ??
                 throw new NotImplementedException();

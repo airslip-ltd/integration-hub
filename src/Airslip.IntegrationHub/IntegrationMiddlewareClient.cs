@@ -1,5 +1,4 @@
 ﻿using Airslip.Common.Types;
-using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
@@ -33,16 +32,13 @@ namespace Airslip.IntegrationHub
 
         public async Task<IResponse> SendToMiddleware(string provider, HttpRequestData requestData)
         {
-            bool supportedPosProvider = Enum.TryParse(provider, out PosProviders _);
-            if (!supportedPosProvider)
-                throw new NotSupportedException($"The provider {provider} is not yet supported");
-            
             ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
             
             string url = Endpoints.Result(providerDetails.DestinationBaseUri, provider);
             
             try
             {
+                // TODO: Create switch for different middleware providers
                 HttpRequestMessage httpRequestMessage = new()
                 {
                     Method = HttpMethod.Post,
