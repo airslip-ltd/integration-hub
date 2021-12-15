@@ -1,5 +1,6 @@
 ﻿using Airslip.Common.Monitoring.Interfaces;
 using Airslip.Common.Monitoring.Models;
+using Airslip.Common.Utilities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -25,6 +26,8 @@ namespace Airslip.IntegrationHub.Functions
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
+        [OpenApiOperation("HeartbeatHealth", Summary = "Health operation to ensure dependent services are reachable")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(HealthCheckResponse), Description = "Data relating to the health check")]
         [Function("HeartbeatHealth")]
         public static async Task<HttpResponseData> Health(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/heartbeat/health")] HttpRequestData req,

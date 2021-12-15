@@ -24,7 +24,7 @@ namespace Airslip.IntegrationHub
             services
                 .Configure<SettingCollection<ProviderSetting>>(configuration.GetSection("ProviderSettings"))
                 .AddScoped<IProviderDiscoveryService, ProviderDiscoveryService>()
-                .AddScoped<IExternalAuthService, ExternalAuthService>();
+                .AddScoped<ICustomerPortalClient, CustomerPortalClient>();
 
             return services;
         }

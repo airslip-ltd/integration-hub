@@ -3,14 +3,19 @@ using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
 using Airslip.Common.Types.Configuration;
+using Airslip.Common.Utilities;
+using Airslip.Common.Utilities.Extensions;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Serilog;
-using Serilog.Core;
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -32,7 +37,7 @@ namespace Airslip.IntegrationHub
                 {
                     configurationBuilder.AddCommandLine(args);
                 })
-                .ConfigureFunctionsWorkerDefaults()
+                .ConfigureFunctionsWorkerDefaults(worker => worker.UseNewtonsoftJson())
                 .ConfigureOpenApi()
                 .ConfigureHostConfiguration(builder =>
                 {
@@ -75,10 +80,30 @@ namespace Airslip.IntegrationHub
 
                     services
                         .UseHealthChecks();
+
+                    services
+                        .AddHttpClient<IntegrationMiddlewareClient>((serviceProvider, httpClient) =>
+                        {
+                            IOptions<PublicApiSettings> settings = serviceProvider.GetRequiredService<IOptions<PublicApiSettings>>();
+                            string baseUri = settings.Value.GetSettingByName("Api2Cart").ToBaseUri();
+                            httpClient.AddDefaults(baseUri);
+                        });
+                    
                 })
                 .Build();
 
             return host;
+        }
+    }
+    
+    public static class HttpClientFactoryExtensions
+    {
+        public static void AddDefaults(this HttpClient httpClient, string baseUri)
+        {
+            httpClient.BaseAddress = new Uri(baseUri);
+
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(Json.MediaType));
         }
     }
 }
