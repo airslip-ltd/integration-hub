@@ -2,9 +2,13 @@ using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
+using Airslip.Common.Services.AutoMapper;
+using Airslip.Common.Services.AutoMapper.Extensions;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core;
+using Airslip.IntegrationHub.Core.Models;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -71,22 +75,37 @@ namespace Airslip.IntegrationHub
                         {
                             options.SuppressModelStateInvalidFilter = true;
                         });
-    
+
                     services
                         .AddAirslipFunctionAuth(context.Configuration);
 
                     services
+                        .UseHealthChecks();
+                    
+                    services
                         .AddProviderAuthorisation(context.Configuration);
 
-                    services
-                        .UseHealthChecks();
-
+                    
+                    
+                    // services
+                    //     .AddHttpClient();
+                    //
                     services
                         .AddHttpClient<IntegrationMiddlewareClient>((serviceProvider, httpClient) =>
                         {
                             IOptions<PublicApiSettings> settings = serviceProvider.GetRequiredService<IOptions<PublicApiSettings>>();
                             string baseUri = settings.Value.GetSettingByName("Api2Cart").ToBaseUri();
                             httpClient.AddDefaults(baseUri);
+                        });
+                    
+                    
+                    SettingCollection<ProviderSetting> appSettings = new();
+                    context.Configuration.GetSection($"{nameof(ProviderSetting)}s").Bind(appSettings);
+                    
+                    services
+                        .AddAutoMapper(expression =>
+                        {
+                            expression.AddShopify(appSettings);
                         });
                     
                 })

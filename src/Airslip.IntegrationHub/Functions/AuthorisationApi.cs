@@ -1,6 +1,7 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Auth.Functions.Interfaces;
+using Airslip.Common.Auth.Interfaces;
 using Airslip.Common.Auth.Models;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
@@ -26,38 +27,29 @@ namespace Airslip.IntegrationHub.Functions
 {
     public static class AuthorisationApi
     {
-        [OpenApiOperation("GenerateAuthorisationUrl",
-            Summary = "The generation of the URL to authorise an OAUTH application")]
-        [OpenApiSecurity(AirslipSchemeOptions.ApiKeyScheme, SecuritySchemeType.ApiKey,
-            Name = AirslipSchemeOptions.ApiKeyHeaderField, In = OpenApiSecurityLocationType.Header)]
-        [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Api Key supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse),
-            Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string),
-            Description = "The URL to be used to start an external authorisation process")]
-        [Function("GenerateAuthorisationUrl")]
+        [OpenApiOperation("GenerateAuthorisationUrl", Summary = "The generation of the URL to authorise an OAUTH application")]
+        [OpenApiSecurity(AirslipSchemeOptions.ApiKeyScheme, SecuritySchemeType.ApiKey, Name = AirslipSchemeOptions.ApiKeyHeaderField, In = OpenApiSecurityLocationType.Header)]
+        [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Api Key supplied")] 
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")] 
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string), Description = "The URL to be used to start an external authorisation process")] [Function("GenerateAuthorisationUrl")]
         public static async Task<HttpResponseData> GenerateAuthUrl(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/{provider}/generate-url")]
             HttpRequestData req,
             FunctionContext executionContext,
-            string provider,
-            string? shopName = null,
-            bool? isOnline = null)
+            string provider)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             IApiRequestAuthService authService = executionContext.InstanceServices.GetService<IApiRequestAuthService>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
-            ICustomerPortalClient customerPortalClient = executionContext.InstanceServices.GetService<ICustomerPortalClient>() ?? throw new NotImplementedException();
             KeyAuthenticationResult authenticationResult = await authService.Handle(req);
             
-            logger.Information("Testing");
-
             if (authenticationResult.AuthResult != AuthResult.Success)
             {
                 logger.Error("Authorisation unsuccessful {ErrorMessage}", authenticationResult.Message);
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
             }
-
+            
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            
             bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
 
             if (!supportedProvider)
@@ -65,27 +57,16 @@ namespace Airslip.IntegrationHub.Functions
                 logger.Warning("Unsupported provider {Provider}", provider);
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
+          
+            string callbackUrl = providerDiscoveryService.GenerateCallbackUrl(parsedProvider, req.Url.Query);
 
-            // TODO: Implement client to get newly added account id
-            IResponse response = await customerPortalClient.CreateStub();
-
-            switch (response)
-            {
-                case AccountResponse account:
-
-                    string callbackUrl = providerDiscoveryService.GenerateCallbackUrl(parsedProvider, account.Id, shopName, isOnline);
-
-                    return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(
-                        new AuthCallbackGeneratorResponse(callbackUrl));
-                
-                default: 
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-            }
+            return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(
+                new AuthCallbackGeneratorResponse(callbackUrl));
         }
 
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AuthorisationResponse), Description = "Details of the account that has been setup")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse), Description = "Details of the account that has been setup")]
         [Function("AuthorisationCallback")]
         public static async Task<HttpResponseData> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/callback/{provider}")]
@@ -95,6 +76,7 @@ namespace Airslip.IntegrationHub.Functions
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IntegrationMiddlewareClient httpClient = executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ?? throw new NotImplementedException();
 
             bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
 
@@ -104,29 +86,19 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
             
-            List<KeyValuePair<string, string>>? queryStrings = req.Url.Query.GetQueryParams()?.ToList();
+            List<KeyValuePair<string, string>> queryStrings = req.Url.Query.GetQueryParams().ToList();
 
-            if (queryStrings is null)
-            {
-                logger.Warning("There are no query strings");
-                return req.CreateResponse(HttpStatusCode.BadRequest);
-            }
-            
-            bool isValid = providerDiscoveryService.Validate(parsedProvider, queryStrings, "hmac");
+            bool isValid = providerDiscoveryService.Validate(parsedProvider, queryStrings);
             
             if (!isValid)
             {
-                logger.Warning("Hmac is invalid");
+                logger.Warning("There has been a problem validating the callback request");
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            IntegrationMiddlewareClient httpClient =
-                executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ??
-                throw new NotImplementedException();
+            IResponse authorisedResponse = await httpClient.SendToMiddleware(provider, req.Url.Query);
 
-            IResponse authorisedResponse = await httpClient.SendToMiddleware(provider, req);
-
-            return await req.CommonResponseHandler<ISuccess>(authorisedResponse);
+            return await req.CommonResponseHandler<AccountResponse>(authorisedResponse);
         }
     }
 }

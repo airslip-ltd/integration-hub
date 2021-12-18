@@ -10,12 +10,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Airslip.Common.Functions" Version="3.6.3" />
+		<PackageReference Include="Airslip.Common.Functions" Version="3.8.0" />
 		<PackageReference Include="Airslip.Common.Monitoring" Version="3.6.0" />
-		<PackageReference Include="Airslip.Common.Security" Version="3.7.2" />
-		<PackageReference Include="Airslip.Common.Utilities" Version="3.6.13" />
-		<PackageReference Include="Airslip.Common.Auth.AspNetCore" Version="3.7.4" />
-		<PackageReference Include="Airslip.Common.Services.AutoMapper" Version="3.7.2" />
+		<PackageReference Include="Airslip.Common.Security" Version="3.7.5" />
+		<PackageReference Include="Airslip.Common.Utilities" Version="3.6.16" />
+		<PackageReference Include="Airslip.Common.Auth.AspNetCore" Version="4.0.1" />
+		<PackageReference Include="Airslip.Common.Services.AutoMapper" Version="4.0.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="10.3.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.11" />
@@ -26,8 +26,8 @@
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
 		
-		<PackageReference Include="Airslip.Common.Auth.Functions" Version="3.7.1" />
-		<PackageReference Include="Airslip.Common.Types" Version="3.7.0" />
+		<PackageReference Include="Airslip.Common.Auth.Functions" Version="3.8.2" />
+		<PackageReference Include="Airslip.Common.Types" Version="3.7.2" />
 		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
 
