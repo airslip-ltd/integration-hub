@@ -23,8 +23,7 @@ namespace Airslip.IntegrationHub
         {
             services
                 .Configure<SettingCollection<ProviderSetting>>(configuration.GetSection("ProviderSettings"))
-                .AddScoped<IProviderDiscoveryService, ProviderDiscoveryService>()
-                .AddScoped<ICustomerPortalClient, CustomerPortalClient>();
+                .AddScoped<IProviderDiscoveryService, ProviderDiscoveryService>();
 
             return services;
         }

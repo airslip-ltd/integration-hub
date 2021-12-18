@@ -23,7 +23,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                 {
                     PosProviders.Shopify.ToString(), new ProviderSetting
                     {
-                        BaseUri = "https://{0}.myshopify.com",
+                        BaseUri = "https://{0}",
                         ClientId = "client-id",
                         ClientSecret = "client-secret",
                         RedirectUri = "http://localhost:31201/v1/auth/callback"
@@ -31,5 +31,15 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                 }
             }
         };
+
+        public static ProviderAuthorisingDetail ProviderAuthorisingDetail = new()
+        {
+            ShortLivedCode = "short-lived-code",
+            AirslipUserInfo = "airslip-user-info",
+            StoreName = "store-name",
+            PermanentAccessUrl = "permanent-access-url",
+            BaseUri = "base-uri",
+        };
+
     }
 }
