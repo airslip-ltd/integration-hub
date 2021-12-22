@@ -18,8 +18,8 @@ locals {
   tags = {
     Environment = var.environment
   }
-  app_id = "integration"
-  short_app_id = "int"
+  app_id = "integration-hub"
+  short_app_id = "int-hub"
   short_environment = var.short_environment
   location = var.location
   api_key = var.api_key
@@ -39,8 +39,8 @@ module "func_app_host" {
   source = "./tf_modules/Airslip.Terraform.Modules/recipes/function_app_multiple_apps"
 
   app_configuration = {
-    app_id = "${local.app_id}-hub",
-    short_app_id = "${local.short_app_id}-hub",
+    app_id = local.app_id,
+    short_app_id = local.short_app_id,
     short_environment = local.short_environment,
     location = local.location,
     tags = local.tags,
