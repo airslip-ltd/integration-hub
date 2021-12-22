@@ -1,0 +1,3 @@
+terraform state mv "module.cosmos_db.module.resource_group[0].azurerm_resource_group.resource_group" "module.ingredient_bowl.azurerm_resource_group.resource_group"
+terraform state mv "module.cosmos_db.module.cosmosdb_account.azurerm_cosmosdb_account.cosmosdb" "module.mongo_db.module.mongodb_account.azurerm_cosmosdb_account.mongodb"
+terraform state mv "module.cosmos_db.module.database[0].azurerm_cosmosdb_mongo_database.database" "module.mongo_db.module.mongodb_database[0].azurerm_cosmosdb_mongo_database.database"
