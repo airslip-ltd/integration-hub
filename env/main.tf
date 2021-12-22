@@ -56,10 +56,10 @@ module "func_app_host" {
 
   function_apps = [
     {
-      function_app_name = "hub",
+      function_app_name = "proc",
       app_settings = {
         "EnvironmentSettings:EnvironmentName": var.environment,
-        "PublicApiSettings:Settings:Base:BaseUri": "https://something",
+        "PublicApiSettings:Settings:Base:BaseUri": "https://airslip-${local.short_environment}-integration-hub-proc-app.azurewebsites.net",
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
