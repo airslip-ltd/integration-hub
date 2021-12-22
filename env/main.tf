@@ -60,10 +60,10 @@ module "func_app_host" {
       app_settings = {
         "EnvironmentSettings:EnvironmentName": var.environment,
         "PublicApiSettings:Settings:Base:BaseUri": "https://something",
-        "PublicApiSettings:Settings:Api2Cart:BaseUri": locals.integrations_hostname,
-        "PublicApiSettings:Settings:Api2Cart:ApiKey": locals.api_key,
-        "PublicApiSettings:Settings:Vend:BaseUri": locals.integrations_hostname,
-        "PublicApiSettings:Settings:Vend:ApiKey": locals.api_key
+        "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
+        "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
+        "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
+        "PublicApiSettings:Settings:Vend:ApiKey": local.api_key
       }
     }
   ]
