@@ -56,9 +56,6 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
       <None Remove="appsettings.Production.json" />
-      <Content Include="appsettings.Local.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <Content Include="appsettings.Production.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>

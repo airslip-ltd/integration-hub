@@ -70,11 +70,11 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         [InlineData(PosProviders.Shopify,
             "?shop=airslip-development.myshopify.com&isOnline=true",
             "state",
-            "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_orders,read_products,read_inventory&redirect_uri=http://localhost:31201/v1/auth/callback&grant_options[]=per-user")]
+            "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_orders,read_products,read_inventory&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Shopify&grant_options[]=per-user")]
         [InlineData(PosProviders.Vend,
             "",
             "state",
-            "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=http://localhost:38101/v1/auth")]
+            "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Vend")]
         public void Can_generate_callback_url(PosProviders provider, string queryString, string relayQueryString,
             string expectedResult)
         {
