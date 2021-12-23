@@ -63,7 +63,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.NON_PROD_ARM_TENANT_ID }}
       run: |
         terraform init -backend-config=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/backend.tfvars
-        terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var="api_key=${{ secrets.API_KEY }}" -out=terraform.tfplan
+        terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var="api_key=${{ secrets.API_KEY }}" -var="shopify_app_id=${{ secrets.DEV_SHOPIFY_APP_ID }}" -var="shopify_app_secret=${{ secrets.DEV_SHOPIFY_APP_SECRET }}" -out=terraform.tfplan
         terraform apply terraform.tfplan
         resource_group_name_raw=$(terraform output resource_group_name)
         resource_group_name=$(echo "${resource_group_name_raw}" | sed 's/"//g')
