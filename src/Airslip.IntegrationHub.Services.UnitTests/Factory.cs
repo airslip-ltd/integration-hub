@@ -17,8 +17,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     {
                         BaseUri = "https://secure.vendhq.com/connect",
                         AppId = "SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL",
-                        AppSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4",
-                        RedirectUri = "http://localhost:38101/v1/auth"
+                        AppSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4"
                     }
                 },
                 {
@@ -26,8 +25,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     {
                         BaseUri = "https://{0}",
                         AppId = "client-id",
-                        AppSecret = "client-secret",
-                        RedirectUri = "http://localhost:31201/v1/auth/callback"
+                        AppSecret = "client-secret"
                     }
                 }
             }

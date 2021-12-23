@@ -59,7 +59,8 @@ namespace Airslip.IntegrationHub.Core.Implementations
             
             PublicApiSetting publicApiSetting = _publicApiSettings.GetSettingByName(internalMiddlewareName);
             string destinationBaseUri = publicApiSetting.ToBaseUri();
-
+            string redirectUri = $"{destinationBaseUri}/auth/callback/{provider}";
+            
             ProviderAuthorisingDetail authorisingDetail = new();
             switch (posProvider)
             {
@@ -71,7 +72,8 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             return new ProviderDetails(
                 posProvider, 
-                destinationBaseUri, 
+                destinationBaseUri,
+                redirectUri,
                 publicApiSetting, 
                 providerSetting,
                 authorisingDetail);
@@ -84,8 +86,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
         public string GenerateCallbackUrl(PosProviders provider, string queryString, string? redirectUri = null)
         {
+            string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
+            redirectUri ??= $"{destinationBaseUri}/auth/callback/{provider}";
+            
             ProviderSetting providerSetting = GetProviderSettings(provider.ToString());
-            redirectUri ??= providerSetting.RedirectUri;
 
             string encryptedUserInformation = GetEncryptedUserInformation();
 

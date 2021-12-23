@@ -68,8 +68,7 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Vend:ApiKey": local.api_key,
         "ProviderSettings:Settings:Shopify:AppId": local.shopify_app_id,
-        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_app_secret,
-        "ProviderSettings:Settings:Shopify:RedirectUri": local.shopify_redirecturi,
+        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_app_secret
       }
     }
   ]
