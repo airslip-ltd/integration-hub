@@ -31,7 +31,9 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiSecurity(AirslipSchemeOptions.ApiKeyScheme, SecuritySchemeType.ApiKey, Name = AirslipSchemeOptions.ApiKeyHeaderField, In = OpenApiSecurityLocationType.Header)]
         [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Api Key supplied")] 
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")] 
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string), Description = "The URL to be used to start an external authorisation process")] [Function("GenerateAuthorisationUrl")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string), Description = "The URL to be used to start an external authorisation process")]
+        [OpenApiParameter("provider", Required = true)]
+        [Function("GenerateAuthorisationUrl")]
         public static async Task<HttpResponseData> GenerateAuthUrl(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/{provider}/generate-url")]
             HttpRequestData req,
@@ -67,6 +69,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
         [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse), Description = "Details of the account that has been setup")]
+        [OpenApiParameter("provider", Required = true)]
         [Function("AuthorisationCallback")]
         public static async Task<HttpResponseData> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/callback/{provider}")]
