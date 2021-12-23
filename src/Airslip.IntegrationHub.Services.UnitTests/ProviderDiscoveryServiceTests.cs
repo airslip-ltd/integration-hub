@@ -117,6 +117,16 @@ namespace Airslip.IntegrationHub.Services.UnitTests
 
         [Theory]
         [InlineData("Shopify")]
+        [InlineData("Cart3D")]
+        [InlineData("Cart3DApi")]
+        [InlineData("AmazonSP")]
+        [InlineData("Amazon")]
+        [InlineData("Demandware")]
+        [InlineData("EBay")]
+        [InlineData("Etsy")]
+        [InlineData("EtsyAPIv3")]
+        [InlineData("Magento")]
+        [InlineData("Hybris")]
         public void Can_get_all_oauth_provider_details(string provider)
         {
             string queryString =
@@ -134,6 +144,17 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         
         [Theory]
         [InlineData("Volusion")]
+        [InlineData("AspDotNetStorefront")]
+        [InlineData("CommerceHQ")]
+        [InlineData("Ecwid")]
+        [InlineData("Neto")]
+        [InlineData("LightSpeed")]
+        [InlineData("Prestashop")]
+        [InlineData("Squarespace")]
+        [InlineData("Shopware")]
+        [InlineData("ShopwareApi")]
+        [InlineData("Walmart")]
+        [InlineData("Woocommerce")]
         public void Can_get_all_non_oauth_provider_details(string provider)
         {
             string queryString =

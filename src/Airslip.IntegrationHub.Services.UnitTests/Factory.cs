@@ -7,6 +7,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
 {
     public static class Factory
     {
+        //TODO: Try and get from appsettings.json
         public static SettingCollection<ProviderSetting> ProviderConfiguration = new()
         {
             Settings = new Dictionary<string, ProviderSetting>
@@ -15,8 +16,8 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     PosProviders.Vend.ToString(), new ProviderSetting
                     {
                         BaseUri = "https://secure.vendhq.com/connect",
-                        ClientId = "SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL",
-                        ClientSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4",
+                        AppId = "SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL",
+                        AppSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4",
                         RedirectUri = "http://localhost:38101/v1/auth"
                     }
                 },
@@ -24,8 +25,8 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     PosProviders.Shopify.ToString(), new ProviderSetting
                     {
                         BaseUri = "https://{0}",
-                        ClientId = "client-id",
-                        ClientSecret = "client-secret",
+                        AppId = "client-id",
+                        AppSecret = "client-secret",
                         RedirectUri = "http://localhost:31201/v1/auth/callback"
                     }
                 }
