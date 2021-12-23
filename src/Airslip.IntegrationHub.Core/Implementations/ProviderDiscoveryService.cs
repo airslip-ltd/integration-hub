@@ -93,7 +93,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 case PosProviders.Vend:
                     return
-                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.ClientId}&redirect_uri={redirectUri}&state={encryptedUserInformation}";
+                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={encryptedUserInformation}";
                 case PosProviders.SwanRetailMidas:
                     return string.Empty;
                 case PosProviders.Volusion:
@@ -102,7 +102,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                     string grantOptions = auth.IsOnline ? "per-user" : "value";
                     return
-                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.ClientId}&scope=read_orders,read_products,read_inventory&redirect_uri={redirectUri}&state={encryptedUserInformation}&grant_options[]={grantOptions}";
+                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope=read_orders,read_products,read_inventory&redirect_uri={redirectUri}&state={encryptedUserInformation}&grant_options[]={grantOptions}";
                 case PosProviders.Stripe:
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
@@ -122,7 +122,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             queryStrings.Remove(hmacKeyValuePair);
             ProviderSetting providerSetting = GetProviderSettings(provider.ToString());
 
-            return HmacCipher.Validate(queryStrings, hmacValue, providerSetting.ClientSecret);
+            return HmacCipher.Validate(queryStrings, hmacValue, providerSetting.AppSecret);
         }
 
         public Task<MiddlewareAuthorisationRequest> GetBody(string provider)
@@ -135,8 +135,8 @@ namespace Airslip.IntegrationHub.Core.Implementations
             return provider switch
             {
                 PosProviders.Shopify => new ShopifyPermanentAccess(
-                    providerSetting.ClientId,
-                    providerSetting.ClientSecret,
+                    providerSetting.AppId,
+                    providerSetting.AppSecret,
                     shortLivedCode),
                 _ => new PermanentAccessBase()
             };
@@ -191,7 +191,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 case PosProviders.Shopify:
                     ShopifyProviderAuthorisation providerAuth = Json.Deserialize<ShopifyProviderAuthorisation>(content);
-                    providerAuth.Login = providerSettings.ClientSecret;
+                    providerAuth.Login = providerSettings.AppSecret;
                     return providerAuth;
                 default:
                     return Json.Deserialize<ProviderAuthorisation>(content);
@@ -239,28 +239,28 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
     public class PermanentAccessBase
     {
-        public virtual string ClientId { get; set; } = string.Empty;
-        public virtual string ClientSecret { get; set; } = string.Empty;
+        public virtual string AppId { get; set; } = string.Empty;
+        public virtual string AppSecret { get; set; } = string.Empty;
         public virtual string ShortLivedCode { get; set; } = string.Empty;
     }
 
     public class ShopifyPermanentAccess : PermanentAccessBase
     {
         [JsonProperty(PropertyName = "client_id")]
-        public sealed override string ClientId { get; set; }
+        public sealed override string AppId { get; set; }
 
         [JsonProperty(PropertyName = "client_secret")]
-        public sealed override string ClientSecret { get; set; }
+        public sealed override string AppSecret { get; set; }
         [JsonProperty(PropertyName = "code")]
         public sealed override string ShortLivedCode { get; set; }
 
         public ShopifyPermanentAccess(
-            string clientId,
-            string clientSecret,
+            string appId,
+            string appSecret,
             string shortLivedCode)
         {
-            ClientId = clientId;
-            ClientSecret = clientSecret;
+            AppId = appId;
+            AppSecret = appSecret;
             ShortLivedCode = shortLivedCode;
         }
     }
