@@ -12,7 +12,7 @@ jobs:
   sonarcloud:
     runs-on: ubuntu-latest
     env:
-      DOTNET_CORE_VERSION: 5.0.x
+      DOTNET_CORE_VERSION: 6.0.x
       BUILD_PATH: ./src/Airslip.IntegrationHub.sln
       SONAR_PROJECT_KEY: airslip-ltd_integration-hub
       TEST_RESULT_NAME: Integration-Hub Test Results
@@ -20,14 +20,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Setup .NET Core SDK 3.1.412
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.412
+        
     - name: Add SonarCloud Scanner
       run: dotnet tool install --global dotnet-sonarscanner
     - name: Add nuget feed

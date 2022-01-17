@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: Development
     env:
-      DOTNET_CORE_VERSION: 5.0.x
-      TERRAFORM_MODULE_VERSION: 1.2.2
+      DOTNET_CORE_VERSION: 6.0.x
+      TERRAFORM_MODULE_VERSION: 6.0.4
       ENVIRONMENT_NAME: Development
       ENVIRONMENT_NAME_SHORT: dev
       PUBLISH_PATH: ./src
@@ -23,13 +23,9 @@ jobs:
         fetch-depth: 0
         
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Setup .NET Core SDK 3.1.412
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.412
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
