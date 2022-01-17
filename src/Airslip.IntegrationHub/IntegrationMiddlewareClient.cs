@@ -8,7 +8,6 @@ using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 

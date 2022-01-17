@@ -2,7 +2,6 @@ using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
-using Airslip.Common.Services.AutoMapper;
 using Airslip.Common.Services.AutoMapper.Extensions;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
@@ -84,8 +83,6 @@ namespace Airslip.IntegrationHub
                     
                     services
                         .AddProviderAuthorisation(context.Configuration);
-
-                    
                     
                     // services
                     //     .AddHttpClient();
