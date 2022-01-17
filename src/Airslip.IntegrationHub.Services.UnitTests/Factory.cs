@@ -34,7 +34,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         public static ProviderAuthorisingDetail ProviderAuthorisingDetail = new()
         {
             ShortLivedCode = "short-lived-code",
-            AirslipUserInfo = "airslip-user-info",
+            EncryptedUserInfo = "airslip-user-info",
             StoreName = "store-name",
             PermanentAccessUrl = "permanent-access-url",
             BaseUri = "base-uri",

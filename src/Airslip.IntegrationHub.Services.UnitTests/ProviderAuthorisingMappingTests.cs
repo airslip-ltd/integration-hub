@@ -47,7 +47,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             ProviderAuthorisingDetail result = _mapper.Map<ProviderAuthorisingDetail>(shopifyAuthDetail);
 
             result.StoreName.Should().Be("airslip-development");
-            result.AirslipUserInfo.Should().Be("b951eMbRF6NelKyGXt8cRaj%2Fflv3G2GKHQ3N0vhPQhscLKW2bk6JoOc5rS4EzFP7MV%2F5ugljPQikkfowmDsZpomRpwieoZ41TMIgMu2H0nGx77YHnhearD2hFNkOvGd1");
+            result.EncryptedUserInfo.Should().Be("b951eMbRF6NelKyGXt8cRaj%2Fflv3G2GKHQ3N0vhPQhscLKW2bk6JoOc5rS4EzFP7MV%2F5ugljPQikkfowmDsZpomRpwieoZ41TMIgMu2H0nGx77YHnhearD2hFNkOvGd1");
             result.BaseUri.Should().Be("https://airslip-development.myshopify.com");
             result.ShortLivedCode.Should().Be("9eb34b1a83917cee25bb0199c8711bab");
             result.PermanentAccessUrl.Should().Be("https://airslip-development.myshopify.com/admin/oauth/access_token");

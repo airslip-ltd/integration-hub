@@ -34,7 +34,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             string projectName = "Airslip.IntegrationHub";
             Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
             Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
-            Mock<ITokenDecodeService<ApiKeyToken>> tokenDecodeServiceMock = new();
             Mock<ILogger> loggerMock = new();
             _encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
             SettingCollection<ProviderSetting> settings = Factory.ProviderConfiguration;
@@ -45,10 +44,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                 .Setup(s => s.Value)
                 .Returns(settings);
 
-            tokenDecodeServiceMock
-                .Setup(s => s.GetCurrentToken())
-                .Returns(new ApiKeyToken {AirslipUserType = AirslipUserType.Merchant, EntityId = "entity-id"});
-
             providerAuthorisingDetailMock
                 .Setup(s => s.Map<ProviderAuthorisingDetail>(It.IsAny<object>()))
                 .Returns(Factory.ProviderAuthorisingDetail);
@@ -56,7 +51,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             _sut = new ProviderDiscoveryService(
                 providerSettingsMock.Object,
                 publicApiSettingsMock.Object,
-                tokenDecodeServiceMock.Object,
                 _encryptionSettings.Object,
                 providerHttpClient.Object,
                 providerAuthorisingDetailMock.Object,
@@ -91,12 +85,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
 
             string queryStringWithoutState = queryParams.ToQueryStringUrl(queryWithoutQueryString);
             queryStringWithoutState.Should().Be(expectedResult);
-
-            string serialisedEncryption =
-                StringCipher.Decrypt(keyValuePair.Value, _encryptionSettings.Object.Value.PassPhraseToken);
-            UserInformation userInformation = Json.Deserialize<UserInformation>(serialisedEncryption);
-            userInformation.UserType.Should().Be(AirslipUserType.Merchant);
-            userInformation.EntityId.Should().Be("entity-id");
         }
 
         [Fact]
@@ -134,7 +122,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             providerDetails.DestinationBaseUri.Should().Be("https://dev-integrations.airslip.com/api2cart/v1");
             providerDetails.AuthorisingDetail.PermanentAccessUrl.Should().Be("permanent-access-url");
             providerDetails.AuthorisingDetail.BaseUri.Should().Be("base-uri");
-            providerDetails.AuthorisingDetail.AirslipUserInfo.Should().Be("airslip-user-info");
+            providerDetails.AuthorisingDetail.EncryptedUserInfo.Should().Be("airslip-user-info");
             providerDetails.AuthorisingDetail.StoreName.Should().Be("store-name");
             providerDetails.AuthorisingDetail.ShortLivedCode.Should().Be("short-lived-code");
         }
@@ -162,7 +150,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             providerDetails.DestinationBaseUri.Should().Be("https://dev-integrations.airslip.com/api2cart/v1");
             providerDetails.AuthorisingDetail.PermanentAccessUrl.Should().BeEmpty();
             providerDetails.AuthorisingDetail.BaseUri.Should().BeNull();
-            providerDetails.AuthorisingDetail.AirslipUserInfo.Should().BeEmpty();
+            providerDetails.AuthorisingDetail.EncryptedUserInfo.Should().BeEmpty();
             providerDetails.AuthorisingDetail.StoreName.Should().BeEmpty();
             providerDetails.AuthorisingDetail.ShortLivedCode.Should().BeEmpty();
         }
