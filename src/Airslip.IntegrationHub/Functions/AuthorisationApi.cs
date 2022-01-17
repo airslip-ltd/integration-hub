@@ -1,4 +1,5 @@
 ﻿using Airslip.Common.Auth.Data;
+using Airslip.Common.Auth.Functions.Attributes;
 using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Auth.Functions.Interfaces;
 using Airslip.Common.Auth.Models;
@@ -33,6 +34,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")] 
         [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string), Description = "The URL to be used to start an external authorisation process")]
         [Function("GenerateAuthorisationUrl")]
+        [ApiKeyAuthorize]
         public static async Task<HttpResponseData> GenerateAuthUrl(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/{provider}/generate-url")]
             HttpRequestData req,
@@ -40,16 +42,8 @@ namespace Airslip.IntegrationHub.Functions
             string provider)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IApiRequestAuthService authService = executionContext.InstanceServices.GetService<IApiRequestAuthService>() ?? throw new NotImplementedException();
-            KeyAuthenticationResult authenticationResult = await authService.Handle(req);
-            
-            if (authenticationResult.AuthResult != AuthResult.Success)
-            {
-                logger.Error("Authorisation unsuccessful {ErrorMessage}", authenticationResult.Message);
-                return req.CreateResponse(HttpStatusCode.Unauthorized);
-            }
-            
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices
+                .GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             
             bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
 
