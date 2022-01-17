@@ -23,7 +23,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
 {
     public class ProviderDiscoveryService : IProviderDiscoveryService
     {
-        private readonly ITokenDecodeService<ApiKeyToken> _tokenDecodeService;
         private readonly SettingCollection<ProviderSetting> _providerSettings;
         private readonly PublicApiSettings _publicApiSettings;
         private readonly IOptions<EncryptionSettings> _encryptionOptions;
@@ -34,13 +33,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
         public ProviderDiscoveryService(
             IOptions<SettingCollection<ProviderSetting>> providerOptions,
             IOptions<PublicApiSettings> publicApiOptions,
-            ITokenDecodeService<ApiKeyToken> tokenDecodeService,
             IOptions<EncryptionSettings> encryptionOptions,
             IHttpClientFactory httpClientFactory, 
             IMapper mapper,
             ILogger logger)
         {
-            _tokenDecodeService = tokenDecodeService;
             _encryptionOptions = encryptionOptions;
             _providerSettings = providerOptions.Value;
             _publicApiSettings = publicApiOptions.Value;
@@ -90,7 +87,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             
             ProviderSetting providerSetting = GetProviderSettings(provider.ToString());
 
-            string encryptedUserInformation = GetEncryptedUserInformation();
+            string encryptedUserInformation = GetEncryptedUserInformation(queryString);
 
             switch (provider)
             {
@@ -175,7 +172,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
             }
             
             string content = await response.Content.ReadAsStringAsync();
-            ProviderAuthorisation providerAuthResponse = GetProviderAuthResponse(providerDetails.Provider, providerDetails.ProviderSetting, content);
+            ProviderAuthorisation providerAuthResponse = GetProviderAuthResponse(providerDetails.Provider, 
+                providerDetails.ProviderSetting, content);
+
+            string decryptedUserInfo = StringCipher.Decrypt(providerDetails.AuthorisingDetail.EncryptedUserInfo, 
+                _encryptionOptions.Value.PassPhraseToken);
+            UserInformation userInformation = Json.Deserialize<UserInformation>(decryptedUserInfo);
             
             return new MiddlewareAuthorisationRequest
             {
@@ -184,7 +186,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 StoreUrl =  providerDetails.AuthorisingDetail.BaseUri ?? providerDetails.ProviderSetting.BaseUri,
                 Login = providerAuthResponse.Login,
                 Password = providerAuthResponse.Password,
-                Reference = providerDetails.AuthorisingDetail.AirslipUserInfo
+                EntityId = userInformation.EntityId,
+                UserId = userInformation.UserId,
+                AirslipUserType = userInformation.AirslipUserType
             };
         }
 
@@ -219,12 +223,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
             };
         }
 
-        private string GetEncryptedUserInformation()
+        private string GetEncryptedUserInformation(string queryString)
         {
-            ApiKeyToken apiKeyToken = _tokenDecodeService.GetCurrentToken();
-
-            UserInformation userInformation = new(apiKeyToken.AirslipUserType, apiKeyToken.EntityId);
-            string serialisedUserInformation = Json.Serialize(userInformation);
+            UserInformation userAuthRequest = queryString.GetQueryParams<UserInformation>();
+            // UserInformation userInformation = new(userAuthRequest.AirslipUserType, userAuthRequest.EntityId, 
+            //     userAuthRequest.UserId);
+            string serialisedUserInformation = Json.Serialize(userAuthRequest);
 
             return StringCipher.EncryptForUrl(serialisedUserInformation, _encryptionOptions.Value.PassPhraseToken);
         }
@@ -235,9 +239,17 @@ namespace Airslip.IntegrationHub.Core.Implementations
         public bool IsOnline { get; set; }
         public string Shop { get; set; } = string.Empty;
     }
+    
+    public class UserAuthRequest
+    {
+        public AirslipUserType AirslipUserType { get; set; } = AirslipUserType.Standard;
+        public string EntityId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+    }
 
     public interface IProvider
     {
+        
     }
 
     public class PermanentAccessBase

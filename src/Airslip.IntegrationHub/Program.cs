@@ -1,4 +1,5 @@
 using Airslip.Common.Auth.Functions.Extensions;
+using Airslip.Common.Auth.Functions.Middleware;
 using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
@@ -40,7 +41,12 @@ namespace Airslip.IntegrationHub
                 {
                     configurationBuilder.AddCommandLine(args);
                 })
-                .ConfigureFunctionsWorkerDefaults(worker => worker.UseNewtonsoftJson())
+                .ConfigureFunctionsWorkerDefaults(worker =>
+                {
+                    worker.UseNewtonsoftJson();
+                    worker.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+                    worker.UseMiddleware<ApiKeyAuthorisationMiddleware>();
+                })
                 .ConfigureOpenApi()
                 .ConfigureHostConfiguration(builder =>
                 {
@@ -84,9 +90,6 @@ namespace Airslip.IntegrationHub
                     services
                         .AddProviderAuthorisation(context.Configuration);
                     
-                    // services
-                    //     .AddHttpClient();
-                    //
                     services
                         .AddHttpClient<IntegrationMiddlewareClient>((serviceProvider, httpClient) =>
                         {

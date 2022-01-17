@@ -18,7 +18,7 @@ namespace Airslip.IntegrationHub.Core
                 .CreateMap<ShopifyProviderAuthorisingDetail, ProviderAuthorisingDetail>()
                 .ForMember(d => d.StoreName, c => c.MapFrom(s => s.Shop.Replace(".myshopify.com", "")))
                 .ForMember(d => d.ShortLivedCode, c => c.MapFrom(s => s.Code))
-                .ForMember(d => d.AirslipUserInfo, c => c.MapFrom(s => s.State))
+                .ForMember(d => d.EncryptedUserInfo, c => c.MapFrom(s => s.State))
                 .ForMember(d => d.BaseUri, c => c.MapFrom(s => string.Format(providerSetting.BaseUri, s.Shop)))
                 .ForMember(d => d.PermanentAccessUrl,
                     c => c.MapFrom(s => $"https://{s.Shop}/admin/oauth/access_token"));
