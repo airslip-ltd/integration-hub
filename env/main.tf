@@ -63,6 +63,7 @@ module "func_app_host" {
       app_settings = {
         "EnvironmentSettings:EnvironmentName": var.environment,
         "PublicApiSettings:Settings:Base:BaseUri": local.integrations_hostname,
+        "PublicApiSettings:Settings:Base:UriSuffix": "oauth",
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
