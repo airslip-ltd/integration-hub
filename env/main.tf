@@ -65,6 +65,7 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Base:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Base:UriSuffix": "oauth",
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
+        "PublicApiSettings:Settings:Api2Cart:UriSuffix": "api2cart",
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Vend:ApiKey": local.api_key,
