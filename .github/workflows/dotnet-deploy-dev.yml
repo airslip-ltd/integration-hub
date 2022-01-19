@@ -16,7 +16,7 @@ jobs:
       ENVIRONMENT_NAME: Development
       ENVIRONMENT_NAME_SHORT: dev
       PUBLISH_PATH: ./src
-      APPSERVICE_NAME: customer-portal-api
+      APPSERVICE_NAME: integration-hub
     steps:
     - uses: actions/checkout@v2
       with:
