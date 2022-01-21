@@ -42,6 +42,9 @@ namespace Airslip.IntegrationHub
 
             try
             {
+                _logger.Information("Posting to integration middleware for Url {PostUrl}",
+                    url);
+                
                 HttpRequestMessage httpRequestMessage = new()
                 {
                     Method = HttpMethod.Post,
@@ -57,6 +60,9 @@ namespace Airslip.IntegrationHub
                 };
 
                 HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
+                
+                _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}",
+                    url, response.StatusCode);
 
                 return await response.CommonResponseHandler<AccountResponse>();
             }
