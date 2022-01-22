@@ -61,8 +61,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             "",
             "state",
             "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Vend")]
-        public void Can_generate_callback_url(PosProviders provider, string queryString, string relayQueryString,
-            string expectedResult)
+        public void Can_generate_callback_url(PosProviders provider, string queryString, string relayQueryString, string expectedResult)
         {
             string callBackUrl = _sut.GenerateCallbackUrl(provider, queryString);
 

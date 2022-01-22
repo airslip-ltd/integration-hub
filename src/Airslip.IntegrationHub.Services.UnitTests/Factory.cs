@@ -25,7 +25,8 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     {
                         BaseUri = "https://{0}",
                         AppId = "client-id",
-                        AppSecret = "client-secret"
+                        AppSecret = "client-secret",
+                        Scope = "read_orders,read_products,read_inventory",
                     }
                 }
             }
