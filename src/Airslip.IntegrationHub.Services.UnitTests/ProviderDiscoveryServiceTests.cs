@@ -1,11 +1,7 @@
-using Airslip.Common.Auth.Interfaces;
-using Airslip.Common.Auth.Models;
 using Airslip.Common.Security.Configuration;
-using Airslip.Common.Security.Implementations;
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
-using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
@@ -27,7 +23,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
     public class ProviderDiscoveryServiceTests
     {
         private readonly ProviderDiscoveryService _sut;
-        private readonly Mock<IOptions<EncryptionSettings>> _encryptionSettings;
 
         public ProviderDiscoveryServiceTests()
         {
@@ -35,7 +30,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
             Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
             Mock<ILogger> loggerMock = new();
-            _encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
+            Mock<IOptions<EncryptionSettings>> encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
             SettingCollection<ProviderSetting> settings = Factory.ProviderConfiguration;
             Mock<IHttpClientFactory> providerHttpClient = new();
             Mock<IMapper> providerAuthorisingDetailMock = new();
@@ -51,7 +46,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             _sut = new ProviderDiscoveryService(
                 providerSettingsMock.Object,
                 publicApiSettingsMock.Object,
-                _encryptionSettings.Object,
+                encryptionSettings.Object,
                 providerHttpClient.Object,
                 providerAuthorisingDetailMock.Object,
                 loggerMock.Object);
