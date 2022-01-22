@@ -61,6 +61,16 @@ namespace Airslip.IntegrationHub
 
                 HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
                 
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.Error(
+                        "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}", 
+                        providerDetails.AuthorisingDetail.PermanentAccessUrl, 
+                        response.StatusCode);
+                    
+                    throw new Exception("Error exchanging short lived token in the providers middleware");
+                }
+                
                 _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}",
                     url, response.StatusCode);
 
