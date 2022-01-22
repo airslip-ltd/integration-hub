@@ -100,7 +100,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                     string grantOptions = auth.IsOnline ? "per-user" : "value";
                     return
-                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope=read_orders,read_products,read_inventory&redirect_uri={redirectUri}&state={encryptedUserInformation}&grant_options[]={grantOptions}";
+                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation}&grant_options[]={grantOptions}";
                 case PosProviders.Stripe:
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
