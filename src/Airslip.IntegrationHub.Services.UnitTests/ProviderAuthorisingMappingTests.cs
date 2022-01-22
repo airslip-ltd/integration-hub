@@ -1,34 +1,26 @@
-using Airslip.Common.Security.Configuration;
-using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.IntegrationHub.Core;
 using Airslip.IntegrationHub.Core.Models;
 using AutoMapper;
 using FluentAssertions;
-using Microsoft.Extensions.Options;
-using Moq;
 using Xunit;
 
 namespace Airslip.IntegrationHub.Services.UnitTests
 {
     public class ProviderAuthorisingMappingTests
     {
-        private readonly Mock<IOptions<EncryptionSettings>> _encryptionSettings;
-        private readonly MapperConfiguration _config;
         private readonly IMapper _mapper;
         
         public ProviderAuthorisingMappingTests()
         {
-            string projectName = "Airslip.IntegrationHub";
-            _encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
             SettingCollection<ProviderSetting> settings = Factory.ProviderConfiguration;
             
-            _config = new MapperConfiguration(cfg =>
+            MapperConfiguration config = new(cfg =>
             {
                 cfg.AddShopify(settings);
             });
             
-            _mapper = new Mapper(_config);
+            _mapper = new Mapper(config);
         }
 
         [Fact]

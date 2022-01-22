@@ -1,8 +1,6 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Attributes;
 using Airslip.Common.Auth.Functions.Extensions;
-using Airslip.Common.Auth.Functions.Interfaces;
-using Airslip.Common.Auth.Models;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
