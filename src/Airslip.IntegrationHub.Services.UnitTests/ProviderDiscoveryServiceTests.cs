@@ -38,10 +38,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                 .Setup(s => s.Value)
                 .Returns(settings);
 
-            // providerAuthorisingDetailMock
-            //     .Setup(s => s.Map<ProviderAuthorisingDetail>(It.IsAny<object>()))
-            //     .Returns(Factory.ProviderAuthorisingDetail);
-
             _sut = new ProviderDiscoveryService(
                 providerSettingsMock.Object,
                 publicApiSettingsMock.Object,
