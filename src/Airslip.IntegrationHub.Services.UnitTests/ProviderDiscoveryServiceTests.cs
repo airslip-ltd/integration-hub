@@ -99,11 +99,11 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             "https://dev-integrations.airslip.com/api2cart/v1",
             "https://airslip-development.myshopify.com/admin/oauth/access_token",
             "https://airslip-development.myshopify.com")]
-        [InlineData("Squarespace",
-            "?code=9eb34b1a83917cee25bb0199c8711bab&shop=airslip-development.squarespace.com&state=b951eMbRF6NelKyGXt8cRaj%2Fflv3G2GKHQ3N0vhPQhscLKW2bk6JoOc5rS4EzFP7MV%2F5ugljPQikkfowmDsZpomRpwieoZ41TMIgMu2H0nGx77YHnhearD2hFNkOvGd1",
-            "https://dev-integrations.airslip.com/api2cart/v1",
-            "https://login.squarespace.com/api/1/login/oauth/provider/tokens",
-            "")]
+        // [InlineData("Squarespace",
+        //     "?code=9eb34b1a83917cee25bb0199c8711bab&shop=airslip-development.squarespace.com&state=b951eMbRF6NelKyGXt8cRaj%2Fflv3G2GKHQ3N0vhPQhscLKW2bk6JoOc5rS4EzFP7MV%2F5ugljPQikkfowmDsZpomRpwieoZ41TMIgMu2H0nGx77YHnhearD2hFNkOvGd1",
+        //     "https://dev-integrations.airslip.com/api2cart/v1",
+        //     "https://login.squarespace.com/api/1/login/oauth/provider/tokens",
+        //     "")]
         // [InlineData("Cart3D")]
         // [InlineData("Cart3DApi")]
         // [InlineData("AmazonSP")]
