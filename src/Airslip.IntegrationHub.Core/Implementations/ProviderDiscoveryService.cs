@@ -25,7 +25,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
         private readonly PublicApiSettings _publicApiSettings;
         private readonly IOptions<EncryptionSettings> _encryptionOptions;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMapper _mapper;
         private readonly ILogger _logger;
 
         public ProviderDiscoveryService(
@@ -33,7 +32,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
             IOptions<PublicApiSettings> publicApiOptions,
             IOptions<EncryptionSettings> encryptionOptions,
             IHttpClientFactory httpClientFactory, 
-            IMapper mapper,
             ILogger logger)
         {
             _encryptionOptions = encryptionOptions;
@@ -41,7 +39,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
             _publicApiSettings = publicApiOptions.Value;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
-            _mapper = mapper;
         }
 
         public ProviderDetails GetProviderDetails(string provider, string queryString)
@@ -59,8 +56,15 @@ namespace Airslip.IntegrationHub.Core.Implementations
             switch (posProvider)
             {
                 case PosProviders.Shopify:
-                    ShopifyProviderAuthorisingDetail parameters = queryString.GetQueryParams<ShopifyProviderAuthorisingDetail>();
-                    authorisingDetail = _mapper.Map<ProviderAuthorisingDetail>(parameters);
+                    ShopifyProviderAuthorisingDetail shopifyParams = queryString.GetQueryParams<ShopifyProviderAuthorisingDetail>();
+                    authorisingDetail = shopifyParams;
+                    authorisingDetail.BaseUri = string.Format(providerSetting.BaseUri, shopifyParams.Shop);
+                    authorisingDetail.PermanentAccessUrl = $"https://{shopifyParams.Shop}/admin/oauth/access_token";
+                    authorisingDetail.StoreName = shopifyParams.Shop.Replace(".myshopify.com", "");
+                    break;
+                case PosProviders.Squarespace:
+                    authorisingDetail = queryString.GetQueryParams<SquarespaceProviderAuthorisingDetail>();
+                    authorisingDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     break;
             }
 
@@ -106,6 +110,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.IZettle:
                 case PosProviders.EposNow:
                 case PosProviders.Square:
+                case PosProviders.Squarespace:
+                    SquarespaceProvider squarespaceAuth = queryString.GetQueryParams<SquarespaceProvider>();
+                    return
+                        $"{string.Format(providerSetting.BaseUri, squarespaceAuth.Shop)}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation}&access_type=offline";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
@@ -167,6 +175,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}", 
                     providerDetails.AuthorisingDetail.PermanentAccessUrl, 
                     response.StatusCode);
+                throw new Exception("Error getting permanent access token");
             }
             
             string content = await response.Content.ReadAsStringAsync();
@@ -208,6 +217,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             return provider switch
             {
                 PosProviders.Shopify => PosProviders.Api2Cart.ToString(),
+                PosProviders.Squarespace => PosProviders.Api2Cart.ToString(),
                 PosProviders.Volusion => PosProviders.Api2Cart.ToString(),
                 _ => provider.ToString()
             };
@@ -248,6 +258,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
     public interface IProvider
     {
         
+    }
+    
+    public class SquarespaceProvider : IProvider
+    {
+        public string Shop { get; set; } = string.Empty;
     }
 
     public class PermanentAccessBase

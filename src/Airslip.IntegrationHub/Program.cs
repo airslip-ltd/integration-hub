@@ -102,12 +102,6 @@ namespace Airslip.IntegrationHub
                     SettingCollection<ProviderSetting> appSettings = new();
                     context.Configuration.GetSection($"{nameof(ProviderSetting)}s").Bind(appSettings);
                     
-                    services
-                        .AddAutoMapper(expression =>
-                        {
-                            expression.AddShopify(appSettings);
-                        });
-                    
                 })
                 .Build();
 

@@ -28,6 +28,15 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                         AppSecret = "client-secret",
                         Scope = "read_orders,read_products,read_inventory",
                     }
+                },
+                {
+                    PosProviders.Squarespace.ToString(), new ProviderSetting
+                    {
+                        BaseUri = "https://{0}.squarespace.com",
+                        AppId = "client-id",
+                        AppSecret = "client-secret",
+                        Scope = "website.orders.read,website.transactions.read,website.inventory.read,website.products.read"
+                    }
                 }
             }
         };
