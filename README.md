@@ -1,6 +1,6 @@
 # integration-hub
 
-To be used for all external authorisation services using OAUTH
+Middleware repository to authorise and direct traffic to the correct checkout provider.
 
 # Providers
 
