@@ -7,30 +7,36 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | Name | Auth Type |
 |:- |:- |
 | Shift4Shop REST API | OAUTH |
-| Shift4Shop | Basic |
-| AspDotNetStoreFront | Basic |
-| AceShop | Bridge File |
 | Amazon | OAUTH |
 | Amazon SP API | OAUTH |
 | BigCommerce | OAUTH |
-| CommerceHQ eCommerce | Basic |
-| Cscart | Bridge File |
-| Cubecart | Bridge File |
 | Demandware | OAUTH |
 | eBay | OAUTH |
 | Ecwid | OAUTH |
 | Etsy | OAUTH |
 | Etsy API v3 | OAUTH |
-| Gambio | Bridge File |
+| Magento 2 API | OAUTH |
+| Shopify | OAUTH |
+| Squarespace | OAUTH |
+| WooCommerce API | OAUTH |
+| Walmart | OAUTH |
+| Shift4Shop | Basic |
+| AspDotNetStoreFront | Basic |
+| CommerceHQ eCommerce | Basic |
 | Hybris | Basic |
 | LightSpeed eCommerce | Basic |
+| Neto | Basic |
+| Shopware API | Basic |
+| Volusion | Basic |
+| AceShop | Bridge File |
+| Cscart | Bridge File |
+| Cubecart | Bridge File |
+| Gambio | Bridge File |
 | Loaded Commerce | Bridge File |
 | Interspire | Bridge File |
 | JooCart | Bridge File |
 | Magento | Bridge File |
-| Magento 2 API | OAUTH |
 | MijoShop | Bridge File |
-| Neto | Basic |
 | OpenCart | Bridge File |
 | OscMax | Bridge File |
 | Oscommerce | Bridge File |
@@ -38,18 +44,12 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | Pinnacle | Bridge File |
 | PrestaShop | Bridge File |
 | Shop-Script Premium | Bridge File |
-| Shopify | OAUTH |
 | Shopware | Bridge File |
-| Shopware API | Basic |
-| Squarespace | OAUTH |
 | Tomatocart | Bridge File |
 | Ubercart | Bridge File |
 | Virtuemart | Bridge File |
-| Volusion | Basic |
 | WPecommerce | Bridge File |
 | WooCommerce | Bridge File |
-| WooCommerce API | OAUTH |
-| Walmart | OAUTH |
 | WebAsyst | Bridge File |
 | Xcart | Bridge File |
 | Xtcommerce | Bridge File |
