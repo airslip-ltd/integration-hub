@@ -23,7 +23,7 @@ namespace Airslip.IntegrationHub.Core.Interfaces
             string shortLivedCode);
 
         MiddlewareAuthorisationRequest GetMiddlewareAuthorisation(
-            PosProviders provider,
+            ProviderDetails providerDetails,
             BasicAuthorisationDetail basicAuthorisationDetail,
             string? storeUrl = null);
 

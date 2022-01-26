@@ -10,9 +10,9 @@ namespace Airslip.IntegrationHub.Core.Models
         public string AppSecret { get; set; } = string.Empty;
         public ProviderAuthStrategy AuthStrategy { get; set; }
 
-        public void FormatBaseUri(string value)
+        public string FormatBaseUri(string value)
         {
-            BaseUri = string.Format(BaseUri, value);
+            return string.Format(BaseUri, value);
         }
     }
 }
