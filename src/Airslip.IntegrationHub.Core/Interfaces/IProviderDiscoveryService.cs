@@ -9,18 +9,26 @@ namespace Airslip.IntegrationHub.Core.Interfaces
 {
     public interface IProviderDiscoveryService
     {
-        ProviderSetting GetProviderSettings(string provider);
-        ProviderDetails GetProviderDetails(string provider, string queryString);
+        ProviderSetting GetProviderSettings(PosProviders provider);
+        ProviderDetails GetProviderDetails(PosProviders provider);
         string GenerateCallbackUrl(PosProviders provider, string queryString);
-        bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings);
-        Task<MiddlewareAuthorisationRequest> GetBody(string provider);
+
+        bool ValidateHmac(
+            PosProviders provider,
+            List<KeyValuePair<string, string>> queryStrings);
+
         PermanentAccessBase GetPermanentAccessBody(
             PosProviders provider,
             ProviderSetting providerSetting,
             string shortLivedCode);
 
+        MiddlewareAuthorisationRequest GetMiddlewareAuthorisation(
+            PosProviders provider,
+            BasicAuthorisationDetail basicAuthorisationDetail,
+            string? storeUrl = null);
+
         Task<MiddlewareAuthorisationRequest> QueryPermanentAccessToken(
-            string provider, 
-            ProviderDetails providerDetails);
+            ProviderDetails providerDetails,
+            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail);
     }
 }

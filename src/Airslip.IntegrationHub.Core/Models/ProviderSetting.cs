@@ -1,3 +1,5 @@
+using Airslip.IntegrationHub.Core.Interfaces;
+
 namespace Airslip.IntegrationHub.Core.Models
 {
     public record ProviderSetting
@@ -6,6 +8,11 @@ namespace Airslip.IntegrationHub.Core.Models
         public string Scope { get; set; } = string.Empty;
         public string AppId { get; set; } = string.Empty;
         public string AppSecret { get; set; } = string.Empty;
-        public bool ShortLivedCodeProcess { get; set; }
+        public ProviderAuthStrategy AuthStrategy { get; set; }
+
+        public void FormatBaseUri(string value)
+        {
+            BaseUri = string.Format(BaseUri, value);
+        }
     }
 }
