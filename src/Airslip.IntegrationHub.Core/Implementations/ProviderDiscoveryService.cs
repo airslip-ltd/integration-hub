@@ -109,6 +109,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             PosProviders provider,
             List<KeyValuePair<string, string>> queryStrings)
         {
+            // Need to add for WooCommerce
             string? hmacKey = GetHmacKey(provider);
 
             if (hmacKey is null)
