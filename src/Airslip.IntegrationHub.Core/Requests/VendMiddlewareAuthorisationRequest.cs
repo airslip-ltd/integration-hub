@@ -8,7 +8,7 @@ namespace Airslip.IntegrationHub.Core.Requests
         public string ShortLivedAuthorisationCode { get; set; } = string.Empty;
 
         [JsonProperty(PropertyName = "domain_prefix")]
-        public new string StoreName { get; set; } = string.Empty;
+        public override string StoreName { get; set; } = string.Empty;
 
         [JsonProperty(PropertyName = "user_id")]
         public string VendUserId { get; set; } = string.Empty;

@@ -18,6 +18,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using System.IO;
@@ -45,12 +46,10 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext,
             string provider)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
-                             throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices
-                .GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
 
-            bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
+            bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
             if (!supportedProvider)
             {
@@ -82,7 +81,7 @@ namespace Airslip.IntegrationHub.Functions
             //IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             IntegrationMiddlewareClient httpClient = executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ?? throw new NotImplementedException();
 
-            bool supportedProvider = Enum.TryParse(provider, true, out PosProviders parsedProvider);
+            bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
             if (!supportedProvider)
             {
@@ -121,15 +120,16 @@ namespace Airslip.IntegrationHub.Functions
                     ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail = shopifyParams;
                     shopifyShortLivedAuthDetail.FormatBaseUri(shopifyParams.Shop);
                     shopifyShortLivedAuthDetail.PermanentAccessUrl = $"https://{shopifyParams.Shop}/admin/oauth/access_token";
-                    shopifyShortLivedAuthDetail.StoreName = shopifyParams.Shop.Replace(".myshopify.com", "");
+                    //shopifyShortLivedAuthDetail.StoreName = shopifyParams.Shop.Replace(".myshopify.com", "");
                     return shopifyShortLivedAuthDetail;
                 case PosProviders.Squarespace:
                     ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail = req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
                     // Get Base Uri
                     squarespaceShortLivedAuthDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     return squarespaceShortLivedAuthDetail;
-                case PosProviders.Woocommerce:
-                    BasicAuthorisationDetail wooCommerceAuthDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetailDetail>();
+                case PosProviders.WoocommerceApi:
+                    BasicAuthorisationDetail wooCommerceAuthDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
+                    
                     return wooCommerceAuthDetail;
                 default:
                     throw new NotImplementedException();

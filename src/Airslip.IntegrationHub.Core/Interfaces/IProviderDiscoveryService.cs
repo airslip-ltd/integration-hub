@@ -30,5 +30,7 @@ namespace Airslip.IntegrationHub.Core.Interfaces
         Task<MiddlewareAuthorisationRequest> QueryPermanentAccessToken(
             ProviderDetails providerDetails,
             ShortLivedAuthorisationDetail shortLivedAuthorisationDetail);
+
+        SensitiveCallbackInfo DecryptCallbackInfo(string cipherString);
     }
 }
