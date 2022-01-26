@@ -19,7 +19,10 @@ using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Web;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -44,8 +47,11 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext,
             string provider)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
+                             throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService =
+                executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ??
+                throw new NotImplementedException();
 
             bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
@@ -75,9 +81,14 @@ namespace Airslip.IntegrationHub.Functions
             string provider,
             FunctionContext executionContext)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            //IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
-            IntegrationMiddlewareClient httpClient = executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ?? throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
+                             throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService =
+                executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ??
+                throw new NotImplementedException();
+            IntegrationMiddlewareClient httpClient =
+                executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ??
+                throw new NotImplementedException();
 
             bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
@@ -87,19 +98,19 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            // Validate HMAC another way, Using the strongly typed object
-            // List<KeyValuePair<string, string>> queryStrings = req.Url.Query.GetQueryParams().ToList();
-            //
-            // bool isValid = providerDiscoveryService.ValidateHmac(parsedProvider, queryStrings);
-            //
-            // if (!isValid)
-            // {
-            //     logger.Warning("There has been a problem validating the callback request");
-            //     return req.CreateResponse(HttpStatusCode.BadRequest);
-            // }
- 
+            //Validate HMAC another way, Using the strongly typed object
+            List<KeyValuePair<string, string>> queryStrings = GetParameters(parsedProvider, req);
+
+            bool isValid = providerDiscoveryService.ValidateHmac(parsedProvider, queryStrings);
+
+            if (!isValid)
+            {
+                logger.Warning("There has been a problem validating the callback request");
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
             IProviderAuthorisation providerAuthorisingDetail = GetProviderAuthorisationDetail(parsedProvider, req);
-            
+
             IResponse authorisedResponse = await httpClient.SendToMiddleware(parsedProvider, providerAuthorisingDetail);
 
             return await req.CommonResponseHandler<AccountResponse>(authorisedResponse);
@@ -107,39 +118,68 @@ namespace Airslip.IntegrationHub.Functions
 
         // Move to file on its own within this project
         private static IProviderAuthorisation GetProviderAuthorisationDetail(
-            PosProviders provider, 
+            PosProviders provider,
             HttpRequestData req)
         {
-
             switch (provider)
             {
                 case PosProviders.Shopify:
                     ShopifyAuthorisingDetail shopifyParams = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
                     ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail = shopifyParams;
                     shopifyShortLivedAuthDetail.FormatBaseUri(shopifyParams.Shop);
-                    shopifyShortLivedAuthDetail.PermanentAccessUrl = $"https://{shopifyParams.Shop}/admin/oauth/access_token";
+                    shopifyShortLivedAuthDetail.PermanentAccessUrl =
+                        $"https://{shopifyParams.Shop}/admin/oauth/access_token";
                     //shopifyShortLivedAuthDetail.StoreName = shopifyParams.Shop.Replace(".myshopify.com", "");
                     return shopifyShortLivedAuthDetail;
                 case PosProviders.Squarespace:
-                    ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail = req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
+                    ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail =
+                        req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
                     // Get Base Uri
-                    squarespaceShortLivedAuthDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
+                    squarespaceShortLivedAuthDetail.PermanentAccessUrl =
+                        "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     return squarespaceShortLivedAuthDetail;
                 case PosProviders.WoocommerceApi:
-                    BasicAuthorisationDetail wooCommerceAuthDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
-                    
+                    BasicAuthorisationDetail wooCommerceAuthDetail =
+                        req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
+
                     return wooCommerceAuthDetail;
                 default:
                     throw new NotImplementedException();
             }
         }
-        
+
+        private static List<KeyValuePair<string, string>> GetParameters(
+            PosProviders provider,
+            HttpRequestData req)
+        {
+            switch (provider)
+            {
+                case PosProviders.Shopify:
+                case PosProviders.Squarespace:
+                    return req.Url.Query.GetQueryParams().ToList();
+                case PosProviders.WoocommerceApi:
+                    WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
+                    string queryString = wooCommerceAuthorisationDetail.GetQueryString();
+                    return  queryString.GetQueryParams(true).ToList();
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         // Move to common
         public static T DeserializeStream<T>(this Stream requestBody) where T : class
         {
             StreamReader sr = new(requestBody);
             string payload = sr.ReadToEnd();
             return Json.Deserialize<T>(payload);
+        }
+        
+        public static string GetQueryString(this object obj) {
+            IEnumerable<string> properties = from p in obj.GetType().GetProperties()
+                where p.GetValue(obj, null) != null
+                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
+
+            return string.Join("&", properties.ToArray());
         }
     }
 }
