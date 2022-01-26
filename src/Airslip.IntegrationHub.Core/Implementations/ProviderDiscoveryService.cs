@@ -87,7 +87,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                     string grantOptions = auth.IsOnline ? "per-user" : "value";
                     return
-                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&grant_options[]={grantOptions}";
+                        $"{string.Format(providerSetting.FormatBaseUri(auth.Shop))}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&grant_options[]={grantOptions}";
                 case PosProviders.Stripe:
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
@@ -95,11 +95,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.WoocommerceApi:
                     WooCommerceProvider wooCommerce = queryString.GetQueryParams<WooCommerceProvider>();
                     return
-                        $"{wooCommerce.Shop}/wc-auth/v1/authorize?app_name=Airslip&scope={providerSetting.Scope}&user_id={cipherUrl}&return_url=https://google.com&callback_url={redirectUri}";
+                        $"{string.Format(providerSetting.FormatBaseUri(wooCommerce.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerSetting.Scope}&user_id={cipherUrl}&return_url=https://google.com&callback_url={redirectUri}";
                 case PosProviders.Squarespace:
                     SquarespaceProvider squarespaceAuth = queryString.GetQueryParams<SquarespaceProvider>();
                     return
-                        $"{string.Format(providerSetting.BaseUri, squarespaceAuth.Shop)}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&access_type=offline";
+                        $"{string.Format(providerSetting.FormatBaseUri(squarespaceAuth.Shop))}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&access_type=offline";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
