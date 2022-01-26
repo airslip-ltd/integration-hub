@@ -2,5 +2,5 @@
 
 namespace Airslip.IntegrationHub.Core.Responses
 {
-    public record AuthCallbackGeneratorResponse(string CallBackUrl) : ISuccess;
+    public record AuthCallbackGeneratorResponse(string AuthorisationUrl) : ISuccess;
 }
