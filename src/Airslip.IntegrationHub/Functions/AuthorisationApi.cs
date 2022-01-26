@@ -18,9 +18,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
-using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Requests;
 using System.IO;
 
 namespace Airslip.IntegrationHub.Functions
