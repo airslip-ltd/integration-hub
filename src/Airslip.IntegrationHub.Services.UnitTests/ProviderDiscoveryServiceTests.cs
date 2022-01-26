@@ -83,7 +83,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         [Fact]
         public void Can_override_redirect_uri_for_callback_url_generator()
         {
-            string callBackUrl = _sut.GenerateCallbackUrl(PosProviders.Vend, "", redirectUri: "override-url");
+            string callBackUrl = _sut.GenerateCallbackUrl(PosProviders.Vend, "?callbackUrl=override-url");
             string urlDecodedCallbackUrl = HttpUtility.UrlDecode(callBackUrl);
 
             List<KeyValuePair<string, string>> queryParams = urlDecodedCallbackUrl.GetQueryParams(true).ToList();

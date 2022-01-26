@@ -11,7 +11,7 @@ namespace Airslip.IntegrationHub.Core.Interfaces
     {
         ProviderSetting GetProviderSettings(string provider);
         ProviderDetails GetProviderDetails(string provider, string queryString);
-        string GenerateCallbackUrl(PosProviders provider, string queryString, string? redirectUri = null);
+        string GenerateCallbackUrl(PosProviders provider, string queryString);
         bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings);
         Task<MiddlewareAuthorisationRequest> GetBody(string provider);
         PermanentAccessBase GetPermanentAccessBody(
