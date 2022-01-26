@@ -82,14 +82,15 @@ namespace Airslip.IntegrationHub.Core.Implementations
             return _providerSettings.GetSettingByName(provider);
         }
 
-        public string GenerateCallbackUrl(PosProviders provider, string queryString, string? redirectUri = null)
+        public string GenerateCallbackUrl(PosProviders provider, string queryString)
         {
+            Tuple<string, UserInformation> encryptedUserInformation = GetEncryptedUserInformation(queryString);
+            
             string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
-            redirectUri ??= $"{destinationBaseUri}/auth/callback/{provider}";
+            string redirectUri = encryptedUserInformation.Item2.CallbackUrl ?? 
+                                 $"{destinationBaseUri}/auth/callback/{provider}";
             
             ProviderSetting providerSetting = GetProviderSettings(provider.ToString());
-
-            string encryptedUserInformation = GetEncryptedUserInformation(queryString);
 
             switch (provider)
             {
@@ -231,14 +232,14 @@ namespace Airslip.IntegrationHub.Core.Implementations
             };
         }
 
-        private string GetEncryptedUserInformation(string queryString)
+        private Tuple<string, UserInformation> GetEncryptedUserInformation(string queryString)
         {
-            UserInformation userAuthRequest = queryString.GetQueryParams<UserInformation>();
-            // UserInformation userInformation = new(userAuthRequest.AirslipUserType, userAuthRequest.EntityId, 
-            //     userAuthRequest.UserId);
-            string serialisedUserInformation = Json.Serialize(userAuthRequest);
+            UserInformation userInformation = queryString.GetQueryParams<UserInformation>();
 
-            return StringCipher.EncryptForUrl(serialisedUserInformation, _encryptionOptions.Value.PassPhraseToken);
+            string serialisedUserInformation = Json.Serialize(userInformation);
+
+            return new Tuple<string, UserInformation>(StringCipher.EncryptForUrl(serialisedUserInformation, _encryptionOptions.Value.PassPhraseToken),
+                userInformation);
         }
     }
 
