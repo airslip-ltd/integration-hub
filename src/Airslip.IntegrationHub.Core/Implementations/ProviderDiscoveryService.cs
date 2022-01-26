@@ -44,7 +44,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
         public ProviderDetails GetProviderDetails(string provider, string queryString)
         {
             ProviderSetting providerSetting = GetProviderSettings(provider);
-            PosProviders posProvider = Enum.Parse<PosProviders>(provider);
+            PosProviders posProvider = Enum.Parse<PosProviders>(provider, true);
             
             string internalMiddlewareName = GetInternalProviderName(posProvider);
             
