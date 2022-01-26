@@ -41,7 +41,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             }
         };
 
-        public static ProviderAuthorisingDetail ProviderAuthorisingDetail = new()
+        public static ShortLivedAuthorisationDetail ShortLivedAuthorisationDetail = new()
         {
             ShortLivedCode = "short-lived-code",
             EncryptedUserInfo = "airslip-user-info",

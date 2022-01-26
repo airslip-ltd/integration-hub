@@ -1,9 +1,11 @@
-﻿using Airslip.Common.Types.Failures;
+﻿using Airslip.Common.Types.Enums;
+using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using System.Net.Http;
 using Airslip.IntegrationHub.Core.Interfaces;
+using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
 using Serilog;
@@ -28,15 +30,18 @@ namespace Airslip.IntegrationHub
             _httpClient = httpClient;
             _logger = logger;
         }
-
-        public async Task<IResponse> SendToMiddleware(string provider, string queryString)
+        
+        public async Task<IResponse> SendToMiddleware(PosProviders provider, IProviderAuthorisation providerAuthorisingDetail)
         {
-            ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider, queryString);
+            ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
 
-            MiddlewareAuthorisationRequest middlewareAuthorisationBody =
-                providerDetails.ProviderSetting.ShortLivedCodeProcess
-                    ? await _providerDiscoveryService.QueryPermanentAccessToken(provider, providerDetails)
-                    : await _providerDiscoveryService.GetBody(provider);
+            MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
+            {
+                ProviderAuthStrategy.ShortLived => await _providerDiscoveryService.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail)providerAuthorisingDetail),
+                ProviderAuthStrategy.Basic =>  _providerDiscoveryService.GetMiddlewareAuthorisation(provider, (BasicAuthorisationDetail)providerAuthorisingDetail),
+                ProviderAuthStrategy.Bridge => _providerDiscoveryService.GetMiddlewareAuthorisation(provider,(BasicAuthorisationDetail)providerAuthorisingDetail),
+                _ => throw new NotSupportedException()
+            };
 
             string url = Endpoints.Result(providerDetails.DestinationBaseUri, provider);
 
@@ -51,7 +56,7 @@ namespace Airslip.IntegrationHub
                     RequestUri = new Uri(url),
                     Headers =
                     {
-                        {"x-api-key", providerDetails.PublicApiSetting.ApiKey}
+                        { "x-api-key", providerDetails.PublicApiSetting.ApiKey}
                     },
                     Content = new StringContent(
                         Json.Serialize(middlewareAuthorisationBody),
@@ -65,7 +70,7 @@ namespace Airslip.IntegrationHub
                 {
                     _logger.Error(
                         "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}", 
-                        providerDetails.AuthorisingDetail.PermanentAccessUrl, 
+                        url, 
                         response.StatusCode);
                     
                     throw new Exception("Error exchanging short lived token in the providers middleware");
@@ -93,7 +98,7 @@ namespace Airslip.IntegrationHub
 
     internal static class Endpoints
     {
-        public static string Result(string baseUri, string provider) =>
+        public static string Result(string baseUri, PosProviders provider) =>
             $"{baseUri}/auth/{provider}";
     }
 }

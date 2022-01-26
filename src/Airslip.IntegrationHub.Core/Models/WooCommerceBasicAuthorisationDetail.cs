@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
-    public record ShopifyProviderAuthorisation : ProviderAuthorisation
+    public class WooCommerceBasicAuthorisationDetail : BasicAuthorisationDetail
     {
         [JsonProperty(PropertyName = "access_token")]
         public override string Password { get; set; } = string.Empty;
