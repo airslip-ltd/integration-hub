@@ -66,7 +66,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
         public string GenerateCallbackUrl(PosProviders provider, string queryString)
         {
-            (string cipherUrl, GenerateCallbackInformation generateCallbackAuthRequest) = GetEncryptedUserInformation(queryString);
+            (string cipherUrl, SensitiveCallbackInfo generateCallbackAuthRequest) = GetEncryptedUserInformation(queryString);
             
             string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
             string redirectUri = generateCallbackAuthRequest.CallbackUrl ?? 
@@ -92,7 +92,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
                 case PosProviders.EposNow:
-                case PosProviders.Woocommerce:
+                case PosProviders.WoocommerceApi:
                     WooCommerceProvider wooCommerce = queryString.GetQueryParams<WooCommerceProvider>();
                     return
                         $"{wooCommerce.Shop}/wc-auth/v1/authorize?app_name=Airslip&scope={providerSetting.Scope}&user_id={cipherUrl}&return_url=https://google.com&callback_url={redirectUri}";
@@ -142,19 +142,18 @@ namespace Airslip.IntegrationHub.Core.Implementations
             BasicAuthorisationDetail basicAuthorisationDetail,
             string? storeUrl = null)
         {
-            // Encode data
-            GenerateCallbackInformation callbackInformation = GetDecryptedCallbackInformation(basicAuthorisationDetail.EncryptedUserInfo);
+            SensitiveCallbackInfo sensitiveCallbackInfo = DecryptCallbackInfo(basicAuthorisationDetail.EncryptedUserInfo);
 
             return new MiddlewareAuthorisationRequest
             {
                 Provider = provider.ToString(),
-                StoreName = basicAuthorisationDetail.StoreName,
-                StoreUrl = storeUrl ?? callbackInformation.Shop, // Need to change to StoreUrl
+                StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
+                StoreUrl = storeUrl ?? sensitiveCallbackInfo.Shop, // Need to change to StoreUrl
                 Login = basicAuthorisationDetail.Login,
                 Password = basicAuthorisationDetail.Password,
-                EntityId = callbackInformation.EntityId,
-                UserId = callbackInformation.UserId,
-                AirslipUserType = callbackInformation.AirslipUserType
+                EntityId = sensitiveCallbackInfo.EntityId,
+                UserId = sensitiveCallbackInfo.UserId,
+                AirslipUserType = sensitiveCallbackInfo.AirslipUserType
             };
         }
 
@@ -202,7 +201,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     break;
             }
             
-            basicAuth.StoreName = shortLivedAuthorisationDetail.StoreName;
+            basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
             basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
             
             return GetMiddlewareAuthorisation(
@@ -218,7 +217,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 PosProviders.Shopify => PosProviders.Api2Cart.ToString(),
                 PosProviders.Squarespace => PosProviders.Api2Cart.ToString(),
                 PosProviders.Volusion => PosProviders.Api2Cart.ToString(),
-                PosProviders.Woocommerce => PosProviders.Api2Cart.ToString(),
+                PosProviders.WoocommerceApi => PosProviders.Api2Cart.ToString(),
                 _ => provider.ToString()
             };
         }
@@ -227,33 +226,63 @@ namespace Airslip.IntegrationHub.Core.Implementations
         {
             return provider switch
             {
-                PosProviders.Woocommerce => null,
+                PosProviders.WoocommerceApi => null,
                 _ => "hmac"
             };
         }
 
-        private (string cipherUrl, GenerateCallbackInformation generateCallbackAuthRequest) GetEncryptedUserInformation(string queryString)
+        private (string cipherUrl, SensitiveCallbackInfo generateCallbackAuthRequest) GetEncryptedUserInformation(string queryString)
         {
-            GenerateCallbackInformation generateCallbackAuthRequest = queryString.GetQueryParams<GenerateCallbackInformation>();
+            SensitiveCallbackInfo sensitiveCallbackAuthRequest = queryString.GetQueryParams<SensitiveCallbackInfo>();
           
-            string serialisedUserInformation = Json.Serialize(generateCallbackAuthRequest);
+            string serialisedUserInformation = Json.Serialize(sensitiveCallbackAuthRequest);
 
             string cipherUrl = StringCipher.EncryptForUrl(
                 serialisedUserInformation,
                 _encryptionOptions.Value.PassPhraseToken);
             
-            return (cipherUrl, generateCallbackAuthRequest);
+            return (cipherUrl, sensitiveCallbackAuthRequest);
         }
 
-        private GenerateCallbackInformation GetDecryptedCallbackInformation(string cipherString)
+        public SensitiveCallbackInfo DecryptCallbackInfo(string cipherString)
         {
-            if(cipherString.Contains(' '))
-                cipherString = cipherString.Replace(" ", "+");
-            if(cipherString.Last().ToString() != "=")
-                cipherString += "=";
-            
-            string decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
-            return Json.Deserialize<GenerateCallbackInformation>(decryptedUserInfo);
+            string decryptedUserInfo = string.Empty;
+            try
+            {
+                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
+                return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            try
+            {
+                // WooCommerce replaces the Encoded values with spaces and removes the equals sign
+                if (cipherString.Contains(' '))
+                    cipherString = cipherString.Replace(" ", "+");
+                
+                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
+                return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            try
+            {
+                if(cipherString.Last().ToString() != "=")
+                    cipherString += "=";
+                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
         }
     }
 

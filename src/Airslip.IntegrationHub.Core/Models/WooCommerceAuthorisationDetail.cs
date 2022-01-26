@@ -1,9 +1,8 @@
-using Airslip.IntegrationHub.Core.Models;
 using Newtonsoft.Json;
 
-namespace Airslip.IntegrationHub.Core.Requests
+namespace Airslip.IntegrationHub.Core.Models
 {
-    public class WooCommerceAuthorisationDetailDetail : BasicAuthorisationDetail
+    public class WooCommerceAuthorisationDetail : BasicAuthorisationDetail
     {
         [JsonProperty(PropertyName = "key_id")]
         public string KeyId { get; set; } = string.Empty;

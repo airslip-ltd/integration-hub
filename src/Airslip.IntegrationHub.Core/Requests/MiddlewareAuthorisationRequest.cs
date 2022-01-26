@@ -9,7 +9,7 @@ namespace Airslip.IntegrationHub.Core.Requests
         public AirslipUserType AirslipUserType { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string Provider { get; set; } = string.Empty;
-        public string StoreName { get; set; }= string.Empty;
+        public virtual string StoreName { get; set; }= string.Empty;
         public string StoreUrl { get; set; }= string.Empty;
         public string Login { get; set; }= string.Empty;
         public string Password { get; set; }= string.Empty;
