@@ -96,7 +96,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 case PosProviders.Vend:
                     return
-                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={encryptedUserInformation}";
+                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={encryptedUserInformation.Item1}";
                 case PosProviders.SwanRetailMidas:
                     return string.Empty;
                 case PosProviders.Volusion:
@@ -105,7 +105,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                     string grantOptions = auth.IsOnline ? "per-user" : "value";
                     return
-                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation}&grant_options[]={grantOptions}";
+                        $"{string.Format(providerSetting.BaseUri, auth.Shop)}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation.Item1}&grant_options[]={grantOptions}";
                 case PosProviders.Stripe:
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
@@ -114,7 +114,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.Squarespace:
                     SquarespaceProvider squarespaceAuth = queryString.GetQueryParams<SquarespaceProvider>();
                     return
-                        $"{string.Format(providerSetting.BaseUri, squarespaceAuth.Shop)}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation}&access_type=offline";
+                        $"{string.Format(providerSetting.BaseUri, squarespaceAuth.Shop)}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={encryptedUserInformation.Item1}&access_type=offline";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
