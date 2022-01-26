@@ -17,11 +17,6 @@ namespace Airslip.IntegrationHub.Core.Interfaces
             PosProviders provider,
             List<KeyValuePair<string, string>> queryStrings);
 
-        PermanentAccessBase GetPermanentAccessBody(
-            PosProviders provider,
-            ProviderSetting providerSetting,
-            string shortLivedCode);
-
         MiddlewareAuthorisationRequest GetMiddlewareAuthorisation(
             ProviderDetails providerDetails,
             BasicAuthorisationDetail basicAuthorisationDetail,

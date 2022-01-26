@@ -134,15 +134,16 @@ namespace Airslip.IntegrationHub.Functions
                 case PosProviders.Squarespace:
                     ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail =
                         req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
-                    // Get Base Uri
-                    squarespaceShortLivedAuthDetail.PermanentAccessUrl =
-                        "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
+                    squarespaceShortLivedAuthDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     return squarespaceShortLivedAuthDetail;
                 case PosProviders.WoocommerceApi:
-                    BasicAuthorisationDetail wooCommerceAuthDetail =
-                        req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
-
+                    BasicAuthorisationDetail wooCommerceAuthDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
                     return wooCommerceAuthDetail;
+                case PosProviders.EBay:
+                    ShortLivedAuthorisationDetail ebayShortLivedAuthDetail =
+                        req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
+                    ebayShortLivedAuthDetail.PermanentAccessUrl = "https://api.ebay.com/identity/v1/oauth2/token";
+                    return ebayShortLivedAuthDetail;
                 default:
                     throw new NotImplementedException();
             }
@@ -160,7 +161,9 @@ namespace Airslip.IntegrationHub.Functions
                 case PosProviders.WoocommerceApi:
                     WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
                     string queryString = wooCommerceAuthorisationDetail.GetQueryString();
-                    return  queryString.GetQueryParams(true).ToList();
+                    return queryString.GetQueryParams(true).ToList();
+                case PosProviders.EBay:
+                    return req.Url.Query.GetQueryParams().ToList();
                 default:
                     throw new NotImplementedException();
             }

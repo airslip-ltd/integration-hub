@@ -14,8 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Airslip.IntegrationHub.Core.Implementations
 {
@@ -66,7 +68,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
         public string GenerateCallbackUrl(PosProviders provider, string queryString)
         {
-            (string cipherUrl, SensitiveCallbackInfo generateCallbackAuthRequest) = GetEncryptedUserInformation(queryString);
+            (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest) = GetEncryptedUserInformation(queryString);
             
             string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
             string redirectUri = generateCallbackAuthRequest.CallbackUrl ?? 
@@ -74,11 +76,16 @@ namespace Airslip.IntegrationHub.Core.Implementations
             
             ProviderSetting providerSetting = GetProviderSettings(provider);
 
+            string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
+
             switch (provider)
             {
+                case PosProviders.EBay:
+                    return //   Potentialy encode scope
+                        $"{providerSetting.BaseUri}?client_id={providerSetting.AppId}&response_type=code&redirect_uri={redirectUri}&scope={providerSetting.Scope}&state={cipheredSensitiveInfo}";
                 case PosProviders.Vend:
                     return
-                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={cipherUrl}";
+                        $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}";
                 case PosProviders.SwanRetailMidas:
                     return string.Empty;
                 case PosProviders.Volusion:
@@ -87,7 +94,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                     string grantOptions = auth.IsOnline ? "per-user" : "value";
                     return
-                        $"{string.Format(providerSetting.FormatBaseUri(auth.Shop))}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&grant_options[]={grantOptions}";
+                        $"{string.Format(providerSetting.FormatBaseUri(auth.Shop))}/admin/oauth/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&grant_options[]={grantOptions}";
                 case PosProviders.Stripe:
                 case PosProviders.SumUp:
                 case PosProviders.IZettle:
@@ -95,11 +102,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.WoocommerceApi:
                     WooCommerceProvider wooCommerce = queryString.GetQueryParams<WooCommerceProvider>();
                     return
-                        $"{string.Format(providerSetting.FormatBaseUri(wooCommerce.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerSetting.Scope}&user_id={cipherUrl}&return_url=https://google.com&callback_url={redirectUri}";
+                        $"{string.Format(providerSetting.FormatBaseUri(wooCommerce.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={redirectUri}";
                 case PosProviders.Squarespace:
                     SquarespaceProvider squarespaceAuth = queryString.GetQueryParams<SquarespaceProvider>();
                     return
-                        $"{string.Format(providerSetting.FormatBaseUri(squarespaceAuth.Shop))}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipherUrl}&access_type=offline";
+                        $"{string.Format(providerSetting.FormatBaseUri(squarespaceAuth.Shop))}/api/1/login/oauth/provider/authorize?client_id={providerSetting.AppId}&scope={providerSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&access_type=offline";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
@@ -123,17 +130,17 @@ namespace Airslip.IntegrationHub.Core.Implementations
             return HmacCipher.Validate(queryStrings, hmacValue, providerSetting.AppSecret);
         }
 
-        public PermanentAccessBase GetPermanentAccessBody(
-            PosProviders provider,
-            ProviderSetting providerSetting,
+        private static PermanentAccessBase GetPermanentAccessBody(
+            ProviderDetails providerDetails,
             string shortLivedCode)
         {
-            return provider switch
+            return providerDetails.Provider switch
             {
                 PosProviders.Shopify => new ShopifyPermanentAccess(
-                    providerSetting.AppId,
-                    providerSetting.AppSecret,
+                    providerDetails.ProviderSetting.AppId,
+                    providerDetails.ProviderSetting.AppSecret,
                     shortLivedCode),
+                PosProviders.EBay => new EbayPermanentAccess(shortLivedCode, providerDetails.RedirectUri),
                 _ => new PermanentAccessBase()
             };
         }
@@ -164,12 +171,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
         {
             HttpClient httpClient =
                 _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
-
+            // Change create client name
+            
             PermanentAccessBase accessBody = GetPermanentAccessBody(
-                providerDetails.Provider,
-                providerDetails.ProviderSetting,
+                providerDetails,
                 shortLivedAuthorisationDetail.ShortLivedCode);
-
+            
             HttpRequestMessage httpRequestMessage = new()
             {
                 Method = HttpMethod.Post,
@@ -178,20 +185,33 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     Json.Serialize(accessBody),
                     Encoding.UTF8,
                     Json.MediaType)
+                // TODO: Use Postman to validate it works then create function to get content
+            //     Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[] 
+            //     {
+            //     new("redirect_uri", providerDetails.RedirectUri),
+            //     new("grant_type", accessBody.GrantType!),
+            //     new("code", accessBody.ShortLivedCode),
+            // }) //application/x-www-form-urlencoded
             };
 
+            // Change to function
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic",
+                Convert.ToBase64String(
+                    Encoding.ASCII.GetBytes( $"{providerDetails.ProviderSetting.AppId}:{providerDetails.ProviderSetting.AppSecret}")));
+            
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
+            string content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error(
-                    "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}",
+                    "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
                     shortLivedAuthorisationDetail.PermanentAccessUrl,
-                    response.StatusCode);
+                    response.StatusCode,
+                    content);
                 throw new Exception("Error getting permanent access token");
             }
 
-            string content = await response.Content.ReadAsStringAsync();
             BasicAuthorisationDetail basicAuth = new();
             
             switch (providerDetails.Provider)
@@ -219,6 +239,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 PosProviders.Squarespace => PosProviders.Api2Cart.ToString(),
                 PosProviders.Volusion => PosProviders.Api2Cart.ToString(),
                 PosProviders.WoocommerceApi => PosProviders.Api2Cart.ToString(),
+                PosProviders.EBay => PosProviders.Api2Cart.ToString(),
                 _ => provider.ToString()
             };
         }
@@ -227,22 +248,22 @@ namespace Airslip.IntegrationHub.Core.Implementations
         {
             return provider switch
             {
-                PosProviders.WoocommerceApi => null,
-                _ => "hmac"
+                PosProviders.Shopify => "hmac",
+                _ => null
             };
         }
 
-        private (string cipherUrl, SensitiveCallbackInfo generateCallbackAuthRequest) GetEncryptedUserInformation(string queryString)
+        private (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest) GetEncryptedUserInformation(string queryString)
         {
             SensitiveCallbackInfo sensitiveCallbackAuthRequest = queryString.GetQueryParams<SensitiveCallbackInfo>();
           
             string serialisedUserInformation = Json.Serialize(sensitiveCallbackAuthRequest);
 
-            string cipherUrl = StringCipher.EncryptForUrl(
+            string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
                 serialisedUserInformation,
                 _encryptionOptions.Value.PassPhraseToken);
             
-            return (cipherUrl, sensitiveCallbackAuthRequest);
+            return (cipheredSensitiveInfo, sensitiveCallbackAuthRequest);
         }
 
         public SensitiveCallbackInfo DecryptCallbackInfo(string cipherString)
@@ -308,18 +329,19 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
     public class PermanentAccessBase
     {
-        public virtual string AppId { get; set; } = string.Empty;
-        public virtual string AppSecret { get; set; } = string.Empty;
+        public virtual string? AppId { get; set; } 
+        public virtual string? AppSecret { get; set; }
         public virtual string ShortLivedCode { get; set; } = string.Empty;
+        public virtual string? GrantType { get; set; }
     }
 
     public class ShopifyPermanentAccess : PermanentAccessBase
     {
         [JsonProperty(PropertyName = "client_id")]
-        public sealed override string AppId { get; set; }
+        public sealed override string? AppId { get; set; }
 
         [JsonProperty(PropertyName = "client_secret")]
-        public sealed override string AppSecret { get; set; }
+        public sealed override string? AppSecret { get; set; }
 
         [JsonProperty(PropertyName = "code")] public sealed override string ShortLivedCode { get; set; }
 
@@ -331,6 +353,26 @@ namespace Airslip.IntegrationHub.Core.Implementations
             AppId = appId;
             AppSecret = appSecret;
             ShortLivedCode = shortLivedCode;
+        }
+    }
+    
+    public class EbayPermanentAccess : PermanentAccessBase
+    {
+        [JsonProperty(PropertyName = "grant_type")]
+        public sealed override string? GrantType { get; set; } = "authorization_code";
+
+        [JsonProperty(PropertyName = "code")] 
+        public sealed override string ShortLivedCode { get; set; }
+        
+        [JsonProperty(PropertyName = "redirect_uri")] 
+        public string RedirectUrl { get; set; }
+
+        public EbayPermanentAccess(
+            string shortLivedCode,
+            string redirectUrl)
+        {
+            ShortLivedCode = shortLivedCode;
+            RedirectUrl = redirectUrl;
         }
     }
 }
