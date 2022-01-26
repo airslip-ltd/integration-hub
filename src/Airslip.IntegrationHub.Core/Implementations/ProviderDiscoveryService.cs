@@ -138,7 +138,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
         }
 
         public MiddlewareAuthorisationRequest GetMiddlewareAuthorisation(
-            PosProviders provider,
+            ProviderDetails providerDetails,
             BasicAuthorisationDetail basicAuthorisationDetail,
             string? storeUrl = null)
         {
@@ -146,9 +146,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             return new MiddlewareAuthorisationRequest
             {
-                Provider = provider.ToString(),
+                Provider = providerDetails.Provider.ToString(),
                 StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
-                StoreUrl = storeUrl ?? sensitiveCallbackInfo.Shop, // Need to change to StoreUrl
+                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
                 Login = basicAuthorisationDetail.Login,
                 Password = basicAuthorisationDetail.Password,
                 EntityId = sensitiveCallbackInfo.EntityId,
@@ -205,7 +205,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
             
             return GetMiddlewareAuthorisation(
-                providerDetails.Provider,
+                providerDetails,
                 basicAuth,
                 shortLivedAuthorisationDetail.BaseUri);
         }

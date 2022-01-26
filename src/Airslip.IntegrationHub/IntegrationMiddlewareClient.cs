@@ -38,8 +38,8 @@ namespace Airslip.IntegrationHub
             MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
             {
                 ProviderAuthStrategy.ShortLived => await _providerDiscoveryService.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail)providerAuthorisingDetail),
-                ProviderAuthStrategy.Basic =>  _providerDiscoveryService.GetMiddlewareAuthorisation(provider, (BasicAuthorisationDetail)providerAuthorisingDetail),
-                ProviderAuthStrategy.Bridge => _providerDiscoveryService.GetMiddlewareAuthorisation(provider,(BasicAuthorisationDetail)providerAuthorisingDetail),
+                ProviderAuthStrategy.Basic =>  _providerDiscoveryService.GetMiddlewareAuthorisation(providerDetails, (BasicAuthorisationDetail)providerAuthorisingDetail),
+                ProviderAuthStrategy.Bridge => _providerDiscoveryService.GetMiddlewareAuthorisation(providerDetails,(BasicAuthorisationDetail)providerAuthorisingDetail),
                 _ => throw new NotSupportedException()
             };
 
