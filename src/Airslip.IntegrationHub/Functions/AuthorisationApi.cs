@@ -43,7 +43,7 @@ namespace Airslip.IntegrationHub.Functions
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices
                 .GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             
-            bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
+            bool supportedProvider = Enum.TryParse(provider, true, out PosProviders parsedProvider);
 
             if (!supportedProvider)
             {
@@ -72,7 +72,7 @@ namespace Airslip.IntegrationHub.Functions
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             IntegrationMiddlewareClient httpClient = executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ?? throw new NotImplementedException();
 
-            bool supportedProvider = Enum.TryParse(provider, out PosProviders parsedProvider);
+            bool supportedProvider = Enum.TryParse(provider, true, out PosProviders parsedProvider);
 
             if (!supportedProvider)
             {
