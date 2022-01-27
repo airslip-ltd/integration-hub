@@ -1,5 +1,3 @@
-using Airslip.IntegrationHub.Core.Interfaces;
-
 namespace Airslip.IntegrationHub.Core.Models
 {
     public class BasicAuthorisationDetail : IProviderAuthorisation
@@ -9,11 +7,9 @@ namespace Airslip.IntegrationHub.Core.Models
         public virtual string AccessScope { get; set; } = string.Empty;
         public virtual string EncryptedUserInfo { get; set; } = string.Empty; // Contains Shop, UserId, UserType, EntityId
         public virtual string Shop { get; set; } = string.Empty;
-        public ProviderAuthStrategy ProviderAuthStrategy { get; set; } = ProviderAuthStrategy.Basic;
     }
 
     public class BridgeAuthorisationDetail : IProviderAuthorisation
     {
-        public ProviderAuthStrategy ProviderAuthStrategy { get; set; } = ProviderAuthStrategy.Bridge;
     }
 }

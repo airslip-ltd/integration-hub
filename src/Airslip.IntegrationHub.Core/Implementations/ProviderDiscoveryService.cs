@@ -8,7 +8,6 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -61,21 +60,23 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 providerSetting);
         }
 
-        public ProviderSetting GetProviderSettings(PosProviders provider)
+        private ProviderSetting GetProviderSettings(PosProviders provider)
         {
             return _providerSettings.GetSettingByName(provider.ToString());
         }
 
         public string GenerateCallbackUrl(PosProviders provider, string queryString)
         {
-            (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest) = GetEncryptedUserInformation(queryString);
-            
+            (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest) =
+                GetEncryptedUserInformation(queryString);
+
             string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
-            string redirectUri = generateCallbackAuthRequest.CallbackUrl ?? 
+            string redirectUri = generateCallbackAuthRequest.CallbackUrl ??
                                  $"{destinationBaseUri}/auth/callback/{provider}";
-            
+
             ProviderSetting providerSetting = GetProviderSettings(provider);
 
+            // Encode for eBay 
             string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
 
             switch (provider)
@@ -111,7 +112,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     throw new ArgumentOutOfRangeException(nameof(provider), provider, "Not yet supported");
             }
         }
-        
+
         public bool ValidateHmac(
             PosProviders provider,
             List<KeyValuePair<string, string>> queryStrings)
@@ -130,27 +131,13 @@ namespace Airslip.IntegrationHub.Core.Implementations
             return HmacCipher.Validate(queryStrings, hmacValue, providerSetting.AppSecret);
         }
 
-        private static PermanentAccessBase GetPermanentAccessBody(
-            ProviderDetails providerDetails,
-            string shortLivedCode)
-        {
-            return providerDetails.Provider switch
-            {
-                PosProviders.Shopify => new ShopifyPermanentAccess(
-                    providerDetails.ProviderSetting.AppId,
-                    providerDetails.ProviderSetting.AppSecret,
-                    shortLivedCode),
-                PosProviders.EBay => new EbayPermanentAccess(shortLivedCode, providerDetails.RedirectUri),
-                _ => new PermanentAccessBase()
-            };
-        }
-
         public MiddlewareAuthorisationRequest GetMiddlewareAuthorisation(
             ProviderDetails providerDetails,
             BasicAuthorisationDetail basicAuthorisationDetail,
             string? storeUrl = null)
         {
-            SensitiveCallbackInfo sensitiveCallbackInfo = DecryptCallbackInfo(basicAuthorisationDetail.EncryptedUserInfo);
+            SensitiveCallbackInfo sensitiveCallbackInfo =
+                DecryptCallbackInfo(basicAuthorisationDetail.EncryptedUserInfo);
 
             return new MiddlewareAuthorisationRequest
             {
@@ -169,36 +156,14 @@ namespace Airslip.IntegrationHub.Core.Implementations
             ProviderDetails providerDetails,
             ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
         {
-            HttpClient httpClient =
-                _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
             // Change create client name
-            
-            PermanentAccessBase accessBody = GetPermanentAccessBody(
-                providerDetails,
-                shortLivedAuthorisationDetail.ShortLivedCode);
-            
-            HttpRequestMessage httpRequestMessage = new()
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(shortLivedAuthorisationDetail.PermanentAccessUrl),
-                Content = new StringContent(
-                    Json.Serialize(accessBody),
-                    Encoding.UTF8,
-                    Json.MediaType)
-                // TODO: Use Postman to validate it works then create function to get content
-            //     Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[] 
-            //     {
-            //     new("redirect_uri", providerDetails.RedirectUri),
-            //     new("grant_type", accessBody.GrantType!),
-            //     new("code", accessBody.ShortLivedCode),
-            // }) //application/x-www-form-urlencoded
-            };
+            HttpClient httpClient = _httpClientFactory.CreateClient(
+                providerDetails.Provider.ToString());
 
-            // Change to function
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(
-                    Encoding.ASCII.GetBytes( $"{providerDetails.ProviderSetting.AppId}:{providerDetails.ProviderSetting.AppSecret}")));
-            
+            HttpRequestMessage httpRequestMessage = BuildRequestMessage(
+                providerDetails, 
+                shortLivedAuthorisationDetail);
+
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             string content = await response.Content.ReadAsStringAsync();
 
@@ -213,22 +178,68 @@ namespace Airslip.IntegrationHub.Core.Implementations
             }
 
             BasicAuthorisationDetail basicAuth = new();
-            
+
             switch (providerDetails.Provider)
             {
                 case PosProviders.Shopify:
-                    basicAuth = Json.Deserialize<ShopifyBasicAuthorisationDetail>(content);
+                    basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
                     basicAuth.Login = providerDetails.ProviderSetting.AppSecret;
                     break;
+                case PosProviders.EBay:
+                    basicAuth = Json.Deserialize<EbayAuthorisationDetail>(content);
+                    break;
             }
-            
+
             basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
             basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
-            
+
             return GetMiddlewareAuthorisation(
                 providerDetails,
                 basicAuth,
                 shortLivedAuthorisationDetail.BaseUri);
+        }
+        
+        private static HttpRequestMessage BuildRequestMessage(
+            ProviderDetails providerDetails,
+            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
+        {
+            HttpRequestMessage httpRequestMessage = new()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(shortLivedAuthorisationDetail.PermanentAccessUrl)
+            };
+
+            switch (providerDetails.Provider)
+            {
+                case PosProviders.EBay:
+                    
+                    httpRequestMessage.Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
+                    {
+                        new("redirect_uri", providerDetails.RedirectUri),
+                        new("grant_type", "client_credentials"),
+                        new("code", shortLivedAuthorisationDetail.ShortLivedCode)
+                    });
+
+                    httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic",
+                        Convert.ToBase64String(
+                            Encoding.ASCII.GetBytes(
+                                $"{providerDetails.ProviderSetting.AppId}:{providerDetails.ProviderSetting.AppSecret}")));
+                    break;
+                case PosProviders.Shopify:
+                    httpRequestMessage.Content = new StringContent(
+                        Json.Serialize(
+                            new ShopifyPermanentAccess(
+                            providerDetails.ProviderSetting.AppId,
+                            providerDetails.ProviderSetting.AppSecret,
+                            shortLivedAuthorisationDetail.ShortLivedCode)),
+                        Encoding.UTF8,
+                        Json.MediaType);
+                    break;
+                    default: 
+                        throw new NotImplementedException();
+            }
+            
+            return httpRequestMessage;
         }
 
         private static string GetInternalMiddlewareName(PosProviders provider)
@@ -253,20 +264,21 @@ namespace Airslip.IntegrationHub.Core.Implementations
             };
         }
 
-        private (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest) GetEncryptedUserInformation(string queryString)
+        private (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest)
+            GetEncryptedUserInformation(string queryString)
         {
             SensitiveCallbackInfo sensitiveCallbackAuthRequest = queryString.GetQueryParams<SensitiveCallbackInfo>();
-          
+
             string serialisedUserInformation = Json.Serialize(sensitiveCallbackAuthRequest);
 
             string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
                 serialisedUserInformation,
                 _encryptionOptions.Value.PassPhraseToken);
-            
+
             return (cipheredSensitiveInfo, sensitiveCallbackAuthRequest);
         }
 
-        public SensitiveCallbackInfo DecryptCallbackInfo(string cipherString)
+        private SensitiveCallbackInfo DecryptCallbackInfo(string cipherString)
         {
             string decryptedUserInfo = string.Empty;
             try
@@ -284,7 +296,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 // WooCommerce replaces the Encoded values with spaces and removes the equals sign
                 if (cipherString.Contains(' '))
                     cipherString = cipherString.Replace(" ", "+");
-                
+
                 decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
                 return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
             }
@@ -295,7 +307,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             try
             {
-                if(cipherString.Last().ToString() != "=")
+                if (cipherString.Last().ToString() != "=")
                     cipherString += "=";
                 decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionOptions.Value.PassPhraseToken);
             }
@@ -305,74 +317,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
             }
 
             return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
-        }
-    }
-
-    public class ShopifyProvider : IProvider
-    {
-        public bool IsOnline { get; set; }
-        public string Shop { get; set; } = string.Empty;
-    }
-
-    public interface IProvider
-    {
-    }
-
-    public class SquarespaceProvider : IProvider
-    {
-        public string Shop { get; set; } = string.Empty;
-    }
-    public class WooCommerceProvider : IProvider
-    {
-        public string Shop { get; set; } = string.Empty;
-    }
-
-    public class PermanentAccessBase
-    {
-        public virtual string? AppId { get; set; } 
-        public virtual string? AppSecret { get; set; }
-        public virtual string ShortLivedCode { get; set; } = string.Empty;
-        public virtual string? GrantType { get; set; }
-    }
-
-    public class ShopifyPermanentAccess : PermanentAccessBase
-    {
-        [JsonProperty(PropertyName = "client_id")]
-        public sealed override string? AppId { get; set; }
-
-        [JsonProperty(PropertyName = "client_secret")]
-        public sealed override string? AppSecret { get; set; }
-
-        [JsonProperty(PropertyName = "code")] public sealed override string ShortLivedCode { get; set; }
-
-        public ShopifyPermanentAccess(
-            string appId,
-            string appSecret,
-            string shortLivedCode)
-        {
-            AppId = appId;
-            AppSecret = appSecret;
-            ShortLivedCode = shortLivedCode;
-        }
-    }
-    
-    public class EbayPermanentAccess : PermanentAccessBase
-    {
-        [JsonProperty(PropertyName = "grant_type")]
-        public sealed override string? GrantType { get; set; } = "authorization_code";
-
-        [JsonProperty(PropertyName = "code")] 
-        public sealed override string ShortLivedCode { get; set; }
-        
-        [JsonProperty(PropertyName = "redirect_uri")] 
-        public string RedirectUrl { get; set; }
-
-        public EbayPermanentAccess(
-            string shortLivedCode,
-            string redirectUrl)
-        {
-            ShortLivedCode = shortLivedCode;
-            RedirectUrl = redirectUrl;
         }
     }
 }

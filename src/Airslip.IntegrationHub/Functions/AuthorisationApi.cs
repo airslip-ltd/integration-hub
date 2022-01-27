@@ -142,7 +142,7 @@ namespace Airslip.IntegrationHub.Functions
                 case PosProviders.EBay:
                     ShortLivedAuthorisationDetail ebayShortLivedAuthDetail =
                         req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
-                    ebayShortLivedAuthDetail.PermanentAccessUrl = "https://api.ebay.com/identity/v1/oauth2/token";
+                    ebayShortLivedAuthDetail.PermanentAccessUrl = "https://api.sandbox.ebay.com/identity/v1/oauth2/token"; // https://api.ebay.com/identity/v1/oauth2/token
                     return ebayShortLivedAuthDetail;
                 default:
                     throw new NotImplementedException();
