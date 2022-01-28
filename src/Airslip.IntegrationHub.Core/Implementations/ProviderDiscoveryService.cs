@@ -184,14 +184,13 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 case PosProviders.Shopify:
                     basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
                     basicAuth.Login = providerDetails.ProviderSetting.AppSecret;
+                    basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
                     break;
                 case PosProviders.EBay:
                     basicAuth = Json.Deserialize<EbayAuthorisationDetail>(content);
                     break;
             }
 
-            // Possibly delete line below
-            basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
             basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
 
             return GetMiddlewareAuthorisation(
