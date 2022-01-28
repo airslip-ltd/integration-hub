@@ -98,9 +98,10 @@ namespace Airslip.IntegrationHub
                             httpClient.AddDefaults(baseUri);
                         });
                     
-                    
                     SettingCollection<ProviderSetting> appSettings = new();
                     context.Configuration.GetSection($"{nameof(ProviderSetting)}s").Bind(appSettings);
+                    
+                    // TODO: Create validation for known provider settings so there is never an empty api key
                     
                 })
                 .Build();

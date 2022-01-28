@@ -71,8 +71,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 GetEncryptedUserInformation(queryString);
 
             string destinationBaseUri = _publicApiSettings.GetSettingByName("Base").ToBaseUri();
-            string redirectUri = generateCallbackAuthRequest.CallbackUrl ??
-                                 $"{destinationBaseUri}/auth/callback/{provider}";
+            
+            string redirectUri = string.IsNullOrEmpty(generateCallbackAuthRequest.CallbackUrl)
+                ? $"{destinationBaseUri}/auth/callback/{provider}"
+                : generateCallbackAuthRequest.CallbackUrl;
 
             ProviderSetting providerSetting = GetProviderSettings(provider);
 
