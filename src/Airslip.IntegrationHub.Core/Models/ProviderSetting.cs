@@ -9,7 +9,6 @@ namespace Airslip.IntegrationHub.Core.Models
         public string AppId { get; set; } = string.Empty;
         public string AppSecret { get; set; } = string.Empty;
         public string? AppName { get; set; }
-        public string? GrantType { get; set; }
         public string? Environment { get; set; }
         public string? LocationId { get; set; }
         public ProviderAuthStrategy AuthStrategy { get; set; }

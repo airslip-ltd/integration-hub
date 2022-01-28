@@ -93,7 +93,7 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            //Validate HMAC another way, Using the strongly typed object
+            //Validate HMAC another way. Needs improving. Maybe specific to provider.
             List<KeyValuePair<string, string>> queryStrings = GetParameters(parsedProvider, req);
 
             bool isValid = providerDiscoveryService.ValidateHmac(parsedProvider, queryStrings);
@@ -117,19 +117,16 @@ namespace Airslip.IntegrationHub.Functions
             ProviderDetails providerDetails,
             HttpRequestData req)
         {
+            // Step 2: Add provider to get access token
             switch (providerDetails.Provider)
             {
                 case PosProviders.Shopify:
-                    ShopifyAuthorisingDetail shopifyParams = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
-                    ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail = shopifyParams;
-                    shopifyShortLivedAuthDetail.FormatBaseUri(shopifyParams.Shop);
-                    shopifyShortLivedAuthDetail.PermanentAccessUrl =
-                        $"https://{shopifyParams.Shop}/admin/oauth/access_token";
-                    //shopifyShortLivedAuthDetail.StoreName = shopifyParams.Shop.Replace(".myshopify.com", "");
+                    ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
+                    shopifyShortLivedAuthDetail.FormatBaseUri(shopifyShortLivedAuthDetail.StoreName);
+                    shopifyShortLivedAuthDetail.PermanentAccessUrl = $"https://{shopifyShortLivedAuthDetail.StoreName}/admin/oauth/access_token";
                     return shopifyShortLivedAuthDetail;
                 case PosProviders.Squarespace:
-                    ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail =
-                        req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
+                    ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail = req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
                     squarespaceShortLivedAuthDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     return squarespaceShortLivedAuthDetail;
                 case PosProviders.WoocommerceApi:
@@ -139,6 +136,9 @@ namespace Airslip.IntegrationHub.Functions
                     ShortLivedAuthorisationDetail ebayShortLivedAuthDetail = req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
                     ebayShortLivedAuthDetail.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/identity/v1/oauth2/token"; // https://api.ebay.com/identity/v1/oauth2/token
                     return ebayShortLivedAuthDetail;
+                case PosProviders.EtsyAPIv3:
+                    EtsyAPIv3AuthorisingDetail etsyAuth = req.Url.Query.GetQueryParams<EtsyAPIv3AuthorisingDetail>();
+                    return etsyAuth;
                 default:
                     throw new NotImplementedException();
             }
@@ -148,19 +148,15 @@ namespace Airslip.IntegrationHub.Functions
             PosProviders provider,
             HttpRequestData req)
         {
+            // Step 3: If using POST then add custom logic here
             switch (provider)
             {
-                case PosProviders.Shopify:
-                case PosProviders.Squarespace:
-                    return req.Url.Query.GetQueryParams().ToList();
                 case PosProviders.WoocommerceApi:
                     WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
                     string queryString = wooCommerceAuthorisationDetail.GetQueryString();
                     return queryString.GetQueryParams(true).ToList();
-                case PosProviders.EBay:
-                    return req.Url.Query.GetQueryParams().ToList();
                 default:
-                    throw new NotImplementedException();
+                    return req.Url.Query.GetQueryParams().ToList();
             }
         }
 
