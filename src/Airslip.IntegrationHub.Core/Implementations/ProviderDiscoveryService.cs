@@ -76,14 +76,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             ProviderSetting providerSetting = GetProviderSettings(provider);
 
-            // Encode for eBay 
-            string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
-
             switch (provider)
             {
                 case PosProviders.EBay:
-                    return //   Potentialy encode scope
-                        $"{providerSetting.BaseUri}?client_id={providerSetting.AppId}&response_type=code&redirect_uri={redirectUri}&scope={providerSetting.Scope}&state={cipheredSensitiveInfo}";
+                    string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
+                    return
+                        $"https://auth.sandbox.ebay.com/oauth2/consents?client_id={providerSetting.AppId}&response_type=code&redirect_uri={redirectUri}&scope={encodedScope}&state={cipheredSensitiveInfo}";
                 case PosProviders.Vend:
                     return
                         $"{providerSetting.BaseUri}?response_type=code&client_id={providerSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}";
@@ -148,7 +146,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 Password = basicAuthorisationDetail.Password,
                 EntityId = sensitiveCallbackInfo.EntityId,
                 UserId = sensitiveCallbackInfo.UserId,
-                AirslipUserType = sensitiveCallbackInfo.AirslipUserType
+                AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
+                Environment = providerDetails.ProviderSetting.Environment,
+                LocationId = providerDetails.ProviderSetting.LocationId,
             };
         }
 
@@ -190,6 +190,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     break;
             }
 
+            // Possibly delete line below
             basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
             basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
 
@@ -215,8 +216,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     
                     httpRequestMessage.Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
                     {
-                        new("redirect_uri", providerDetails.RedirectUri),
-                        new("grant_type", "client_credentials"),
+                        // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
+                        new("redirect_uri", providerDetails.ProviderSetting.AppName!),
+                        new("grant_type", providerDetails.ProviderSetting.GrantType!),
                         new("code", shortLivedAuthorisationDetail.ShortLivedCode)
                     });
 

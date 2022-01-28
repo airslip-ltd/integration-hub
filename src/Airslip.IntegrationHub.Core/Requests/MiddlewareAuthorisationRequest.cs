@@ -13,6 +13,8 @@ namespace Airslip.IntegrationHub.Core.Requests
         public string StoreUrl { get; set; }= string.Empty;
         public string Login { get; set; }= string.Empty;
         public string Password { get; set; }= string.Empty;
+        public string? Environment { get; set; }= string.Empty;
         public string? Reference { get; set; }= string.Empty;
+        public string? LocationId { get; set; }= string.Empty;
     }
 }

@@ -31,10 +31,8 @@ namespace Airslip.IntegrationHub
             _logger = logger;
         }
         
-        public async Task<IResponse> SendToMiddleware(PosProviders provider, IProviderAuthorisation providerAuthorisingDetail)
+        public async Task<IResponse> SendToMiddleware(ProviderDetails providerDetails, IProviderAuthorisation providerAuthorisingDetail)
         {
-            ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
-
             MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
             {
                 ProviderAuthStrategy.ShortLived => await _providerDiscoveryService.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail)providerAuthorisingDetail),
@@ -43,7 +41,7 @@ namespace Airslip.IntegrationHub
                 _ => throw new NotSupportedException()
             };
 
-            string url = Endpoints.Result(providerDetails.DestinationBaseUri, provider);
+            string url = Endpoints.Result(providerDetails.DestinationBaseUri, providerDetails.Provider);
 
             try
             {
