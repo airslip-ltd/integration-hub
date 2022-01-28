@@ -1,5 +1,3 @@
-using Airslip.IntegrationHub.Core.Interfaces;
-
 namespace Airslip.IntegrationHub.Core.Models
 {
     public class ShortLivedAuthorisationDetail : IProviderAuthorisation
@@ -16,12 +14,9 @@ namespace Airslip.IntegrationHub.Core.Models
                 ? string.Format(BaseUri, value) 
                 : value;
         }
-
-        public ProviderAuthStrategy ProviderAuthStrategy { get; set; } = ProviderAuthStrategy.ShortLived;
     }
 
     public interface IProviderAuthorisation
     {
-        ProviderAuthStrategy ProviderAuthStrategy { get; set; }
     }
 }

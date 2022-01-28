@@ -81,14 +81,9 @@ namespace Airslip.IntegrationHub.Functions
             string provider,
             FunctionContext executionContext)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
-                             throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService =
-                executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ??
-                throw new NotImplementedException();
-            IntegrationMiddlewareClient httpClient =
-                executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ??
-                throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IntegrationMiddlewareClient httpClient = executionContext.InstanceServices.GetService<IntegrationMiddlewareClient>() ?? throw new NotImplementedException();
 
             bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
@@ -109,19 +104,20 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            IProviderAuthorisation providerAuthorisingDetail = GetProviderAuthorisationDetail(parsedProvider, req);
+            ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
+            IProviderAuthorisation providerAuthorisingDetail = GetProviderAuthorisationDetail(providerDetails, req);
 
-            IResponse authorisedResponse = await httpClient.SendToMiddleware(parsedProvider, providerAuthorisingDetail);
+            IResponse authorisedResponse = await httpClient.SendToMiddleware(providerDetails, providerAuthorisingDetail);
 
             return await req.CommonResponseHandler<AccountResponse>(authorisedResponse);
         }
 
         // Move to file on its own within this project
         private static IProviderAuthorisation GetProviderAuthorisationDetail(
-            PosProviders provider,
+            ProviderDetails providerDetails,
             HttpRequestData req)
         {
-            switch (provider)
+            switch (providerDetails.Provider)
             {
                 case PosProviders.Shopify:
                     ShopifyAuthorisingDetail shopifyParams = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
@@ -134,15 +130,15 @@ namespace Airslip.IntegrationHub.Functions
                 case PosProviders.Squarespace:
                     ShortLivedAuthorisationDetail squarespaceShortLivedAuthDetail =
                         req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
-                    // Get Base Uri
-                    squarespaceShortLivedAuthDetail.PermanentAccessUrl =
-                        "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
+                    squarespaceShortLivedAuthDetail.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
                     return squarespaceShortLivedAuthDetail;
                 case PosProviders.WoocommerceApi:
-                    BasicAuthorisationDetail wooCommerceAuthDetail =
-                        req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
-
+                    BasicAuthorisationDetail wooCommerceAuthDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
                     return wooCommerceAuthDetail;
+                case PosProviders.EBay:
+                    ShortLivedAuthorisationDetail ebayShortLivedAuthDetail = req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
+                    ebayShortLivedAuthDetail.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/identity/v1/oauth2/token"; // https://api.ebay.com/identity/v1/oauth2/token
+                    return ebayShortLivedAuthDetail;
                 default:
                     throw new NotImplementedException();
             }
@@ -160,7 +156,9 @@ namespace Airslip.IntegrationHub.Functions
                 case PosProviders.WoocommerceApi:
                     WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
                     string queryString = wooCommerceAuthorisationDetail.GetQueryString();
-                    return  queryString.GetQueryParams(true).ToList();
+                    return queryString.GetQueryParams(true).ToList();
+                case PosProviders.EBay:
+                    return req.Url.Query.GetQueryParams().ToList();
                 default:
                     throw new NotImplementedException();
             }
