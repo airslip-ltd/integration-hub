@@ -77,11 +77,14 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 : generateCallbackAuthRequest.CallbackUrl;
 
             ProviderSetting providerSetting = GetProviderSettings(provider);
+            string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
 
+            // Step 1: Dynamically generate providers URL
             switch (provider)
             {
+                case PosProviders.EtsyAPIv3:
+                    return $"{providerSetting.BaseUri}/oauth/connect?response_type=code&redirect_uri={redirectUri}&scope={encodedScope}&client_id={providerSetting.AppId}&state={cipheredSensitiveInfo}&code_challenge={cipheredSensitiveInfo}&code_challenge_method=S256";
                 case PosProviders.EBay:
-                    string encodedScope = HttpUtility.UrlEncode(providerSetting.Scope);
                     return
                         $"https://auth.sandbox.ebay.com/oauth2/consents?client_id={providerSetting.AppId}&response_type=code&redirect_uri={redirectUri}&scope={encodedScope}&state={cipheredSensitiveInfo}";
                 case PosProviders.Vend:
@@ -181,6 +184,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             BasicAuthorisationDetail basicAuth = new();
 
+            // Step 5: Add case for permanent access token
             switch (providerDetails.Provider)
             {
                 case PosProviders.Shopify:
@@ -190,6 +194,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     break;
                 case PosProviders.EBay:
                     basicAuth = Json.Deserialize<EbayAuthorisationDetail>(content);
+                    break;
+                case PosProviders.EtsyAPIv3:
+                    basicAuth = Json.Deserialize<EtsyAPIv3AuthorisationDetail>(content);
                     break;
             }
 
@@ -213,13 +220,14 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             switch (providerDetails.Provider)
             {
+                // Step 4: If using OAUTH2 then add a case statement to get an access token using the short lived token.
                 case PosProviders.EBay:
                     
                     httpRequestMessage.Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
                     {
                         // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
                         new("redirect_uri", providerDetails.ProviderSetting.AppName!),
-                        new("grant_type", providerDetails.ProviderSetting.GrantType!),
+                        new("grant_type", shortLivedAuthorisationDetail.GrantType),
                         new("code", shortLivedAuthorisationDetail.ShortLivedCode)
                     });
 
@@ -227,6 +235,19 @@ namespace Airslip.IntegrationHub.Core.Implementations
                         Convert.ToBase64String(
                             Encoding.ASCII.GetBytes(
                                 $"{providerDetails.ProviderSetting.AppId}:{providerDetails.ProviderSetting.AppSecret}")));
+                    break;
+                case PosProviders.EtsyAPIv3:
+                    
+                    httpRequestMessage.Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
+                    {
+                        // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
+                        new("client_id", providerDetails.ProviderSetting.AppId),
+                        new("redirect_uri", providerDetails.RedirectUri),
+                        new("grant_type", shortLivedAuthorisationDetail.GrantType),
+                        new("code", shortLivedAuthorisationDetail.ShortLivedCode),
+                        new("code_verifier", shortLivedAuthorisationDetail.EncryptedUserInfo),
+                    });
+
                     break;
                 case PosProviders.Shopify:
                     httpRequestMessage.Content = new StringContent(

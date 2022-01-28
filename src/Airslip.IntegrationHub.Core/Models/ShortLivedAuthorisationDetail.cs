@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Airslip.IntegrationHub.Core.Models
 {
     public class ShortLivedAuthorisationDetail : IProviderAuthorisation
@@ -5,8 +7,11 @@ namespace Airslip.IntegrationHub.Core.Models
         public virtual string ShortLivedCode { get; set; } = string.Empty;
         public virtual string StoreName { get; set; } = string.Empty;
         public virtual string EncryptedUserInfo { get; set; } = string.Empty;
-        public string PermanentAccessUrl { get; set; } = string.Empty;
+        public virtual string PermanentAccessUrl { get; set; } = string.Empty;
         public string? BaseUri { get; set; }
+
+        [JsonProperty(PropertyName = "grant_type")]
+        public virtual string GrantType { get; } = "authorization_code";
 
         public void FormatBaseUri(string value)
         {
