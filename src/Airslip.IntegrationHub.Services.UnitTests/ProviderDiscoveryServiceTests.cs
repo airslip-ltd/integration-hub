@@ -22,76 +22,76 @@ namespace Airslip.IntegrationHub.Services.UnitTests
 {
     public class ProviderDiscoveryServiceTests
     {
-        private readonly ProviderDiscoveryService _sut;
+        // private readonly ProviderDiscoveryService _sut;
+        //
+        // public ProviderDiscoveryServiceTests()
+        // {
+        //     string projectName = "Airslip.IntegrationHub";
+        //     Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
+        //     Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
+        //     Mock<ILogger> loggerMock = new();
+        //     Mock<IOptions<EncryptionSettings>> encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
+        //     SettingCollection<ProviderSetting> settings = Factory.ProviderConfiguration;
+        //     Mock<IHttpClientFactory> providerHttpClient = new();
+        //
+        //     providerSettingsMock
+        //         .Setup(s => s.Value)
+        //         .Returns(settings);
+        //
+        //     _sut = new ProviderDiscoveryService(
+        //         providerSettingsMock.Object,
+        //         publicApiSettingsMock.Object,
+        //         encryptionSettings.Object,
+        //         providerHttpClient.Object,
+        //         loggerMock.Object);
+        // }
 
-        public ProviderDiscoveryServiceTests()
-        {
-            string projectName = "Airslip.IntegrationHub";
-            Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
-            Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
-            Mock<ILogger> loggerMock = new();
-            Mock<IOptions<EncryptionSettings>> encryptionSettings = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
-            SettingCollection<ProviderSetting> settings = Factory.ProviderConfiguration;
-            Mock<IHttpClientFactory> providerHttpClient = new();
+        // [Theory]
+        // [InlineData(PosProviders.Shopify,
+        //     "?shop=airslip-development.myshopify.com&isOnline=true",
+        //     "state",
+        //     "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_orders,read_products,read_inventory&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Shopify&grant_options[]=per-user")]
+        // [InlineData(PosProviders.Vend,
+        //     "",
+        //     "state",
+        //     "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Vend")]
+        // [InlineData(PosProviders.Squarespace,
+        //     "?shop=airslip-development",
+        //     "state",
+        //     "https://airslip-development.squarespace.com/api/1/login/oauth/provider/authorize?client_id=client-id&scope=website.orders.read,website.transactions.read,website.inventory.read,website.products.read&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Squarespace&access_type=offline")]
+        // public void Can_generate_callback_url(PosProviders provider, string queryString, string relayQueryString,
+        //     string expectedResult)
+        // {
+        //     string callBackUrl = _sut.GenerateCallbackUrl(provider, queryString);
+        //
+        //     string urlDecodedCallbackUrl = HttpUtility.UrlDecode(callBackUrl);
+        //
+        //     List<KeyValuePair<string, string>> queryParams = urlDecodedCallbackUrl.GetQueryParams(true).ToList();
+        //
+        //     KeyValuePair<string, string> keyValuePair = queryParams.Get(relayQueryString);
+        //     queryParams.Remove(keyValuePair);
+        //
+        //     urlDecodedCallbackUrl.Should().NotBeEmpty();
+        //
+        //     int i = expectedResult.IndexOf("?", StringComparison.Ordinal);
+        //     string queryWithoutQueryString = expectedResult.Substring(0, i);
+        //
+        //     string queryStringWithoutState = queryParams.ToQueryStringUrl(queryWithoutQueryString);
+        //     queryStringWithoutState.Should().Be(expectedResult);
+        // }
 
-            providerSettingsMock
-                .Setup(s => s.Value)
-                .Returns(settings);
-
-            _sut = new ProviderDiscoveryService(
-                providerSettingsMock.Object,
-                publicApiSettingsMock.Object,
-                encryptionSettings.Object,
-                providerHttpClient.Object,
-                loggerMock.Object);
-        }
-
-        [Theory]
-        [InlineData(PosProviders.Shopify,
-            "?shop=airslip-development.myshopify.com&isOnline=true",
-            "state",
-            "https://airslip-development.myshopify.com/admin/oauth/authorize?client_id=client-id&scope=read_orders,read_products,read_inventory&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Shopify&grant_options[]=per-user")]
-        [InlineData(PosProviders.Vend,
-            "",
-            "state",
-            "https://secure.vendhq.com/connect?response_type=code&client_id=SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Vend")]
-        [InlineData(PosProviders.Squarespace,
-            "?shop=airslip-development",
-            "state",
-            "https://airslip-development.squarespace.com/api/1/login/oauth/provider/authorize?client_id=client-id&scope=website.orders.read,website.transactions.read,website.inventory.read,website.products.read&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/Squarespace&access_type=offline")]
-        public void Can_generate_callback_url(PosProviders provider, string queryString, string relayQueryString,
-            string expectedResult)
-        {
-            string callBackUrl = _sut.GenerateCallbackUrl(provider, queryString);
-
-            string urlDecodedCallbackUrl = HttpUtility.UrlDecode(callBackUrl);
-
-            List<KeyValuePair<string, string>> queryParams = urlDecodedCallbackUrl.GetQueryParams(true).ToList();
-
-            KeyValuePair<string, string> keyValuePair = queryParams.Get(relayQueryString);
-            queryParams.Remove(keyValuePair);
-
-            urlDecodedCallbackUrl.Should().NotBeEmpty();
-
-            int i = expectedResult.IndexOf("?", StringComparison.Ordinal);
-            string queryWithoutQueryString = expectedResult.Substring(0, i);
-
-            string queryStringWithoutState = queryParams.ToQueryStringUrl(queryWithoutQueryString);
-            queryStringWithoutState.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void Can_override_redirect_uri_for_callback_url_generator()
-        {
-            string callBackUrl = _sut.GenerateCallbackUrl(PosProviders.Vend, "?callbackUrl=override-url");
-            string urlDecodedCallbackUrl = HttpUtility.UrlDecode(callBackUrl);
-
-            List<KeyValuePair<string, string>> queryParams = urlDecodedCallbackUrl.GetQueryParams(true).ToList();
-
-            string overrideRedirectUri = queryParams.GetValue("redirect_uri");
-            urlDecodedCallbackUrl.Should().NotBeEmpty();
-            overrideRedirectUri.Should().Be("override-url");
-        }
+        // [Fact]
+        // public void Can_override_redirect_uri_for_callback_url_generator()
+        // {
+        //     string callBackUrl = _sut.GenerateCallbackUrl(PosProviders.Vend, "?callbackUrl=override-url");
+        //     string urlDecodedCallbackUrl = HttpUtility.UrlDecode(callBackUrl);
+        //
+        //     List<KeyValuePair<string, string>> queryParams = urlDecodedCallbackUrl.GetQueryParams(true).ToList();
+        //
+        //     string overrideRedirectUri = queryParams.GetValue("redirect_uri");
+        //     urlDecodedCallbackUrl.Should().NotBeEmpty();
+        //     overrideRedirectUri.Should().Be("override-url");
+        // }
 
         // [Theory]
         // [InlineData("Shopify",

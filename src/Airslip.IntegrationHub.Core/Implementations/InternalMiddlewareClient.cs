@@ -1,47 +1,43 @@
-﻿using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Security.Configuration;
+using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
-using System.Net.Http;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Airslip.IntegrationHub
+namespace Airslip.IntegrationHub.Core.Implementations
 {
-    public class IntegrationMiddlewareClient
+    public class InternalMiddlewareClient : IInternalMiddlewareClient
     {
-        private readonly IProviderDiscoveryService _providerDiscoveryService;
         private readonly HttpClient _httpClient;
+        private readonly EncryptionSettings _encryptionSettings;
         private readonly ILogger _logger;
 
-        public IntegrationMiddlewareClient(
-            IProviderDiscoveryService providerDiscoveryService,
+        public InternalMiddlewareClient(
             HttpClient httpClient,
+            IOptions<EncryptionSettings> encryptionOptions,
             ILogger logger)
         {
-            _providerDiscoveryService = providerDiscoveryService;
             _httpClient = httpClient;
+            _encryptionSettings = encryptionOptions.Value;
             _logger = logger;
         }
         
-        public async Task<IResponse> SendToMiddleware(ProviderDetails providerDetails, IProviderAuthorisation providerAuthorisingDetail)
+        public async Task<IResponse> SendToMiddleware(
+            ProviderDetails providerDetails,  
+            MiddlewareAuthorisationRequest middlewareAuthorisationRequest)
         {
-            MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
-            {
-                ProviderAuthStrategy.ShortLived => await _providerDiscoveryService.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail)providerAuthorisingDetail),
-                ProviderAuthStrategy.Basic =>  _providerDiscoveryService.GetMiddlewareAuthorisation(providerDetails, (BasicAuthorisationDetail)providerAuthorisingDetail),
-                ProviderAuthStrategy.Bridge => _providerDiscoveryService.GetMiddlewareAuthorisation(providerDetails,(BasicAuthorisationDetail)providerAuthorisingDetail),
-                _ => throw new NotSupportedException()
-            };
-
-            string url = Endpoints.Result(providerDetails.DestinationBaseUri, providerDetails.Provider);
+            string url = Endpoints.Result(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider);
 
             try
             {
@@ -57,7 +53,7 @@ namespace Airslip.IntegrationHub
                         { "x-api-key", providerDetails.PublicApiSetting.ApiKey}
                     },
                     Content = new StringContent(
-                        Json.Serialize(middlewareAuthorisationBody),
+                        Json.Serialize(middlewareAuthorisationRequest),
                         Encoding.UTF8,
                         Json.MediaType)
                 };
@@ -91,6 +87,29 @@ namespace Airslip.IntegrationHub
                 _logger.Fatal(ee, "Error posting request to integration middleware for Url {PostUrl}", url);
                 return new InvalidResource("", "Fail");
             }
+        }
+        
+        public MiddlewareAuthorisationRequest BuildMiddlewareAuthorisationModel(
+            ProviderDetails providerDetails,
+            BasicAuthorisationDetail basicAuthorisationDetail)
+        {
+            SensitiveCallbackInfo sensitiveCallbackInfo = SensitiveCallbackInfo.DecryptCallbackInfo(
+                basicAuthorisationDetail.EncryptedUserInfo,
+                _encryptionSettings.PassPhraseToken);
+
+            return new MiddlewareAuthorisationRequest
+            {
+                Provider = providerDetails.Provider.ToString(),
+                StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
+                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
+                Login = basicAuthorisationDetail.Login,
+                Password = basicAuthorisationDetail.Password,
+                EntityId = sensitiveCallbackInfo.EntityId,
+                UserId = sensitiveCallbackInfo.UserId,
+                AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
+                Environment = providerDetails.ProviderSetting.Environment,
+                LocationId = providerDetails.ProviderSetting.LocationId,
+            };
         }
     }
 

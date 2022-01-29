@@ -8,6 +8,8 @@ using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core;
+using Airslip.IntegrationHub.Core.Implementations;
+using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -86,12 +88,13 @@ namespace Airslip.IntegrationHub
 
                     services
                         .UseHealthChecks();
-                    
+
                     services
                         .AddProviderAuthorisation(context.Configuration);
                     
                     services
-                        .AddHttpClient<IntegrationMiddlewareClient>((serviceProvider, httpClient) =>
+                        .AddSingleton<IInternalMiddlewareClient, InternalMiddlewareClient>()
+                        .AddHttpClient<InternalMiddlewareClient>((serviceProvider, httpClient) =>
                         {
                             IOptions<PublicApiSettings> settings = serviceProvider.GetRequiredService<IOptions<PublicApiSettings>>();
                             string baseUri = settings.Value.GetSettingByName("Api2Cart").ToBaseUri();
