@@ -6,8 +6,9 @@ namespace Airslip.IntegrationHub.Core.Interfaces
 {
     public record ProviderDetails(
         PosProviders Provider,
-        string DestinationBaseUri,
-        string RedirectUri,
+        string CallbackRedirectUri,
+        string MiddlewareDestinationBaseUri,
+        string ProvidersRedirectUri,
         PublicApiSetting PublicApiSetting,
         ProviderSetting ProviderSetting);
 }

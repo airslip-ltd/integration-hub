@@ -56,11 +56,31 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | XtcommerceVeyton | Bridge File |
 | Zen Cart | Bridge File |
 
-# Squarespace
+# Authentication
 
-## Authentication
+All requests to generate a callback URL require the following parameters
+
+- shop
+
+- userId
+
+- entityId
+
+- airslipUserType
+
+## Shopify
+
+`shop` should be in the format of {shop-name}.myshopify.com
+
+Requires an additional parameter
+
+- isOnline
+
+## Squarespace
+
 
 Request OAUTH access through their application form at https://partner.squarespace.com/oauth-form. Applications can take up to 7 days and Squarespace will review the registration and respond with client_id and client_secret as soon as possible.
 
 TODO:
 Complete steps from docs - https://developers.squarespace.com/oauth
+
