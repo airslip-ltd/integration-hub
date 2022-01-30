@@ -80,12 +80,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 _logger.Error(hre,
                     "Error posting request to integration middleware for Url {PostUrl}, response code: {StatusCode}",
                     url, hre.StatusCode);
-                return new InvalidResource("", "Fail");
+                return new InvalidResource(nameof(SendToMiddleware), "Fail");
             }
             catch (Exception ee)
             {
                 _logger.Fatal(ee, "Error posting request to integration middleware for Url {PostUrl}", url);
-                return new InvalidResource("", "Fail");
+                return new InvalidResource("UNHANDLED_ERROR", "Fail");
             }
         }
         
