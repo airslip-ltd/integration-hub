@@ -20,9 +20,7 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Web;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -126,7 +124,7 @@ namespace Airslip.IntegrationHub.Functions
                     return squarespaceShortLivedAuthDetail;
                 case PosProviders.WoocommerceApi:
                     BasicAuthorisationDetail wooCommerceAuthDetail =
-                        req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
+                        req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
                     return wooCommerceAuthDetail;
                 case PosProviders.EBay:
                     ShortLivedAuthorisationDetail ebayShortLivedAuthDetail =
@@ -152,29 +150,12 @@ namespace Airslip.IntegrationHub.Functions
             {
                 case PosProviders.WoocommerceApi:
                     WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail =
-                        req.Body.DeserializeStream<WooCommerceAuthorisationDetail>();
+                        req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
                     string queryString = wooCommerceAuthorisationDetail.GetQueryString();
                     return queryString.GetQueryParams(true).ToList();
                 default:
                     return req.Url.Query.GetQueryParams().ToList();
             }
-        }
-
-        // Move to common
-        public static T DeserializeStream<T>(this Stream requestBody) where T : class
-        {
-            StreamReader sr = new(requestBody);
-            string payload = sr.ReadToEnd();
-            return Json.Deserialize<T>(payload);
-        }
-
-        public static string GetQueryString(this object obj)
-        {
-            IEnumerable<string> properties = from p in obj.GetType().GetProperties()
-                where p.GetValue(obj, null) != null
-                select p.Name + "=" + HttpUtility.UrlEncode(p.GetValue(obj, null).ToString());
-
-            return string.Join("&", properties.ToArray());
         }
     }
 }
