@@ -18,7 +18,6 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
-using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Models;
 using System.Collections.Generic;
 using System.IO;

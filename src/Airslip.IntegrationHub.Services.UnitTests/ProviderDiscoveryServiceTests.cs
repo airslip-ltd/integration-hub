@@ -1,23 +1,6 @@
-using Airslip.Common.Security.Configuration;
-using Airslip.Common.Testing;
-using Airslip.Common.Types.Configuration;
-using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
-using Airslip.IntegrationHub.Core.Implementations;
-using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Models;
-using AutoMapper;
-using FluentAssertions;
-using Microsoft.Extensions.Options;
-using Moq;
-using Serilog;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Web;
-using Xunit;
-
 namespace Airslip.IntegrationHub.Services.UnitTests
 {
     public class ProviderDiscoveryServiceTests

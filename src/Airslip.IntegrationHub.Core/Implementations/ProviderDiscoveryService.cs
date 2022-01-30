@@ -1,15 +1,9 @@
 ﻿using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
-using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 
 namespace Airslip.IntegrationHub.Core.Implementations
 {
@@ -68,72 +62,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 PosProviders.EtsyAPIv3 => PosProviders.Api2Cart.ToString(),
                 _ => provider.ToString()
             };
-        }
-    }
-
-    public class EbayPermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
-    {
-        public EbayPermanentAccessHttpRequestMessage(
-            ProviderDetails providerDetails,
-            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
-        {
-            Headers.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(
-                    Encoding.ASCII.GetBytes(
-                        $"{providerDetails.ProviderSetting.AppId}:{providerDetails.ProviderSetting.AppSecret}")));
-
-            Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
-            {
-                // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
-                new("redirect_uri", providerDetails.ProviderSetting.AppName!),
-                new("grant_type", shortLivedAuthorisationDetail.GrantType),
-                new("code", shortLivedAuthorisationDetail.ShortLivedCode)
-            });
-        }
-    }
-
-    public abstract class PermanentAccessHttpRequestMessage : HttpRequestMessage
-    {
-        protected PermanentAccessHttpRequestMessage(
-            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
-        {
-            Method = HttpMethod.Post;
-            RequestUri = new Uri(shortLivedAuthorisationDetail.PermanentAccessUrl);
-        }
-    }
-
-    public class EtsyAPIv3PermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
-    {
-        public EtsyAPIv3PermanentAccessHttpRequestMessage(
-            ProviderDetails providerDetails,
-            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
-        {
-            Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
-            {
-                // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
-                new("client_id", providerDetails.ProviderSetting.AppId),
-                new("redirect_uri", providerDetails.ProvidersRedirectUri),
-                new("grant_type", shortLivedAuthorisationDetail.GrantType),
-                new("code", shortLivedAuthorisationDetail.ShortLivedCode),
-                new("code_verifier", shortLivedAuthorisationDetail.EncryptedUserInfo),
-            });
-        }
-    }
-
-    public class ShopifyPermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
-    {
-        public ShopifyPermanentAccessHttpRequestMessage(
-            ProviderDetails providerDetails,
-            ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
-        {
-            Content = new StringContent(
-                Json.Serialize(
-                    new ShopifyPermanentAccess(
-                        providerDetails.ProviderSetting.AppId,
-                        providerDetails.ProviderSetting.AppSecret,
-                        shortLivedAuthorisationDetail.ShortLivedCode)),
-                Encoding.UTF8,
-                Json.MediaType);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Airslip.Common.Security.Configuration;
-using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
@@ -8,7 +7,6 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Extensions.Options;
-using System;
 using System.Web;
 
 namespace Airslip.IntegrationHub.Core.Implementations;
