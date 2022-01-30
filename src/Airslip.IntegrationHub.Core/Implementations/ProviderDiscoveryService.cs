@@ -5,7 +5,6 @@ using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Options;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -18,16 +17,13 @@ namespace Airslip.IntegrationHub.Core.Implementations
     {
         private readonly SettingCollection<ProviderSetting> _providerSettings;
         private readonly PublicApiSettings _publicApiSettings;
-        private readonly ILogger _logger;
 
         public ProviderDiscoveryService(
             IOptions<SettingCollection<ProviderSetting>> providerOptions,
-            IOptions<PublicApiSettings> publicApiOptions,
-            ILogger logger)
+            IOptions<PublicApiSettings> publicApiOptions)
         {
             _providerSettings = providerOptions.Value;
             _publicApiSettings = publicApiOptions.Value;
-            _logger = logger;
         }
 
         public PosProviders? GetProvider(string provider)
@@ -98,7 +94,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
     public abstract class PermanentAccessHttpRequestMessage : HttpRequestMessage
     {
-        public PermanentAccessHttpRequestMessage(
+        protected PermanentAccessHttpRequestMessage(
             ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
         {
             Method = HttpMethod.Post;

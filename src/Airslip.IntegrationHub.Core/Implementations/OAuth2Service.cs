@@ -16,7 +16,8 @@ public class OAuth2Service : IOAuth2Service
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger _logger;
 
-    public OAuth2Service(IInternalMiddlewareService internalMiddlewareService, IHttpClientFactory httpClientFactory, ILogger logger)
+    public OAuth2Service(IInternalMiddlewareService internalMiddlewareService, IHttpClientFactory httpClientFactory,
+        ILogger logger)
     {
         _internalMiddlewareService = internalMiddlewareService;
         _httpClientFactory = httpClientFactory;
@@ -27,35 +28,49 @@ public class OAuth2Service : IOAuth2Service
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
     {
-        // Change create client name
-        HttpClient httpClient = _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
-
-        HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
-            providerDetails,
-            shortLivedAuthorisationDetail);
-
-        HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
-        string content = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            _logger.Error(
-                "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
-                shortLivedAuthorisationDetail.PermanentAccessUrl,
-                response.StatusCode,
-                content);
+            // Change create client name
+            HttpClient httpClient = _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
 
-            throw new Exception("Error getting permanent access token");
+            HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail);
+
+            HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
+            string content = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error(
+                    "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
+                    shortLivedAuthorisationDetail.PermanentAccessUrl,
+                    response.StatusCode,
+                    content);
+            }
+
+            BasicAuthorisationDetail basicAuth = ParseResponseMessage(
+                content,
+                providerDetails,
+                shortLivedAuthorisationDetail);
+
+            return _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
+                providerDetails,
+                basicAuth);
         }
-
-        BasicAuthorisationDetail basicAuth = ParseResponseMessage(
-            content,
-            providerDetails,
-            shortLivedAuthorisationDetail);
-
-        return _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
-            providerDetails,
-            basicAuth);
+        catch (HttpRequestException hre)
+        {
+            _logger.Error(hre,
+                "Error posting request to OAuth2 request for provider {Provier}, response code: {StatusCode}",
+                providerDetails.Provider, hre.StatusCode);
+            
+            throw;
+        }
+        catch (Exception ee)
+        {
+            _logger.Fatal(ee, "Unhandled error posting request to OAuth2 endpoint for provider {Provider}", providerDetails.Provider);
+            throw;
+        }
     }
 
     public HttpRequestMessage GetHttpRequestMessage(
