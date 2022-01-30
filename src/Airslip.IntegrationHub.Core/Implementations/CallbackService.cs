@@ -26,12 +26,12 @@ public class CallbackService : ICallbackService
 
     public IResponse GenerateUrl(string provider, string queryString)
     {
-        PosProviders? parsedProvider = _providerDiscoveryService.GetProvider(provider);
-
-        if (parsedProvider is null)
+       bool supportedProvider =  provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+        
+        if (supportedProvider)
             return new ErrorResponse("PARSE_ERROR", $"{provider} is an unsupported provider");
         
-        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails((PosProviders)parsedProvider);
+        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(parsedProvider);
 
         string callbackUrl = _generateCallbackUrl(providerDetails, queryString);
        

@@ -8,7 +8,6 @@ namespace Airslip.IntegrationHub.Core.Interfaces
         PosProviders Provider,
         string CallbackRedirectUri,
         string MiddlewareDestinationBaseUri,
-        string ProvidersRedirectUri,
         PublicApiSetting PublicApiSetting,
         ProviderSetting ProviderSetting);
 }
