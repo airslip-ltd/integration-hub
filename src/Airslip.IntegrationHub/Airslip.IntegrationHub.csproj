@@ -58,7 +58,8 @@
       </Content>
       <None Remove="appsettings.Production.json" />
       <Content Include="appsettings.Local.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
       </Content>
       <Content Include="appsettings.Production.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
