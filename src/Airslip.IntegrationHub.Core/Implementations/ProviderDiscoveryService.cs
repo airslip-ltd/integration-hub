@@ -28,6 +28,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 : parsedProvider;
         }
 
+        // Step 2: Add provider details to app settings
         public ProviderDetails GetProviderDetails(PosProviders provider)
         {
             ProviderSetting providerSetting = _providerSettings.GetSettingByName(provider.ToString());

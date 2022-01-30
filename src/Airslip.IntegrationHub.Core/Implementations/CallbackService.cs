@@ -53,6 +53,7 @@ public class CallbackService : ICallbackService
         
         string encodedScope = HttpUtility.UrlEncode(providerDetails.ProviderSetting.Scope);
 
+        // Step 1: Generate link to be used for an OAuth callback
          switch (providerDetails.Provider)
         {
             case PosProviders.EtsyAPIv3:
@@ -73,7 +74,7 @@ public class CallbackService : ICallbackService
             case PosProviders.Stripe:
             case PosProviders.SumUp:
             case PosProviders.IZettle:
-            case PosProviders.EposNow:
+            case PosProviders.BigcommerceApi:
             case PosProviders.WoocommerceApi:
                 return
                     $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={redirectUri}";
