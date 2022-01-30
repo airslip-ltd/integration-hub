@@ -4,21 +4,21 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 # Providers
 
-| Name | Auth Type |
-|:- |:- |
+| Name | Auth Type | Status |
+|:- |:- |:- |
 | Shift4Shop REST API | OAUTH |
 | Amazon | OAUTH |
 | Amazon SP API | OAUTH |
 | BigCommerce | OAUTH |
 | Demandware | OAUTH |
-| eBay | OAUTH |
+| eBay | OAUTH | Pending Tests |
 | Ecwid | OAUTH |
-| Etsy | OAUTH |
-| Etsy API v3 | OAUTH |
-| Magento 2 API | OAUTH |
-| Shopify | OAUTH |
-| Squarespace | OAUTH |
-| WooCommerce API | OAUTH |
+| Etsy | OAUTH | Not Doing |
+| Etsy API v3 | OAUTH | Pending Tests |
+| Magento 2 API | OAUTH | Awaiting Email |
+| Shopify | OAUTH | Complete |
+| Squarespace | OAUTH | Awaiting Email |
+| WooCommerce API | OAUTH | Pending Tests |
 | Walmart | OAUTH |
 | Shift4Shop | Basic |
 | AspDotNetStoreFront | Basic |
@@ -27,34 +27,34 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | LightSpeed eCommerce | Basic |
 | Neto | Basic |
 | Shopware API | Basic |
-| Volusion | Basic |
-| AceShop | Bridge File |
-| Cscart | Bridge File |
-| Cubecart | Bridge File |
-| Gambio | Bridge File |
-| Loaded Commerce | Bridge File |
-| Interspire | Bridge File |
-| JooCart | Bridge File |
-| Magento | Bridge File |
-| MijoShop | Bridge File |
-| OpenCart | Bridge File |
-| OscMax | Bridge File |
-| Oscommerce | Bridge File |
-| Oxid | Bridge File |
-| Pinnacle | Bridge File |
-| PrestaShop | Bridge File |
-| Shop-Script Premium | Bridge File |
-| Shopware | Bridge File |
-| Tomatocart | Bridge File |
-| Ubercart | Bridge File |
-| Virtuemart | Bridge File |
-| WPecommerce | Bridge File |
-| WooCommerce | Bridge File |
-| WebAsyst | Bridge File |
-| Xcart | Bridge File |
-| Xtcommerce | Bridge File |
-| XtcommerceVeyton | Bridge File |
-| Zen Cart | Bridge File |
+| Volusion | Basic | Complete |
+| AceShop | Bridge File | Pending UI |
+| Cscart | Bridge File | Pending UI |
+| Cubecart | Bridge File | Pending UI |
+| Gambio | Bridge File | Pending UI |
+| Loaded Commerce | Bridge File | Pending UI |
+| Interspire | Bridge File | Pending UI |
+| JooCart | Bridge File | Pending UI |
+| Magento | Bridge File | Pending UI |
+| MijoShop | Bridge File | Pending UI |
+| OpenCart | Bridge File | Pending UI |
+| OscMax | Bridge File | Pending UI |
+| Oscommerce | Bridge File | Pending UI |
+| Oxid | Bridge File | Pending UI |
+| Pinnacle | Bridge File | Pending UI |
+| PrestaShop | Bridge File | Pending UI |
+| Shop-Script Premium | Bridge File | Pending UI |
+| Shopware | Bridge File | Pending UI |
+| Tomatocart | Bridge File | Pending UI |
+| Ubercart | Bridge File | Pending UI |
+| Virtuemart | Bridge File | Pending UI |
+| WPecommerce | Bridge File | Pending UI |
+| WooCommerce | Bridge File | Pending UI |
+| WebAsyst | Bridge File | Pending UI |
+| Xcart | Bridge File | Pending UI |
+| Xtcommerce | Bridge File | Pending UI |
+| XtcommerceVeyton | Bridge File | Pending UI |
+| Zen Cart | Bridge File | Pending UI |
 
 # Authentication
 
