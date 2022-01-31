@@ -1,4 +1,4 @@
-short_environment = "dev"
+short_environment = "qa"
 location = "UK South"
-environment = "Development"
+environment = "QA"
 integrations_hostname = "https://qa-integrations.airslip.com"
