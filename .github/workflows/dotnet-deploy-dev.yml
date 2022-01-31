@@ -15,8 +15,9 @@ jobs:
       TERRAFORM_MODULE_VERSION: 6.0.4
       ENVIRONMENT_NAME: Development
       ENVIRONMENT_NAME_SHORT: dev
-      PUBLISH_PATH: ./src
+      BUILD_PATH: ./src/Airslip.IntegrationHub.sln
       APPSERVICE_NAME: integration-hub
+      PUBLISH_PATH: ./src/Airslip.IntegrationHub
     steps:
     - uses: actions/checkout@v2
       with:
@@ -34,7 +35,7 @@ jobs:
 
     - uses: cschleiden/replace-tokens@v1
       with:
-        files: '["${{ env.PUBLISH_PATH }}/**/*.json"]'
+        files: '["${{ env.PUBLISH_PATH }}/*.json"]'
       env:
         LOGZ_IO_AUTH_TOKEN: ${{ secrets.LOGZ_IO_AUTH_TOKEN }}
         LOGZ_IO_LOG_LEVEL: Debug
@@ -50,6 +51,14 @@ jobs:
     - name: Install Terraform Modules
       run: nuget install Airslip.Terraform.Modules -Version ${{ env.TERRAFORM_MODULE_VERSION }} -OutputDirectory ./env/tf_modules -x
 
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["./env/variables/secrets.tfvars"]'
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
+        SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+
     - name: Terraform Update
       id: "terraform_update"
       env:
@@ -58,8 +67,8 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.NON_PROD_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.NON_PROD_ARM_TENANT_ID }}
       run: |
-        terraform init -backend-config=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/backend.tfvars
-        terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var="api_key=${{ secrets.API_KEY }}" -var="shopify_app_id=${{ secrets.DEV_SHOPIFY_APP_ID }}" -var="shopify_app_secret=${{ secrets.DEV_SHOPIFY_APP_SECRET }}" -out=terraform.tfplan
+        terraform init -backend-config=variables/dev/backend.tfvars
+        terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var-file=variables/secrets.tfvars -out=terraform.tfplan
         terraform apply terraform.tfplan
         resource_group_name_raw=$(terraform output resource_group_name)
         resource_group_name=$(echo "${resource_group_name_raw}" | sed 's/"//g')
@@ -67,6 +76,7 @@ jobs:
         processor_app_service_name=$(echo "${processor_app_service_name_raw}" | sed 's/"//g')
         echo "::set-output name=resource_group_name::${resource_group_name}"
         echo "::set-output name=processor_app_service_name::${processor_app_service_name}"
+
       working-directory: ./env
 
     - name: Write Outputs
@@ -75,10 +85,10 @@ jobs:
         echo "${{ steps.terraform_update.outputs.processor_app_service_name }}"
 
     - name: Build
-      run: dotnet build ./src/Airslip.IntegrationHub.sln
+      run: dotnet build ${{ env.BUILD_PATH }}
 
     - name: Publish the Processor Function App
-      run: dotnet publish ./src/Airslip.IntegrationHub -c Release -o ProcessorApp
+      run: dotnet publish ${{ env.PUBLISH_PATH }} -c Release -o ProcessorApp
 
     - name: Get AppService publish profile
       id: publishprofile_processor
