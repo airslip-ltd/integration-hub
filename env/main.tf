@@ -25,8 +25,8 @@ locals {
   api_key = var.api_key
   integrations_hostname = var.integrations_hostname
 
-  shopify_app_id = var.shopify_app_id
-  shopify_app_secret = var.shopify_app_secret
+  shopify_api_key = var.shopify_api_key
+  shopify_api_secret = var.shopify_api_secret
 }
 
 module "ingredient_bowl" {
@@ -69,8 +69,8 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Vend:ApiKey": local.api_key,
-        "ProviderSettings:Settings:Shopify:AppId": local.shopify_app_id,
-        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_app_secret
+        "ProviderSettings:Settings:Shopify:AppId": local.shopify_api_key,
+        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_api_secret
       }
     }
   ]
