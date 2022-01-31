@@ -47,6 +47,8 @@ public class OAuth2Service : IOAuth2Service
                     shortLivedAuthorisationDetail.PermanentAccessUrl,
                     response.StatusCode,
                     content);
+
+                return new MiddlewareAuthorisationRequest();
             }
 
             BasicAuthorisationDetail basicAuth = ParseResponseMessage(
@@ -73,6 +75,7 @@ public class OAuth2Service : IOAuth2Service
         }
     }
 
+    // Step X: Add provider for OAuth2
     public HttpRequestMessage GetHttpRequestMessage(
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
@@ -86,6 +89,9 @@ public class OAuth2Service : IOAuth2Service
                 providerDetails,
                 shortLivedAuthorisationDetail),
             PosProviders.EBay => new EbayPermanentAccessHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail),
+            PosProviders.BigcommerceApi => new BigCommerceApiPermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
             _ => throw new NotImplementedException()
@@ -112,6 +118,9 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.EtsyAPIv3:
                 basicAuth = Json.Deserialize<EtsyAPIv3AuthorisationDetail>(content);
+                break;
+            case PosProviders.BigcommerceApi:
+                basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
                 break;
         }
 

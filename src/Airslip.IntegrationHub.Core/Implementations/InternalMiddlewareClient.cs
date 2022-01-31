@@ -59,19 +59,27 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 };
 
                 HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.Error(
                         "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}", 
                         url, 
                         response.StatusCode);
+
+                    string content = await response.Content.ReadAsStringAsync();
                     
-                    throw new Exception("Error exchanging short lived token in the providers middleware");
+                    try
+                    {
+                        return Json.Deserialize<ErrorResponses>(content);
+                    }
+                    catch (Exception)
+                    {
+                        return new ErrorResponse("MIDDLEWARE_ERROR", content);
+                    }
                 }
                 
-                _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}",
-                    url, response.StatusCode);
+                _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
 
                 return await response.CommonResponseHandler<AccountResponse>();
             }
@@ -80,12 +88,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 _logger.Error(hre,
                     "Error posting request to integration middleware for Url {PostUrl}, response code: {StatusCode}",
                     url, hre.StatusCode);
-                return new InvalidResource(nameof(SendToMiddleware), "Fail");
+                return new InvalidResource(nameof(SendToMiddleware), hre.Message);
             }
             catch (Exception ee)
             {
                 _logger.Fatal(ee, "Error posting request to integration middleware for Url {PostUrl}", url);
-                return new InvalidResource("UNHANDLED_ERROR", "Fail");
+                return new InvalidResource("UNHANDLED_ERROR", ee.Message);
             }
         }
         

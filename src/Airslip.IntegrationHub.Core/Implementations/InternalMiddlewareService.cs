@@ -23,7 +23,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             SensitiveCallbackInfo sensitiveCallbackInfo = SensitiveCallbackInfo.DecryptCallbackInfo(
                 basicAuthorisationDetail.EncryptedUserInfo,
                 _encryptionSettings.PassPhraseToken);
-
+            
             return new MiddlewareAuthorisationRequest
             {
                 Provider = providerDetails.Provider.ToString(),
@@ -36,6 +36,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
                 Environment = providerDetails.ProviderSetting.Environment,
                 LocationId = providerDetails.ProviderSetting.LocationId,
+                Context = basicAuthorisationDetail.Context
             };
         }
     }
