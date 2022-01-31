@@ -12,6 +12,7 @@ namespace Airslip.IntegrationHub.Core.Models
 
         [JsonProperty(PropertyName = "grant_type")]
         public virtual string GrantType { get; } = "authorization_code";
+        public virtual string MiscellaneousInfo { get; set; } = string.Empty;
 
         public void FormatBaseUri(string value)
         {

@@ -13,7 +13,9 @@ public class AuthorisationService : IAuthorisationService
     private readonly IInternalMiddlewareClient _internalMiddlewareClient;
     private readonly IInternalMiddlewareService _internalMiddlewareService;
 
-    public AuthorisationService(IOAuth2Service oauth2Service, IInternalMiddlewareClient internalMiddlewareClient,
+    public AuthorisationService(
+        IOAuth2Service oauth2Service, 
+        IInternalMiddlewareClient internalMiddlewareClient,
         IInternalMiddlewareService internalMiddlewareService)
     {
         _oauth2Service = oauth2Service;

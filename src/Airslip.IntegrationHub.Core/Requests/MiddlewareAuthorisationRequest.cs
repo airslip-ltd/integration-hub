@@ -15,6 +15,7 @@ namespace Airslip.IntegrationHub.Core.Requests
         public string Password { get; set; }= string.Empty;
         public string? Environment { get; set; }= string.Empty;
         public string? Reference { get; set; }= string.Empty;
+        public string? Context { get; set; }= string.Empty;
         public string? LocationId { get; set; }= string.Empty;
     }
 }

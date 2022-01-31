@@ -9,7 +9,7 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | Shift4Shop REST API | OAUTH |
 | Amazon | OAUTH |
 | Amazon SP API | OAUTH |
-| BigCommerce | OAUTH |
+| BigCommerce | OAUTH | Pending Tests |
 | Demandware | OAUTH |
 | eBay | OAUTH | Pending Tests |
 | Ecwid | OAUTH |

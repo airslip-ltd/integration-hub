@@ -58,4 +58,17 @@ public class ProviderDiscoveryServiceTests
         providerDetails.PublicApiSetting.Version.Should().NotBeEmpty();
         providerDetails.PublicApiSetting.ApiKey.Should().NotBeEmpty();
     }
+
+    [Theory]
+    [InlineData(PosProviders.Shopify, "https://{0}")]
+    [InlineData(PosProviders.EtsyAPIv3, "https://www.etsy.com")]
+    [InlineData(PosProviders.WoocommerceApi, "https://{0}")]
+    [InlineData(PosProviders.EBay, "https://api.sandbox.ebay.com")]
+    [InlineData(PosProviders.Squarespace, "https://{0}.squarespace.com")]
+    [InlineData(PosProviders.BigcommerceApi, "https://{0}.mybigcommerce.com")]
+    public void Can_get_providers_default_base_uri(PosProviders provider, string expectedBaseUri)
+    {
+        ProviderDetails providerDetails = _sut.GetProviderDetails(provider);
+        providerDetails.ProviderSetting.BaseUri.Should().Be(expectedBaseUri);
+    }
 }

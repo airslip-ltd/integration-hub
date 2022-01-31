@@ -28,7 +28,7 @@ public class CallbackService : ICallbackService
     {
        bool supportedProvider =  provider.TryParseIgnoreCase(out PosProviders parsedProvider);
         
-        if (supportedProvider)
+        if (!supportedProvider)
             return new ErrorResponse("PARSE_ERROR", $"{provider} is an unsupported provider");
         
         ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(parsedProvider);

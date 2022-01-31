@@ -26,6 +26,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Airslip.IntegrationHub.Core\Airslip.IntegrationHub.Core.csproj" />
+      <ProjectReference Include="..\Airslip.IntegrationHub\Airslip.IntegrationHub.csproj" />
     </ItemGroup>
 
 </Project>
