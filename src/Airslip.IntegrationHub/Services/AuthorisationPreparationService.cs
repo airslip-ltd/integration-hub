@@ -2,6 +2,10 @@
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Models.Ecwid;
+using Airslip.IntegrationHub.Core.Models.Shopify;
+using Airslip.IntegrationHub.Core.Models.Squarespace;
+using Airslip.IntegrationHub.Core.Models.ThreeDCart;
 using Microsoft.Azure.Functions.Worker.Http;
 using System;
 using System.Collections.Generic;
@@ -38,8 +42,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             case PosProviders.EBay:
                 ShortLivedAuthorisationDetail ebayShortLivedAuthDetail =
                     req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
-                ebayShortLivedAuthDetail.PermanentAccessUrl =
-                    providerDetails.ProviderSetting.BaseUri + "/identity/v1/oauth2/token";
+                ebayShortLivedAuthDetail.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/identity/v1/oauth2/token";
                 return ebayShortLivedAuthDetail;
             case PosProviders.EtsyAPIv3:
                 ShortLivedAuthorisationDetail etsyAuth = req.Url.Query.GetQueryParams<EtsyAPIv3AuthorisingDetail>();
@@ -50,6 +53,20 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
                 bigCommerceAuth.PermanentAccessUrl = "https://login.bigcommerce.com/oauth2/token";
                 providerDetails.ProviderSetting.Scope = bigCommerceAuth.Scope;
                 return bigCommerceAuth;
+            case PosProviders._3DCart:
+                ShortLivedAuthorisationDetail threeDAuth = req.Url.Query.GetQueryParams<ThreeDCartAuthorisingDetail>();
+                if(!string.IsNullOrEmpty(threeDAuth.ErrorMessage))
+                    return new ErrorAuthorisingDetail { ErrorMessage = threeDAuth.ErrorMessage, ErrorCode = threeDAuth.ErrorCode};
+                
+                threeDAuth.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/oauth/token";
+                
+                return threeDAuth;
+            case PosProviders.Ecwid:
+                EcwidAuthorisingDetail ecwidAuth = req.Url.Query.GetQueryParams<EcwidAuthorisingDetail>();
+                if(!string.IsNullOrEmpty(ecwidAuth.ErrorMessage))
+                    return new ErrorAuthorisingDetail { ErrorMessage = ecwidAuth.ErrorMessage, ErrorCode = ecwidAuth.ErrorCode};
+                ecwidAuth.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/oauth/token";
+                return ecwidAuth;
             default:
                 throw new NotImplementedException();
         }

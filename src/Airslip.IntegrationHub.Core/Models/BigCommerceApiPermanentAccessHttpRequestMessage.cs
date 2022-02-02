@@ -13,6 +13,7 @@ public class BigCommerceApiPermanentAccessHttpRequestMessage : PermanentAccessHt
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
     {
+        Method = HttpMethod.Post;
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
             // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)

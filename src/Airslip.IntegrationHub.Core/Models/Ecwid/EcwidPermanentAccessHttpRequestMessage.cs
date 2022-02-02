@@ -2,23 +2,22 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.Ecwid;
 
-public class EtsyAPIv3PermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
+public class EcwidPermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
 {
-    public EtsyAPIv3PermanentAccessHttpRequestMessage(
+    public EcwidPermanentAccessHttpRequestMessage(
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
     {
-        Method = HttpMethod.Post;
+        Method = HttpMethod.Get;
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
-            // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
             new("client_id", providerDetails.ProviderSetting.AppId),
-            new("redirect_uri", providerDetails.CallbackRedirectUri),
+            new("client_secret", providerDetails.ProviderSetting.AppSecret),
             new("grant_type", shortLivedAuthorisationDetail.GrantType),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
-            new("code_verifier", shortLivedAuthorisationDetail.EncryptedUserInfo),
+            new("redirect_uri", providerDetails.CallbackRedirectUri)
         });
     }
 }

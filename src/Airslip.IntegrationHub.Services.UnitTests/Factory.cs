@@ -1,12 +1,19 @@
+using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
+using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Moq;
 using System.Collections.Generic;
 
 namespace Airslip.IntegrationHub.Services.UnitTests
 {
     public static class Factory
     {
+        public static string _projectName = "Airslip.IntegrationHub";
+
         //TODO: Try and get from appsettings.json
         public static SettingCollection<ProviderSetting> ProviderConfiguration = new()
         {
@@ -50,5 +57,28 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             BaseUri = "base-uri",
         };
 
+        public static PublicApiSetting GetPublicApiSetting(PosProviders posProvider)
+        {
+            IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(_projectName)!;
+
+            SettingCollection<ProviderSetting> providerSettings = new();
+            appSettingsConfig.GetSection("ProviderSettings").Bind(providerSettings);
+            ProviderSetting providerSetting = providerSettings.GetSettingByName(posProvider.ToString());
+            
+            Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(_projectName)!;
+            return publicApiSettingsMock.Object.Value.GetSettingByName(providerSetting.MiddlewareDestinationAppName);
+        }
+        
+        public static ProviderSetting GetProviderSetting(PosProviders posProvider)
+        {
+            IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(_projectName)!;
+
+            SettingCollection<ProviderSetting> providerSettings = new();
+            appSettingsConfig.GetSection("ProviderSettings").Bind(providerSettings);
+            ProviderSetting providerSetting = providerSettings.GetSettingByName(posProvider.ToString());
+            providerSetting.AppId = "app-id";
+            providerSetting.AppSecret = "app-secret";
+            return providerSetting;
+        }
     }
 }
