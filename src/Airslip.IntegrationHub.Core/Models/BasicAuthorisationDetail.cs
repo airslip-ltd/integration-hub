@@ -9,8 +9,4 @@ namespace Airslip.IntegrationHub.Core.Models
         public virtual string? Shop { get; set; } = string.Empty;
         public virtual string? Context { get; set; } = string.Empty;
     }
-
-    public class BridgeAuthorisationDetail : IProviderAuthorisation
-    {
-    }
 }

@@ -1,4 +1,5 @@
-﻿using Airslip.Common.Types.Interfaces;
+﻿using Airslip.Common.Types.Failures;
+using Airslip.Common.Types.Interfaces;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
@@ -34,6 +35,9 @@ public class AuthorisationService : IAuthorisationService
             ProviderAuthStrategy.Bridge => _internalMiddlewareService.BuildMiddlewareAuthorisationModel(providerDetails, (BasicAuthorisationDetail) providerAuthorisingDetail),
             _ => throw new NotSupportedException()
         };
+
+        if (middlewareAuthorisationBody.Failed)
+            return new ErrorResponse("MIDDLEWARE_ERROR", "Error exchanging token");
 
         return await _internalMiddlewareClient.SendToMiddleware(providerDetails, middlewareAuthorisationBody);
     }

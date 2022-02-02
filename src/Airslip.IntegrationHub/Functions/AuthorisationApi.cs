@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Models.ThreeDCart;
 using Airslip.IntegrationHub.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,6 +109,14 @@ namespace Airslip.IntegrationHub.Functions
 
                 ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
                 IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(providerDetails, req);
+
+                if (providerAuthorisingDetail is ErrorAuthorisingDetail errorAuthorisingDetail)
+                {
+                    HttpResponseData responseData = req.CreateResponse(HttpStatusCode.BadRequest);
+                    await responseData.WriteAsJsonAsync(new ErrorResponse(errorAuthorisingDetail.ErrorCode ?? "AuthorisingError", errorAuthorisingDetail.ErrorMessage));
+                    return responseData;
+                }
+
                 IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails, providerAuthorisingDetail);
 
                 return await req.CommonResponseHandler<AccountResponse>(authorisedResponse);

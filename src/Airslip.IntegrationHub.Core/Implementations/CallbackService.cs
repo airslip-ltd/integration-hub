@@ -42,6 +42,7 @@ public class CallbackService : ICallbackService
         ProviderDetails providerDetails, 
         string queryString)
     {
+        // Move SensitiveCallbackInfo into an interface for testing
         (string cipheredSensitiveInfo, SensitiveCallbackInfo sensitiveCallbackInfo) =
             SensitiveCallbackInfo.GetEncryptedUserInformation(
                 queryString,
@@ -72,15 +73,19 @@ public class CallbackService : ICallbackService
                 return
                     $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&grant_options[]={grantOptions}";
             case PosProviders.Stripe:
-            case PosProviders.SumUp:
-            case PosProviders.IZettle:
+            case PosProviders.Ecwid:
+                return
+                    $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&response_type=code&scope={encodedScope}";
+            case PosProviders._3DCart:
+                return
+                    $"{providerDetails.ProviderSetting.BaseUri}/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&response_type=code&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
             case PosProviders.BigcommerceApi:
             case PosProviders.WoocommerceApi:
                 return
                     $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={redirectUri}";
             case PosProviders.Squarespace:
                 return
-                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&access_type=offline";
+                    $"https://login.squarespace.com/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={encodedScope}&redirect_uri={HttpUtility.UrlEncode(redirectUri)}&state={cipheredSensitiveInfo}&access_type=offline";
             default:
                 return string.Empty;
         }

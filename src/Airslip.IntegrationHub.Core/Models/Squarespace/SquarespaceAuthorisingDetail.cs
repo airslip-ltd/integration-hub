@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Airslip.IntegrationHub.Core.Models
+namespace Airslip.IntegrationHub.Core.Models.Squarespace
 {
     public class SquarespaceAuthorisingDetail : ShortLivedAuthorisationDetail
     {
@@ -9,7 +9,5 @@ namespace Airslip.IntegrationHub.Core.Models
         
         [JsonProperty(PropertyName = "state")]
         public override string EncryptedUserInfo { get; set; } = string.Empty;
-        
-        public string Error { get; set; } = string.Empty;
     }
 }

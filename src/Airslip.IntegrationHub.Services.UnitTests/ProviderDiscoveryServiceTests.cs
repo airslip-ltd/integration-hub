@@ -1,6 +1,7 @@
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
+using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
@@ -27,7 +28,7 @@ public class ProviderDiscoveryServiceTests
 
         SettingCollection<ProviderSetting> providerSettings = new();
         appSettingsConfig.GetSection("ProviderSettings").Bind(providerSettings);
-
+        
         providerSettingsMock
             .Setup(s => s.Value)
             .Returns(providerSettings);
@@ -45,6 +46,8 @@ public class ProviderDiscoveryServiceTests
     [InlineData(PosProviders.EBay, $"{nameof(PosProviders.Api2Cart)}")]
     [InlineData(PosProviders.Squarespace, $"{nameof(PosProviders.Api2Cart)}")]
     [InlineData(PosProviders.BigcommerceApi, $"{nameof(PosProviders.Api2Cart)}")]
+    [InlineData(PosProviders._3DCart, $"{nameof(PosProviders.Api2Cart)}")]
+    [InlineData(PosProviders.Ecwid, $"{nameof(PosProviders.Api2Cart)}")]
     public void Can_get_provider_details(PosProviders provider, string expectedDestination)
     {
         ProviderDetails providerDetails = _sut.GetProviderDetails(provider);
@@ -66,6 +69,8 @@ public class ProviderDiscoveryServiceTests
     [InlineData(PosProviders.EBay, "https://api.sandbox.ebay.com")]
     [InlineData(PosProviders.Squarespace, "https://{0}.squarespace.com")]
     [InlineData(PosProviders.BigcommerceApi, "https://{0}.mybigcommerce.com")]
+    [InlineData(PosProviders._3DCart, "https://apirest.3dcart.com")]
+    [InlineData(PosProviders.Ecwid, "https://app.ecwid.com")]
     public void Can_get_providers_default_base_uri(PosProviders provider, string expectedBaseUri)
     {
         ProviderDetails providerDetails = _sut.GetProviderDetails(provider);

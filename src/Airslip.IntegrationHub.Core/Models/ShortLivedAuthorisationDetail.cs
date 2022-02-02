@@ -20,9 +20,11 @@ namespace Airslip.IntegrationHub.Core.Models
                 ? string.Format(BaseUri, value) 
                 : value;
         }
-    }
 
-    public interface IProviderAuthorisation
-    {
+        [JsonProperty(PropertyName = "error")]
+        public string? ErrorMessage { get; set; }
+        
+        [JsonProperty(PropertyName = "error_code")]
+        public string? ErrorCode { get; set; }
     }
 }

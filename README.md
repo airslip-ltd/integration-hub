@@ -6,21 +6,19 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 | Name | Auth Type | Status |
 |:- |:- |:- |
-| Shift4Shop REST API | OAUTH |
 | Amazon | OAUTH |
 | Amazon SP API | OAUTH |
 | BigCommerce | OAUTH | Pending Tests |
 | Demandware | OAUTH |
 | eBay | OAUTH | Pending Tests |
-| Ecwid | OAUTH |
-| Etsy | OAUTH | Not Doing |
+| Ecwid | OAUTH | Pending Dev Store Test |
 | Etsy API v3 | OAUTH | Pending Tests |
 | Magento 2 API | OAUTH | Awaiting Email |
 | Shopify | OAUTH | Complete |
-| Squarespace | OAUTH | Awaiting Email |
+| Squarespace | OAUTH | Complete |
 | WooCommerce API | OAUTH | Pending Tests |
 | Walmart | OAUTH |
-| Shift4Shop | Basic |
+| Shift4Shop (3DCart) | OAUTH | Pending Dev Store Test |
 | AspDotNetStoreFront | Basic |
 | CommerceHQ eCommerce | Basic |
 | Hybris | Basic |
@@ -84,3 +82,10 @@ Request OAUTH access through their application form at https://partner.squarespa
 TODO:
 Complete steps from docs - https://developers.squarespace.com/oauth
 
+## BigCommerce
+
+> NOTE: State parameter is not passed in the callback.
+
+## Ecwid
+
+> NOTE: State parameter is not passed in the callback.

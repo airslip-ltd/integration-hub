@@ -3,7 +3,7 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using System.Net.Http;
 using System.Text;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.Shopify;
 
 public class ShopifyPermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
 {
@@ -11,13 +11,10 @@ public class ShopifyPermanentAccessHttpRequestMessage : PermanentAccessHttpReque
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail) : base(shortLivedAuthorisationDetail)
     {
-        Content = new StringContent(
-            Json.Serialize(
-                new ShopifyPermanentAccess(
+        Method = HttpMethod.Post;
+        Content = BuildStringContent(new ShopifyPermanentAccess(
                     providerDetails.ProviderSetting.AppId,
                     providerDetails.ProviderSetting.AppSecret,
-                    shortLivedAuthorisationDetail.ShortLivedCode)),
-            Encoding.UTF8,
-            Json.MediaType);
+                    shortLivedAuthorisationDetail.ShortLivedCode));
     }
 }

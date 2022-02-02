@@ -2,6 +2,10 @@
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Models.Ecwid;
+using Airslip.IntegrationHub.Core.Models.Shopify;
+using Airslip.IntegrationHub.Core.Models.Squarespace;
+using Airslip.IntegrationHub.Core.Models.ThreeDCart;
 using Airslip.IntegrationHub.Core.Requests;
 using Serilog;
 using System;
@@ -16,7 +20,9 @@ public class OAuth2Service : IOAuth2Service
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger _logger;
 
-    public OAuth2Service(IInternalMiddlewareService internalMiddlewareService, IHttpClientFactory httpClientFactory,
+    public OAuth2Service(
+        IInternalMiddlewareService internalMiddlewareService, 
+        IHttpClientFactory httpClientFactory,
         ILogger logger)
     {
         _internalMiddlewareService = internalMiddlewareService;
@@ -51,6 +57,7 @@ public class OAuth2Service : IOAuth2Service
                 return new MiddlewareAuthorisationRequest();
             }
 
+            // 101 invalid request
             BasicAuthorisationDetail basicAuth = ParseResponseMessage(
                 content,
                 providerDetails,
@@ -85,6 +92,9 @@ public class OAuth2Service : IOAuth2Service
             PosProviders.Shopify => new ShopifyPermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
+            PosProviders.Squarespace => new SquarespacePermanentAccessHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail),
             PosProviders.EtsyAPIv3 => new EtsyAPIv3PermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
@@ -92,6 +102,12 @@ public class OAuth2Service : IOAuth2Service
                 providerDetails,
                 shortLivedAuthorisationDetail),
             PosProviders.BigcommerceApi => new BigCommerceApiPermanentAccessHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail),
+            PosProviders._3DCart => new ThreeDCartPermanentAccessHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail),
+            PosProviders.Ecwid => new EcwidPermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
             _ => throw new NotImplementedException()
@@ -113,6 +129,9 @@ public class OAuth2Service : IOAuth2Service
                 basicAuth.Login = providerDetails.ProviderSetting.AppSecret;
                 basicAuth.Shop = shortLivedAuthorisationDetail.StoreName; //
                 break;
+            case PosProviders.Squarespace:
+                basicAuth = Json.Deserialize<SquarespaceAuthorisationDetail>(content);
+                break;
             case PosProviders.EBay:
                 basicAuth = Json.Deserialize<EbayAuthorisationDetail>(content);
                 break;
@@ -121,6 +140,12 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.BigcommerceApi:
                 basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
+                break;
+            case PosProviders._3DCart:
+                basicAuth = Json.Deserialize<ThreeDCartAuthorisationDetail>(content);
+                break;
+            case PosProviders.Ecwid:
+                basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
                 break;
         }
 
