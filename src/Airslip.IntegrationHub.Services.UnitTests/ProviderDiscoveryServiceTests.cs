@@ -67,7 +67,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData(PosProviders.EtsyAPIv3, "https://www.etsy.com")]
     [InlineData(PosProviders.WoocommerceApi, "https://{0}")]
     [InlineData(PosProviders.EBay, "https://api.sandbox.ebay.com")]
-    [InlineData(PosProviders.Squarespace, "https://{0}.squarespace.com")]
+    [InlineData(PosProviders.Squarespace, "https://api.squarespace.com")]
     [InlineData(PosProviders.BigcommerceApi, "https://{0}.mybigcommerce.com")]
     [InlineData(PosProviders._3DCart, "https://apirest.3dcart.com")]
     [InlineData(PosProviders.Ecwid, "https://app.ecwid.com")]
