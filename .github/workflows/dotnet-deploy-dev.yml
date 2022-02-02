@@ -58,6 +58,8 @@ jobs:
         API_KEY: ${{ secrets.API_KEY }}
         SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
         SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
+        SQUARESPACE_API_KEY: ${{ secrets.SQUARESPACE_API_KEY }}
+        SQUARESPACE_API_SECRET: ${{ secrets.SQUARESPACE_API_SECRET }}
 
     - name: Terraform Update
       id: "terraform_update"

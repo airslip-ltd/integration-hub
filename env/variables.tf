@@ -12,3 +12,6 @@ variable "integrations_hostname" {}
 
 variable "shopify_api_key" {}
 variable "shopify_api_secret" {}
+
+variable "squarespace_api_key" {}
+variable "squarespace_api_secret" {}

@@ -27,6 +27,9 @@ locals {
 
   shopify_api_key = var.shopify_api_key
   shopify_api_secret = var.shopify_api_secret
+
+  squarespace_api_key = var.squarespace_api_key
+  squarespace_api_secret = var.squarespace_api_secret
 }
 
 module "ingredient_bowl" {
@@ -70,7 +73,9 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Vend:ApiKey": local.api_key,
         "ProviderSettings:Settings:Shopify:AppId": local.shopify_api_key,
-        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_api_secret
+        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_api_secret,
+        "ProviderSettings:Settings:Squarespace:AppId": local.squarespace_api_key,
+        "ProviderSettings:Settings:Squarespace:AppSecret": local.squarespace_api_secret
       }
     }
   ]
