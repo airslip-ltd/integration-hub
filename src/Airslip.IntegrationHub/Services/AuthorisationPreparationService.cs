@@ -23,8 +23,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         switch (providerDetails.Provider)
         {
             case PosProviders.Shopify:
-                ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail =
-                    req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
+                ShortLivedAuthorisationDetail shopifyShortLivedAuthDetail = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
                 shopifyShortLivedAuthDetail.FormatBaseUri(shopifyShortLivedAuthDetail.StoreName);
                 shopifyShortLivedAuthDetail.PermanentAccessUrl =
                     $"https://{shopifyShortLivedAuthDetail.StoreName}/admin/oauth/access_token";
@@ -58,7 +57,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
                 if(!string.IsNullOrEmpty(threeDAuth.ErrorMessage))
                     return new ErrorAuthorisingDetail { ErrorMessage = threeDAuth.ErrorMessage, ErrorCode = threeDAuth.ErrorCode};
                 
-                threeDAuth.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/oauth/token";
+                threeDAuth.PermanentAccessUrl = providerDetails.ProviderSetting.FormatBaseUri("apirest") + "/oauth/token";
                 
                 return threeDAuth;
             case PosProviders.Ecwid:

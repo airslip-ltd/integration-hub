@@ -66,23 +66,25 @@ public class CallbackService : ICallbackService
                 return
                     $"{providerDetails.ProviderSetting.BaseUri}?response_type=code&client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}";
             case PosProviders.SwanRetailMidas:
+                return string.Empty;
             case PosProviders.Volusion:
+                return string.Empty;
             case PosProviders.Shopify:
                 ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
                 string grantOptions = auth.IsOnline ? "per-user" : "value";
                 return
                     $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&grant_options[]={grantOptions}";
-            case PosProviders.Stripe:
             case PosProviders.Ecwid:
                 return
                     $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&response_type=code&scope={encodedScope}";
             case PosProviders._3DCart:
                 return
-                    $"{providerDetails.ProviderSetting.BaseUri}/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&response_type=code&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
+                    $"{providerDetails.ProviderSetting.FormatBaseUri("apirest")}/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&response_type=code&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
             case PosProviders.BigcommerceApi:
+                return $"https://www.bigcommerce.com/apps/airslip?state={HttpUtility.UrlDecode(cipheredSensitiveInfo)}"; // Will just go to the app store page. state is for debugging purposes.
             case PosProviders.WoocommerceApi:
                 return
-                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={redirectUri}";
+                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={redirectUri}"; // TODO: Change return_url
             case PosProviders.Squarespace:
                 return
                     $"https://login.squarespace.com/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={encodedScope}&redirect_uri={HttpUtility.UrlEncode(redirectUri)}&state={cipheredSensitiveInfo}&access_type=offline";

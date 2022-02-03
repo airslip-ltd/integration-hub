@@ -6,10 +6,9 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 | Name | Auth Type | Status |
 |:- |:- |:- |
-| Amazon | OAUTH |
-| Amazon SP API | OAUTH |
+| Amazon SP API | OAUTH | Pending Verification |
 | BigCommerce | OAUTH | Pending Tests |
-| Demandware | OAUTH |
+| Demandware | OAUTH | Worst platform ever |
 | eBay | OAUTH | Pending Tests |
 | Ecwid | OAUTH | Pending Dev Store Test |
 | Etsy API v3 | OAUTH | Pending Tests |
@@ -76,6 +75,9 @@ Requires an additional parameter
 
 ## Squarespace
 
+### Dev store
+
+Name: `airslip-development`
 
 Request OAUTH access through their application form at https://partner.squarespace.com/oauth-form. Applications can take up to 7 days and Squarespace will review the registration and respond with client_id and client_secret as soon as possible.
 
@@ -84,8 +86,27 @@ Complete steps from docs - https://developers.squarespace.com/oauth
 
 ## BigCommerce
 
+### Dev store
+
+Must install from BigCommerce website.
+
+Name: `store-5fflrx2ogq`
+
+Link: https://store-5fflrx2ogq.mybigcommerce.com/manage/marketplace/apps/36851
+
 > NOTE: State parameter is not passed in the callback.
 
 ## Ecwid
 
+[Development Management Website](https://my.ecwid.com/store/71467012#develop-apps)
+
 > NOTE: State parameter is not passed in the callback.
+
+## Woo Commerce
+
+Provider Name: `WoocommerceApi`
+
+Store name format is **www.{example}.com**. The API Keys and Secrets are hosted on the customers website. The callback url needs to be over SSL.
+
+## Shift4Shop (3DCart)
+

@@ -9,4 +9,7 @@ public class ThreeDCartAuthorisingDetail : ShortLivedAuthorisationDetail
 
     [JsonProperty(PropertyName = "state")] 
     public override string EncryptedUserInfo { get; set; } = string.Empty;
+    
+    [JsonProperty(PropertyName = "shop")]
+    public override string StoreName { get; set; } = string.Empty;
 }
