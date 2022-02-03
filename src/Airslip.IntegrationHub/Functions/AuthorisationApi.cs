@@ -47,10 +47,8 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext,
             string provider)
         {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ??
-                             throw new NotImplementedException();
-            ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ??
-                                               throw new NotImplementedException();
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
 
             try
             {
@@ -97,15 +95,15 @@ namespace Airslip.IntegrationHub.Functions
                 }
 
                 //Validate HMAC another way. Needs improving. Maybe specific to provider.
-                List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
-
-                bool isValid = hmacService.Validate(parsedProvider, queryStrings);
-
-                if (!isValid)
-                {
-                    logger.Warning("There has been a problem validating the callback request");
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
+                // List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
+                //
+                // bool isValid = hmacService.Validate(parsedProvider, queryStrings);
+                //
+                // if (!isValid)
+                // {
+                //     logger.Warning("There has been a problem validating the callback request");
+                //     return req.CreateResponse(HttpStatusCode.BadRequest);
+                // }
 
                 ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
                 IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(providerDetails, req);

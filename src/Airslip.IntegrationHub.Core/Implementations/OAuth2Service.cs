@@ -121,13 +121,14 @@ public class OAuth2Service : IOAuth2Service
     {
         BasicAuthorisationDetail basicAuth = new();
 
+        
         // Step 5: Add case for permanent access token
         switch (providerDetails.Provider)
         {
             case PosProviders.Shopify:
                 basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
                 basicAuth.Login = providerDetails.ProviderSetting.AppSecret;
-                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName; //
+                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
                 break;
             case PosProviders.Squarespace:
                 basicAuth = Json.Deserialize<SquarespaceAuthorisationDetail>(content);
@@ -140,6 +141,10 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.BigcommerceApi:
                 basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
+#if DEBUG
+                basicAuth.EncryptedUserInfo =
+                    "+bvlByiyWY0En780uwUgFO7VVvlUF6/NeBawhojg1U9vxfESckFkeWAkk4LkK/qNKNGJDybhMoGa5ZKYU/glEthNo7pCebSnNG12Ncir4jpUTyNheMDeNSAXbLLhWj+SiOOgmWaektxAX4MBZwwIZGNn2dEZfBDshoSta3AODXX11EVTrgOEGpyt4n/SMUTCvD2WCAqDro5AUvQxtGnHy1MpGtdBVJ+yCA5dZJbqHpTWt629s7MfPp5Ey//AbIfA";
+#endif
                 break;
             case PosProviders._3DCart:
                 basicAuth = Json.Deserialize<ThreeDCartAuthorisationDetail>(content);
@@ -148,8 +153,9 @@ public class OAuth2Service : IOAuth2Service
                 basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
                 break;
         }
-
-        basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
+        
+        if( basicAuth.EncryptedUserInfo == string.Empty)
+            basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
 
         return basicAuth;
     }
