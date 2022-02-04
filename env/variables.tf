@@ -15,3 +15,6 @@ variable "shopify_api_secret" {}
 
 variable "squarespace_api_key" {}
 variable "squarespace_api_secret" {}
+
+variable "ecwid_api_key" {}
+variable "ecwid_api_secret" {}

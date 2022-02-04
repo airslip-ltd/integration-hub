@@ -30,6 +30,9 @@ locals {
 
   squarespace_api_key = var.squarespace_api_key
   squarespace_api_secret = var.squarespace_api_secret
+
+  ecwid_api_key = var.ecwid_api_key
+  ecwid_api_secret = var.ecwid_api_secret
 }
 
 module "ingredient_bowl" {
@@ -75,7 +78,9 @@ module "func_app_host" {
         "ProviderSettings:Settings:Shopify:AppId": local.shopify_api_key,
         "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_api_secret,
         "ProviderSettings:Settings:Squarespace:AppId": local.squarespace_api_key,
-        "ProviderSettings:Settings:Squarespace:AppSecret": local.squarespace_api_secret
+        "ProviderSettings:Settings:Squarespace:AppSecret": local.squarespace_api_secret,
+        "ProviderSettings:Settings:Ecwid:AppId": local.ecwid_api_key,
+        "ProviderSettings:Settings:Ecwid:AppSecret": local.ecwid_api_secret
       }
     }
   ]
