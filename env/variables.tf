@@ -28,5 +28,5 @@ variable "bigcommerceapi_api_secret" {}
 variable "etsyapiv3_api_key" {}
 variable "etsyapiv3_api_secret" {}
 
-variable "threed_api_key" {}
-variable "threed_api_secret" {}
+variable "threed_cart_api_key" {}
+variable "threed_cart_api_secret" {}
