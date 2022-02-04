@@ -64,7 +64,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
                 EcwidAuthorisingDetail ecwidAuth = req.Url.Query.GetQueryParams<EcwidAuthorisingDetail>();
                 if(!string.IsNullOrEmpty(ecwidAuth.ErrorMessage))
                     return new ErrorAuthorisingDetail { ErrorMessage = ecwidAuth.ErrorMessage, ErrorCode = ecwidAuth.ErrorCode};
-                ecwidAuth.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/oauth/token";
+                ecwidAuth.PermanentAccessUrl = "https://my.ecwid.com/api/oauth/token";
                 return ecwidAuth;
             default:
                 throw new NotImplementedException();

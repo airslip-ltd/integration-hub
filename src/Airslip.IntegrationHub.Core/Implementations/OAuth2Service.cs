@@ -151,6 +151,10 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.Ecwid:
                 basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
+#if DEBUG
+                basicAuth.EncryptedUserInfo =
+                    "rBpyBX0TMNt1pGMBlJd2tchvSH/LQJkdjLsnUzMZCEC8KFkC+qBcb2Z3HBzhCiuFlGLaU3yeCDTiNrILCiQ+qOCdPvzt4+qGlmio177fpV0C+6egY0/wufaBfcIDYHCRGDWAbmDpiR8fKlJqP5kMuMr4jCCQ2XLfUwpmn3uAxR9Q7OVi2sBfEeBu3EQa7GRuHrNdB+wBagD9imdEPH9uC+Iw0PsuW4EL7ebOoNpU3VKc6d9uSfr86D5e+BgArPC8";
+#endif
                 break;
         }
         

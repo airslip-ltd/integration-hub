@@ -17,7 +17,7 @@ public class EcwidPermanentAccessHttpRequestMessage : PermanentAccessHttpRequest
             new("client_secret", providerDetails.ProviderSetting.AppSecret),
             new("grant_type", shortLivedAuthorisationDetail.GrantType),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
-            new("redirect_uri", providerDetails.CallbackRedirectUri)
+            new("redirect_uri", providerDetails.CallbackRedirectUri.ToLower())
         });
     }
 }

@@ -76,7 +76,7 @@ public class CallbackService : ICallbackService
                     $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&grant_options[]={grantOptions}";
             case PosProviders.Ecwid:
                 return
-                    $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&response_type=code&scope={encodedScope}";
+                    $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri.ToLower()}&response_type=code&scope={encodedScope}&state={HttpUtility.UrlDecode(cipheredSensitiveInfo)}"; // Will just go to the app store page. state is for debugging purposes.";
             case PosProviders._3DCart:
                 return
                     $"{providerDetails.ProviderSetting.FormatBaseUri("apirest")}/oauth/authorize?client_id={providerDetails.ProviderSetting.AppId}&redirect_uri={redirectUri}&state={cipheredSensitiveInfo}&response_type=code&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
