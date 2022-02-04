@@ -3,16 +3,21 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Microsoft.Extensions.Options;
+using Serilog;
+using System;
 
 namespace Airslip.IntegrationHub.Core.Implementations
 {
     public class InternalMiddlewareService : IInternalMiddlewareService
     {
+        private readonly ILogger _logger;
         private readonly EncryptionSettings _encryptionSettings;
 
         public InternalMiddlewareService(
-            IOptions<EncryptionSettings> encryptionOptions)
+            IOptions<EncryptionSettings> encryptionOptions,
+            ILogger logger)
         {
+            _logger = logger;
             _encryptionSettings = encryptionOptions.Value;
         }
         
@@ -20,6 +25,12 @@ namespace Airslip.IntegrationHub.Core.Implementations
             ProviderDetails providerDetails,
             BasicAuthorisationDetail basicAuthorisationDetail)
         {
+            if (basicAuthorisationDetail.EncryptedUserInfo == string.Empty)
+            {
+                _logger.Fatal("{Parameter} cannot be empty", basicAuthorisationDetail.EncryptedUserInfo);
+                return new MiddlewareAuthorisationRequest();
+            }
+            
             SensitiveCallbackInfo sensitiveCallbackInfo = SensitiveCallbackInfo.DecryptCallbackInfo(
                 basicAuthorisationDetail.EncryptedUserInfo,
                 _encryptionSettings.PassPhraseToken);
@@ -28,7 +39,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 Provider = providerDetails.Provider.ToString(),
                 StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
-                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
+                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(basicAuthorisationDetail.Shop ?? sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
                 Login = basicAuthorisationDetail.Login,
                 Password = basicAuthorisationDetail.Password,
                 EntityId = sensitiveCallbackInfo.EntityId,

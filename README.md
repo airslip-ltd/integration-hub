@@ -19,8 +19,8 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | Walmart | OAUTH |
 | Shift4Shop (3DCart) | OAUTH | Pending Dev Store Test |
 | AspDotNetStoreFront | Basic |
-| CommerceHQ eCommerce | Basic |
-| Hybris | Basic |
+| CommerceHQ eCommerce | Basic | Awaiting Email |
+| Hybris | Basic | Registered |
 | LightSpeed eCommerce | Basic |
 | Neto | Basic |
 | Shopware API | Basic |
@@ -110,3 +110,27 @@ Store name format is **www.{example}.com**. The API Keys and Secrets are hosted 
 
 ## Shift4Shop (3DCart)
 
+[Development Management Website](https://devportal.3dcart.com/app.asp?ut1q=27a&c7=SxZm2%2F5JRPs%3D)
+
+
+## Lightspeed eCommerce
+
+### How does authentication work?
+
+Authentication is managed via HTTP authentication. Every request must include an HTTP Authorization Header.
+
+Below is the URL template for every API call: 
+
+`https://{api_key}:{api_secret}@{cluster_url}/{shop_language}/{resource}.json` 
+
+### Instructions
+
+- https://developers.lightspeedhq.com/ecom/tutorials/build-an-app/ 
+- https://developers.lightspeedhq.com/ecom/introduction/authentication/
+
+
+## Magento 2 API
+
+Create integration and authentication instructions
+
+https://devdocs.magento.com/guides/v2.4/get-started/create-integration.html 
