@@ -70,7 +70,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData(PosProviders.Squarespace, "https://api.squarespace.com")]
     [InlineData(PosProviders.BigcommerceApi, "https://{0}.mybigcommerce.com")]
     [InlineData(PosProviders._3DCart, "https://{0}.3dcart.com")]
-    [InlineData(PosProviders.Ecwid, "https://app.ecwid.com")]
+    [InlineData(PosProviders.Ecwid, "https://app.ecwid.com/api/v3/{0}")]
     public void Can_get_providers_default_base_uri(PosProviders provider, string expectedBaseUri)
     {
         ProviderDetails providerDetails = _sut.GetProviderDetails(provider);
