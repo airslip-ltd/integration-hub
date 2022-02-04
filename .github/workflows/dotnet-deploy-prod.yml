@@ -64,6 +64,10 @@ jobs:
         EBAY_API_SECRET: ${{ secrets.EBAY_API_SECRET }}
         BIGCOMMERCEAPI_API_KEY: ${{ secrets.BIGCOMMERCEAPI_API_KEY }}
         BIGCOMMERCEAPI_API_SECRET: ${{ secrets.BIGCOMMERCEAPI_API_SECRET }}
+        ETSYAPIV3_API_KEY: ${{ secrets.ETSYAPIV3_API_KEY }}
+        ETSYAPIV3_API_SECRET: ${{ secrets.ETSYAPIV3_API_SECRET }}
+        THREED_CART_API_KEY: ${{ secrets.THREED_CART_API_KEY }}
+        THREED_CART_API_SECRET: ${{ secrets.THREED_CART_API_SECRET }}
 
     - name: Terraform Update
       id: "terraform_update"
@@ -172,6 +176,10 @@ jobs:
         EBAY_API_SECRET: ${{ secrets.EBAY_API_SECRET }}
         BIGCOMMERCEAPI_API_KEY: ${{ secrets.BIGCOMMERCEAPI_API_KEY }}
         BIGCOMMERCEAPI_API_SECRET: ${{ secrets.BIGCOMMERCEAPI_API_SECRET }}
+        ETSYAPIV3_API_KEY: ${{ secrets.ETSYAPIV3_API_KEY }}
+        ETSYAPIV3_API_SECRET: ${{ secrets.ETSYAPIV3_API_SECRET }}
+        THREED_CART_API_KEY: ${{ secrets.THREED_CART_API_KEY }}
+        THREED_CART_API_SECRET: ${{ secrets.THREED_CART_API_SECRET }}
 
     - name: Terraform Update
       id: "terraform_update"
