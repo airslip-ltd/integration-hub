@@ -96,8 +96,8 @@ module "func_app_host" {
         "ProviderSettings:Settings:BigcommerceApi:ApiSecret": local.bigcommerceapi_api_secret,
         "ProviderSettings:Settings:EtsyAPIv3:ApiKey": local.etsyapiv3_api_key,
         "ProviderSettings:Settings:EtsyAPIv3:ApiSecret": local.etsyapiv3_api_secret,
-        "ProviderSettings:Settings:_3DCart:ApiKey": local.threed_api_key,
-        "ProviderSettings:Settings:_3DCart:ApiSecret": local.threed_api_secret,
+        "ProviderSettings:Settings:_3DCart:ApiKey": local.threed_cart_api_key,
+        "ProviderSettings:Settings:_3DCart:ApiSecret": local.threed_cart_api_secret,
       }
     }
   ]

@@ -19,9 +19,9 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 | Walmart | OAUTH |
 | Shift4Shop (3DCart) | OAUTH | Pending Dev Store Test |
 | AspDotNetStoreFront | Basic |
-| CommerceHQ eCommerce | Basic | Awaiting Email |
+| CommerceHQ eCommerce | Basic | 
 | Hybris | Basic | Registered |
-| LightSpeed eCommerce | Basic |
+| LightSpeed eCommerce | Basic | Awaiting Email |
 | Neto | Basic |
 | Shopware API | Basic |
 | Volusion | Basic | Complete |
