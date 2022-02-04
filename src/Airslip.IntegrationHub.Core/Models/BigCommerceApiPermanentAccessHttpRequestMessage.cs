@@ -17,8 +17,8 @@ public class BigCommerceApiPermanentAccessHttpRequestMessage : PermanentAccessHt
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
             // Potentially write method in Json class to get a property name Json.GetPropertyName(providerDetails.RedirectUri)
-            new("client_id", providerDetails.ProviderSetting.AppId),
-            new("client_secret", providerDetails.ProviderSetting.AppSecret),
+            new("client_id", providerDetails.ProviderSetting.ApiKey),
+            new("client_secret", providerDetails.ProviderSetting.ApiSecret),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
             new("scope", providerDetails.ProviderSetting.Scope),
             new("grant_type", shortLivedAuthorisationDetail.GrantType),

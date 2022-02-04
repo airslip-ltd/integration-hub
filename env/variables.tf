@@ -18,3 +18,9 @@ variable "squarespace_api_secret" {}
 
 variable "ecwid_api_key" {}
 variable "ecwid_api_secret" {}
+
+variable "ebay_api_key" {}
+variable "ebay_api_secret" {}
+
+variable "bigcommerceapi_api_key" {}
+variable "bigcommerceapi_api_secret" {}

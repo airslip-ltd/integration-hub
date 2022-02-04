@@ -13,8 +13,8 @@ public class EcwidPermanentAccessHttpRequestMessage : PermanentAccessHttpRequest
         Method = HttpMethod.Get;
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
-            new("client_id", providerDetails.ProviderSetting.AppId),
-            new("client_secret", providerDetails.ProviderSetting.AppSecret),
+            new("client_id", providerDetails.ProviderSetting.ApiKey),
+            new("client_secret", providerDetails.ProviderSetting.ApiSecret),
             new("grant_type", shortLivedAuthorisationDetail.GrantType),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
             new("redirect_uri", providerDetails.CallbackRedirectUri.ToLower())

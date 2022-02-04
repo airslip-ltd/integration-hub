@@ -28,7 +28,7 @@ public class HmacService : IHmacService
         queryStrings.Remove(hmacKeyValuePair);
         ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
 
-        return HmacCipher.Validate(queryStrings, hmacValue, providerDetails.ProviderSetting.AppSecret);
+        return HmacCipher.Validate(queryStrings, hmacValue, providerDetails.ProviderSetting.ApiSecret);
     }
 
     private static string? _getHmacKey(PosProviders provider)

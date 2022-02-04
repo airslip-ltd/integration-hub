@@ -13,8 +13,8 @@ public class ShopifyPermanentAccessHttpRequestMessage : PermanentAccessHttpReque
     {
         Method = HttpMethod.Post;
         Content = BuildStringContent(new ShopifyPermanentAccess(
-                    providerDetails.ProviderSetting.AppId,
-                    providerDetails.ProviderSetting.AppSecret,
+                    providerDetails.ProviderSetting.ApiKey,
+                    providerDetails.ProviderSetting.ApiSecret,
                     shortLivedAuthorisationDetail.ShortLivedCode));
     }
 }

@@ -6,8 +6,8 @@ namespace Airslip.IntegrationHub.Core.Models
     {
         public string BaseUri { get; set; } = string.Empty;
         public string Scope { get; set; } = string.Empty;
-        public string AppId { get; set; } = string.Empty;
-        public string AppSecret { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
+        public string ApiSecret { get; set; } = string.Empty;
         public string MiddlewareDestinationAppName { get; set; } = string.Empty;
         public string? AppName { get; set; }
         public string? Environment { get; set; }

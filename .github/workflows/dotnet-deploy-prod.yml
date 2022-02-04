@@ -60,6 +60,10 @@ jobs:
         SQUARESPACE_API_SECRET: ${{ secrets.SQUARESPACE_API_SECRET }}
         ECWID_API_KEY: ${{ secrets.ECWID_API_KEY }}
         ECWID_API_SECRET: ${{ secrets.ECWID_API_SECRET }}
+        EBAY_API_KEY: ${{ secrets.EBAY_API_KEY }}
+        EBAY_API_SECRET: ${{ secrets.EBAY_API_SECRET }}
+        BIGCOMMERCEAPI_API_KEY: ${{ secrets.BIGCOMMERCEAPI_API_KEY }}
+        BIGCOMMERCEAPI_API_SECRET: ${{ secrets.BIGCOMMERCEAPI_API_SECRET }}
 
     - name: Terraform Update
       id: "terraform_update"
@@ -164,6 +168,10 @@ jobs:
         SQUARESPACE_API_SECRET: ${{ secrets.SQUARESPACE_API_SECRET }}
         ECWID_API_KEY: ${{ secrets.ECWID_API_KEY }}
         ECWID_API_SECRET: ${{ secrets.ECWID_API_SECRET }}
+        EBAY_API_KEY: ${{ secrets.EBAY_API_KEY }}
+        EBAY_API_SECRET: ${{ secrets.EBAY_API_SECRET }}
+        BIGCOMMERCEAPI_API_KEY: ${{ secrets.BIGCOMMERCEAPI_API_KEY }}
+        BIGCOMMERCEAPI_API_SECRET: ${{ secrets.BIGCOMMERCEAPI_API_SECRET }}
 
     - name: Terraform Update
       id: "terraform_update"

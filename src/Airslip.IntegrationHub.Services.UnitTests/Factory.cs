@@ -23,16 +23,16 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     PosProviders.Vend.ToString(), new ProviderSetting
                     {
                         BaseUri = "https://secure.vendhq.com/connect",
-                        AppId = "SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL",
-                        AppSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4"
+                        ApiKey = "SrSLyYuwnffktH2oGJEJbQTiCXzkHgoL",
+                        ApiSecret = "yujZrOdVKZbGXUvfYP6VjWYluZJ77ge4"
                     }
                 },
                 {
                     PosProviders.Shopify.ToString(), new ProviderSetting
                     {
                         BaseUri = "https://{0}",
-                        AppId = "client-id",
-                        AppSecret = "client-secret",
+                        ApiKey = "client-id",
+                        ApiSecret = "client-secret",
                         Scope = "read_orders,read_products,read_inventory",
                     }
                 },
@@ -40,8 +40,8 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     PosProviders.Squarespace.ToString(), new ProviderSetting
                     {
                         BaseUri = "https://{0}.squarespace.com",
-                        AppId = "client-id",
-                        AppSecret = "client-secret",
+                        ApiKey = "client-id",
+                        ApiSecret = "client-secret",
                         Scope = "website.orders.read,website.transactions.read,website.inventory.read,website.products.read"
                     }
                 }
@@ -76,8 +76,8 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             SettingCollection<ProviderSetting> providerSettings = new();
             appSettingsConfig.GetSection("ProviderSettings").Bind(providerSettings);
             ProviderSetting providerSetting = providerSettings.GetSettingByName(posProvider.ToString());
-            providerSetting.AppId = "app-id";
-            providerSetting.AppSecret = "app-secret";
+            providerSetting.ApiKey = "app-id";
+            providerSetting.ApiSecret = "app-secret";
             return providerSetting;
         }
     }
