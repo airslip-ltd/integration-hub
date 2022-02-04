@@ -24,3 +24,9 @@ variable "ebay_api_secret" {}
 
 variable "bigcommerceapi_api_key" {}
 variable "bigcommerceapi_api_secret" {}
+
+variable "etsyapiv3_api_key" {}
+variable "etsyapiv3_api_secret" {}
+
+variable "threed_api_key" {}
+variable "threed_api_secret" {}

@@ -39,6 +39,9 @@ locals {
 
   bigcommerceapi_api_key = var.bigcommerceapi_api_key
   bigcommerceapi_api_secret = var.bigcommerceapi_api_secret
+
+  etsyapiv3_api_key = var.etsyapiv3_api_key
+  etsyapiv3_api_secret = var.etsyapiv3_api_secret
 }
 
 module "ingredient_bowl" {
@@ -91,6 +94,10 @@ module "func_app_host" {
         "ProviderSettings:Settings:Ebay:ApiSecret": local.ebay_api_secret,
         "ProviderSettings:Settings:BigcommerceApi:ApiKey": local.bigcommerceapi_api_key,
         "ProviderSettings:Settings:BigcommerceApi:ApiSecret": local.bigcommerceapi_api_secret,
+        "ProviderSettings:Settings:EtsyAPIv3:ApiKey": local.etsyapiv3_api_key,
+        "ProviderSettings:Settings:EtsyAPIv3:ApiSecret": local.etsyapiv3_api_secret,
+        "ProviderSettings:Settings:_3DCart:ApiKey": local.threed_api_key,
+        "ProviderSettings:Settings:_3DCart:ApiSecret": local.threed_api_secret,
       }
     }
   ]
