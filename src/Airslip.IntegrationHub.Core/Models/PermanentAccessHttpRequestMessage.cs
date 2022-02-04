@@ -14,11 +14,11 @@ public abstract class PermanentAccessHttpRequestMessage : HttpRequestMessage
         RequestUri = new Uri(shortLivedAuthorisationDetail.PermanentAccessUrl);
     }
 
-    protected AuthenticationHeaderValue BuildBasicAuth(string appId, string appSecret)
+    protected AuthenticationHeaderValue BuildBasicAuth(string apiId, string apiSecret)
     {
         return new AuthenticationHeaderValue(
             "Basic",
-            Convert.ToBase64String(Encoding.ASCII.GetBytes($"{appId}:{appSecret}")));
+            Convert.ToBase64String(Encoding.ASCII.GetBytes($"{apiId}:{apiSecret}")));
     }
 
     protected HttpContent BuildStringContent(PermanentAccessBase permanentAccessBase)

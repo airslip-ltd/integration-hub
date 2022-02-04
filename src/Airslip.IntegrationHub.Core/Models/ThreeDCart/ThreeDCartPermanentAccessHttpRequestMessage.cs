@@ -13,8 +13,8 @@ public class ThreeDCartPermanentAccessHttpRequestMessage : PermanentAccessHttpRe
         Method = HttpMethod.Post;
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]
         {
-            new("client_id", providerDetails.ProviderSetting.AppId),
-            new("client_secret", providerDetails.ProviderSetting.AppSecret),
+            new("client_id", providerDetails.ProviderSetting.ApiKey),
+            new("client_secret", providerDetails.ProviderSetting.ApiSecret),
             new("grant_type", shortLivedAuthorisationDetail.GrantType),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
         });

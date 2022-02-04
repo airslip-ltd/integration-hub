@@ -127,7 +127,7 @@ public class OAuth2Service : IOAuth2Service
         {
             case PosProviders.Shopify:
                 basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
-                basicAuth.Login = providerDetails.ProviderSetting.AppSecret;
+                basicAuth.Login = providerDetails.ProviderSetting.ApiSecret;
                 basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
                 break;
             case PosProviders.Squarespace:

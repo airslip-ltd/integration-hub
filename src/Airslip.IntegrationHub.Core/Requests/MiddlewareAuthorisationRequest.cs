@@ -14,13 +14,13 @@ namespace Airslip.IntegrationHub.Core.Requests
         public string StoreUrl { get; set; }= string.Empty;
         public string Login { get; set; }= string.Empty;
         public string Password { get; set; }= string.Empty;
-        public string? Environment { get; set; }= string.Empty;
-        public string? Reference { get; set; }= string.Empty;
-        public string? Context { get; set; }= string.Empty;
-        public string? Location { get; set; }= string.Empty;
-        public string? AdditionalFieldOne { get; set; }= string.Empty;
-        public string? AdditionalFieldTwo { get; set; }= string.Empty;
-        public string? AdditionalFieldThree { get; set; }= string.Empty;
+        public string? Environment { get; set; }
+        public string? Reference { get; set; }
+        public string? Context { get; set; }
+        public string? Location { get; set; }
+        public string? AdditionalFieldOne { get; set; }
+        public string? AdditionalFieldTwo { get; set; }
+        public string? AdditionalFieldThree { get; set; }
         public bool Failed => Provider == string.Empty;
     }
 }

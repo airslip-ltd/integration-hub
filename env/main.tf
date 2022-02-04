@@ -33,6 +33,12 @@ locals {
 
   ecwid_api_key = var.ecwid_api_key
   ecwid_api_secret = var.ecwid_api_secret
+
+  ebay_api_key = var.ebay_api_key
+  ebay_api_secret = var.ebay_api_secret
+
+  bigcommerceapi_api_key = var.bigcommerceapi_api_key
+  bigcommerceapi_api_secret = var.bigcommerceapi_api_secret
 }
 
 module "ingredient_bowl" {
@@ -75,12 +81,16 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Vend:ApiKey": local.api_key,
-        "ProviderSettings:Settings:Shopify:AppId": local.shopify_api_key,
-        "ProviderSettings:Settings:Shopify:AppSecret": local.shopify_api_secret,
-        "ProviderSettings:Settings:Squarespace:AppId": local.squarespace_api_key,
-        "ProviderSettings:Settings:Squarespace:AppSecret": local.squarespace_api_secret,
-        "ProviderSettings:Settings:Ecwid:AppId": local.ecwid_api_key,
-        "ProviderSettings:Settings:Ecwid:AppSecret": local.ecwid_api_secret
+        "ProviderSettings:Settings:Shopify:ApiKey": local.shopify_api_key,
+        "ProviderSettings:Settings:Shopify:ApiSecret": local.shopify_api_secret,
+        "ProviderSettings:Settings:Squarespace:ApiKey": local.squarespace_api_key,
+        "ProviderSettings:Settings:Squarespace:ApiSecret": local.squarespace_api_secret,
+        "ProviderSettings:Settings:Ecwid:ApiKey": local.ecwid_api_key,
+        "ProviderSettings:Settings:Ecwid:ApiSecret": local.ecwid_api_secret,
+        "ProviderSettings:Settings:Ebay:ApiKey": local.ebay_api_key,
+        "ProviderSettings:Settings:Ebay:ApiSecret": local.ebay_api_secret,
+        "ProviderSettings:Settings:BigcommerceApi:ApiKey": local.bigcommerceapi_api_key,
+        "ProviderSettings:Settings:BigcommerceApi:ApiSecret": local.bigcommerceapi_api_secret,
       }
     }
   ]

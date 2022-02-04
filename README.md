@@ -102,6 +102,8 @@ Link: https://store-5fflrx2ogq.mybigcommerce.com/manage/marketplace/apps/36851
 
 > NOTE: State parameter is not passed in the callback.
 
+An email to ec.apps@lightspeedhq.com is required to update settings.
+
 ## Woo Commerce
 
 Provider Name: `WoocommerceApi`
