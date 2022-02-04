@@ -42,6 +42,9 @@ locals {
 
   etsyapiv3_api_key = var.etsyapiv3_api_key
   etsyapiv3_api_secret = var.etsyapiv3_api_secret
+
+  threed_cart_api_key = var.threed_cart_api_key
+  threed_cart_api_secret = var.threed_cart_api_secret
 }
 
 module "ingredient_bowl" {
