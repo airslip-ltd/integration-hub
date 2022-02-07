@@ -125,5 +125,49 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
         }
+        
+        [OpenApiOperation("AuthorisationValidation", Summary = "Validate HMAC token")]
+        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiResponseWithoutBody(HttpStatusCode.OK, Description = "Details of the account that has been setup")]
+        [Function("AuthorisationValidation")]
+        public static HttpResponseData Validate(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/validate/{provider}")]
+            HttpRequestData req,
+            string provider,
+            FunctionContext executionContext)
+        {
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+            IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
+            IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
+            
+            try
+            {
+                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+
+                if (!supportedProvider)
+                {
+                    logger.Warning("{Provider} is an unsupported provider", provider);
+                    return req.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
+                
+                bool isValid = hmacService.Validate(parsedProvider, queryStrings);
+
+                if (!isValid)
+                {
+                    logger.Warning("There has been a problem validating the callback request");
+                    return req.CreateResponse(HttpStatusCode.BadRequest);
+                }
+
+                return req.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                logger.Fatal(e, "Unhandled error message {ErrorMessage}", e.Message);
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+        }
     }
 }
