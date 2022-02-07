@@ -2,22 +2,33 @@
 
 Middleware repository to authorise and direct traffic to the correct checkout provider.
 
+## Status's
+
+- Registered
+- Awaiting Response
+- Pending Verification
+- In Development
+- Publish App Required
+- Pending UI
+- Pending App Approval
+- Complete
+
 # Providers
 
 | Name | Auth Type | Status |
 |:- |:- |:- |
 | Amazon SP API | OAUTH | Pending Verification |
 | BigCommerce | OAUTH | Pending Tests |
-| Demandware | OAUTH | Worst platform ever |
-| eBay | OAUTH | Pending Tests |
-| Ecwid | OAUTH | Pending Dev Store Test |
-| Etsy API v3 | OAUTH | Pending Tests |
-| Magento 2 API | OAUTH | Awaiting Email |
-| Shopify | OAUTH | Complete |
-| Squarespace | OAUTH | Complete |
-| WooCommerce API | OAUTH | Pending Tests |
-| Walmart | OAUTH |
-| Shift4Shop (3DCart) | OAUTH | Pending Dev Store Test |
+| Demandware | OAUTH | Awaiting Response |
+| eBay | OAUTH | Publish App Required |
+| Ecwid | OAUTH | Publish App Required |
+| Etsy API v3 | OAUTH | Pending Verification |
+| Magento 2 API | OAUTH | Awaiting Response |
+| Shopify | OAUTH | Pending App Approval |
+| Squarespace | OAUTH | Publish App Required |
+| WooCommerce API | OAUTH | Pending UI |
+| Walmart | OAUTH | Awaiting Response |
+| Shift4Shop (3DCart) | OAUTH | In Development |
 | AspDotNetStoreFront | Basic |
 | CommerceHQ eCommerce | Basic | 
 | Hybris | Basic | Registered |
