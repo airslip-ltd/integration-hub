@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Models.ThreeDCart;
+using Airslip.IntegrationHub.Core.Requests.GDPR;
 using Airslip.IntegrationHub.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -129,7 +130,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiOperation("AuthorisationValidation", Summary = "Validate HMAC token")]
         [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithoutBody(HttpStatusCode.OK, Description = "Details of the account that has been setup")]
+        [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
         [Function("AuthorisationValidation")]
         public static HttpResponseData Validate(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/validate/{provider}")]
@@ -160,6 +161,34 @@ namespace Airslip.IntegrationHub.Functions
                     logger.Warning("There has been a problem validating the callback request");
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
+
+                return req.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception e)
+            {
+                logger.Fatal(e, "Unhandled error message {ErrorMessage}", e.Message);
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+        }
+
+        [OpenApiOperation("AuthorisationGDPR", Summary = "Process GDPR")]
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
+        [Function("AuthorisationGDPR")]
+        public static  async Task<HttpResponseData> GDPR(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/auth/gdpr")]
+            HttpRequestData req,
+            FunctionContext executionContext)
+        {
+            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
+
+            try
+            {
+                GDPRRequest gdprRequest = await req.Body.DeserializeStream<GDPRRequest>();
+
+                logger.Information("GDPR request made for {ShopId} with the body {Body}", 
+                    gdprRequest.ShopId,
+                    Json.Serialize(gdprRequest));
 
                 return req.CreateResponse(HttpStatusCode.OK);
             }
