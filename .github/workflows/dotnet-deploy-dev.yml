@@ -72,6 +72,10 @@ jobs:
         THREED_CART_API_KEY: ${{ secrets.THREED_CART_API_KEY }}
         THREED_CART_API_SECRET: ${{ secrets.THREED_CART_API_SECRET }}
 
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_PROD_DEPLOY }}
+      
     - name: Terraform Update
       id: "terraform_update"
       env:
@@ -80,6 +84,7 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.NON_PROD_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.NON_PROD_ARM_TENANT_ID }}
       run: |
+        az config set extension.use_dynamic_install=yes_without_prompt
         terraform init -backend-config=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/backend.tfvars
         terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var-file=variables/secrets.tfvars -out=terraform.tfplan
         terraform apply terraform.tfplan
