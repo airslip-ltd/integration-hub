@@ -12,7 +12,7 @@ jobs:
     environment: Development
     env:
       DOTNET_CORE_VERSION: 6.0.x
-      TERRAFORM_MODULE_VERSION: 6.0.4
+      TERRAFORM_MODULE_VERSION: 6.1.1
       ENVIRONMENT_NAME: Development
       ENVIRONMENT_NAME_SHORT: dev
       BUILD_PATH: ./src/Airslip.IntegrationHub.sln
@@ -56,6 +56,7 @@ jobs:
         files: '["./env/variables/secrets.tfvars"]'
       env:
         API_KEY: ${{ secrets.API_KEY }}
+        CERTIFICATE_PASSWORD: ${{ secrets.AIRSLIP_CERTIFICATE_PASSWORD }}
         SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
         SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
         SQUARESPACE_API_KEY: ${{ secrets.SQUARESPACE_API_KEY }}
@@ -79,7 +80,7 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.NON_PROD_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.NON_PROD_ARM_TENANT_ID }}
       run: |
-        terraform init -backend-config=variables/dev/backend.tfvars
+        terraform init -backend-config=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/backend.tfvars
         terraform plan -var-file=variables/${{ env.ENVIRONMENT_NAME_SHORT }}/variables.tfvars -var-file=variables/secrets.tfvars -out=terraform.tfplan
         terraform apply terraform.tfplan
         resource_group_name_raw=$(terraform output resource_group_name)
@@ -118,3 +119,10 @@ jobs:
         app-name: ${{ steps.terraform_update.outputs.processor_app_service_name }}
         package: ./ProcessorApp
         publish-profile: ${{ steps.publishprofile_processor.outputs.profile }}
+
+    - name: Verify security headers
+      uses: marcuslindblom/security-headers@main
+      with:
+        url: ${{ secrets.SECURITY_HEADERS_URL }}
+        followRedirects: true
+        grade: A

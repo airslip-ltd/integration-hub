@@ -25,6 +25,13 @@ locals {
   api_key = var.api_key
   integrations_hostname = var.integrations_hostname
   ui_hostname = var.ui_hostname
+  admin_group_id            = var.admin_group_id
+  certificate_name          = var.certificate_name
+  certificate_path          = var.certificate_path
+  certificate_password      = var.certificate_password
+  deployment_agent_group_id = var.deployment_agent_group_id
+  hostname                  = var.hostname
+
 
   shopify_api_key = var.shopify_api_key
   shopify_api_secret = var.shopify_api_secret
@@ -106,4 +113,32 @@ module "func_app_host" {
       }
     }
   ]
+}
+
+data "azurerm_client_config" "current" {}
+
+module "frontdoor" {
+  source = "./tf_modules/Airslip.Terraform.Modules/recipes/app_service_front_door"
+
+  app_configuration = {
+    app_id               = local.app_id,
+    hostname             = local.hostname,
+    backend_hostname     = module.func_app_host.hostname.0,
+    app_id_short         = local.short_app_id,
+    short_environment    = local.short_environment,
+    location             = module.ingredient_bowl.location,
+    tags                 = local.tags,
+    certificate_name     = local.certificate_name,
+    certificate_path     = local.certificate_path,
+    certificate_password = local.certificate_password,
+    tenant_id            = data.azurerm_client_config.current.tenant_id,
+    admin_group_id       = local.admin_group_id,
+    deployer_id          = local.deployment_agent_group_id
+  }
+
+  resource_group = {
+    use_existing = true,
+    resource_group_name = module.ingredient_bowl.name,
+    resource_group_location = module.ingredient_bowl.location
+  }
 }
