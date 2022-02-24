@@ -9,6 +9,7 @@ variable "environment" {
 }
 variable "api_key" {}
 variable "integrations_hostname" {}
+variable "ui_hostname" {}
 
 variable "shopify_api_key" {}
 variable "shopify_api_secret" {}

@@ -1,10 +1,9 @@
 ﻿using Airslip.Common.Types.Enums;
-using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Collections.Generic;
 
-namespace Airslip.IntegrationHub.Services;
+namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IAuthorisationPreparationService
 {

@@ -13,8 +13,6 @@ namespace Airslip.IntegrationHub.Core.Models
         string UserId,
         string Shop)
     {
-        public string? CallbackUrl { get; init; }
-        
         public static (string cipheredSensitiveInfo, SensitiveCallbackInfo generateCallbackAuthRequest)
             GetEncryptedUserInformation(string queryString,  string passPhraseToken)
         {

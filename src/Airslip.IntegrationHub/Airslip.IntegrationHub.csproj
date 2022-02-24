@@ -73,4 +73,8 @@
 		<ProjectReference Include="..\Airslip.IntegrationHub.Core\Airslip.IntegrationHub.Core.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services" />
+	</ItemGroup>
+
 </Project>
