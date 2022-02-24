@@ -24,6 +24,7 @@ locals {
   location = var.location
   api_key = var.api_key
   integrations_hostname = var.integrations_hostname
+  ui_hostname = var.ui_hostname
 
   shopify_api_key = var.shopify_api_key
   shopify_api_secret = var.shopify_api_secret
@@ -82,6 +83,7 @@ module "func_app_host" {
         "EnvironmentSettings:EnvironmentName": var.environment,
         "PublicApiSettings:Settings:Base:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Base:UriSuffix": "oauth",
+        "PublicApiSettings:Settings:UI:BaseUri": local.ui_hostname,
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Api2Cart:UriSuffix": "api2cart",
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,

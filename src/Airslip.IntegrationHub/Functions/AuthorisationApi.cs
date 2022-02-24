@@ -1,5 +1,4 @@
 ﻿using Airslip.Common.Auth.Data;
-using Airslip.Common.Auth.Functions.Attributes;
 using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
@@ -19,11 +18,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Models.ThreeDCart;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
-using Airslip.IntegrationHub.Services;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -41,21 +36,33 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string),
             Description = "The URL to be used to start an external authorisation process")]
         [Function("GenerateAuthorisationUrl")]
-        [ApiKeyAuthorize]
         public static async Task<HttpResponseData> GenerateAuthorisationUrl(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/{provider}/generate-url")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/{provider}")]
             HttpRequestData req,
             FunctionContext executionContext,
             string provider)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
-
+            IRequestValidationService validationService = executionContext.InstanceServices
+                .GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            
             try
             {
-                IResponse response = callbackService.GenerateUrl(provider, req.Url.Query);
+                if (!validationService.ValidateRequest(provider, req))
+                {
+                    logger.Information("Hmac validation failed for request");
+                    return req.CreateResponse(HttpStatusCode.Unauthorized);
+                }
+                
+                IResponse callbackUrl = callbackService.GenerateUrl(provider, req.Url.Query);
+                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl)
+                    return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(callbackUrl);
+                
+                HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
+                response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
+                return response;
 
-                return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(response);
             }
             catch (Exception e)
             {
@@ -126,50 +133,6 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
         }
-        
-        [OpenApiOperation("AuthorisationValidation", Summary = "Validate HMAC token")]
-        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
-        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
-        [Function("AuthorisationValidation")]
-        public static HttpResponseData Validate(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/auth/validate/{provider}")]
-            HttpRequestData req,
-            string provider,
-            FunctionContext executionContext)
-        {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
-            IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
-            
-            try
-            {
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
-
-                if (!supportedProvider)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
-                
-                bool isValid = hmacService.Validate(parsedProvider, queryStrings);
-
-                if (!isValid)
-                {
-                    logger.Warning("There has been a problem validating the callback request");
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                return req.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception e)
-            {
-                logger.Fatal(e, "Unhandled error message {ErrorMessage}", e.Message);
-                return req.CreateResponse(HttpStatusCode.BadRequest);
-            }
-        }
 
         [OpenApiOperation("AuthorisationGDPR", Summary = "Process GDPR")]
         [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
@@ -184,24 +147,14 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
-            IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
+            IRequestValidationService validationService = executionContext.InstanceServices
+                .GetService<IRequestValidationService>() ?? throw new NotImplementedException();
             
             try
             {
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
-
-                if (!supportedProvider)
+                if (!validationService.ValidateRequest(provider, req))
                 {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
-                }
-                
-                List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
-                
-                if (!hmacService.Validate(parsedProvider, queryStrings))
-                {
-                    logger.Warning("There has been a problem validating the callback request");
+                    logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
                 }
                 

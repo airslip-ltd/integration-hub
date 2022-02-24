@@ -2,7 +2,6 @@
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -30,7 +29,8 @@ public static class ServiceExtensions
             .AddScoped<IAuthorisationService, AuthorisationService>()
             .AddScoped<IHmacService, HmacService>()
             .AddScoped<IInternalMiddlewareService, InternalMiddlewareService>()
-            .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>();
+            .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()
+            .AddScoped<IRequestValidationService, RequestValidationService>();
 
         return services;
     }
