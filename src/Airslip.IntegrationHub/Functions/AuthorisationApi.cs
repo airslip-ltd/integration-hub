@@ -172,7 +172,9 @@ namespace Airslip.IntegrationHub.Functions
         }
 
         [OpenApiOperation("AuthorisationGDPR", Summary = "Process GDPR")]
-        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
+        [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Identity supplied")]
+        [OpenApiResponseWithoutBody(HttpStatusCode.BadRequest, Description = "Invalid JSON supplied")]
         [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
         [Function("AuthorisationGDPR")]
         public static  async Task<HttpResponseData> GDPR(
