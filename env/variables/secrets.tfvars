@@ -1,4 +1,5 @@
 api_key = "#{API_KEY}#"
+certificate_password = "#{CERTIFICATE_PASSWORD}#"
 shopify_api_key = "#{SHOPIFY_API_KEY}#"
 shopify_api_secret = "#{SHOPIFY_API_SECRET}#"
 squarespace_api_key = "#{SQUARESPACE_API_KEY}#"
