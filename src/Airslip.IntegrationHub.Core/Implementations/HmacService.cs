@@ -3,6 +3,7 @@ using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Airslip.IntegrationHub.Core.Implementations;
 
@@ -23,7 +24,10 @@ public class HmacService : IHmacService
         if (hmacKey is null)
             return true;
 
+        if (!queryStrings.Any(o => o.Key.Equals(hmacKey))) return false;
+        
         KeyValuePair<string, string> hmacKeyValuePair = queryStrings.Get(hmacKey);
+        
         string hmacValue = hmacKeyValuePair.Value;
         queryStrings.Remove(hmacKeyValuePair);
         ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
