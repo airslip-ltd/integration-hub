@@ -122,12 +122,12 @@ jobs:
         package: ./ProcessorApp
         publish-profile: ${{ steps.publishprofile_processor.outputs.profile }}
 
-    - name: Verify security headers
-      uses: marcuslindblom/security-headers@main
-      with:
-        url: ${{ secrets.SECURITY_HEADERS_URL }}
-        followRedirects: true
-        grade: A
+    # - name: Verify security headers
+    #   uses: marcuslindblom/security-headers@main
+    #   with:
+    #     url: ${{ secrets.SECURITY_HEADERS_URL }}
+    #     followRedirects: true
+    #     grade: A
 
   deploy-web-app-prod:
     runs-on: ubuntu-latest
@@ -247,9 +247,9 @@ jobs:
         package: ./ProcessorApp
         publish-profile: ${{ steps.publishprofile_processor.outputs.profile }}
 
-    - name: Verify security headers
-      uses: marcuslindblom/security-headers@main
-      with:
-        url: ${{ secrets.SECURITY_HEADERS_URL }}
-        followRedirects: true
-        grade: A
+    # - name: Verify security headers
+    #   uses: marcuslindblom/security-headers@main
+    #   with:
+    #     url: ${{ secrets.SECURITY_HEADERS_URL }}
+    #     followRedirects: true
+    #     grade: A
