@@ -1,6 +1,5 @@
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Interfaces;
-using System;
 
 namespace Airslip.IntegrationHub.Core.Requests
 {

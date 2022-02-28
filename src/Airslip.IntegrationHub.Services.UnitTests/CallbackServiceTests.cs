@@ -1,12 +1,9 @@
 using Airslip.Common.Security.Configuration;
 using Airslip.Common.Testing;
-using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
-using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Responses;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;

@@ -1,9 +1,6 @@
 using Airslip.IntegrationHub.Core.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 
 namespace Airslip.IntegrationHub.Core.Models;
 
