@@ -4,7 +4,6 @@ using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Microsoft.Extensions.Options;
 using Serilog;
-using System;
 
 namespace Airslip.IntegrationHub.Core.Implementations
 {

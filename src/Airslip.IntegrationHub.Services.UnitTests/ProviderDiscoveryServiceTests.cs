@@ -1,7 +1,6 @@
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
-using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
