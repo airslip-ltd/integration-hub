@@ -1,5 +1,6 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Extensions;
+using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
@@ -20,6 +21,7 @@ using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -46,7 +48,7 @@ namespace Airslip.IntegrationHub.Functions
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
             
             try
             {
@@ -58,12 +60,12 @@ namespace Airslip.IntegrationHub.Functions
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
                 
-                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
 
                 if (string.IsNullOrWhiteSpace(req.Url.Query))
                 {
-                    response.Headers.Add("Location", providerDetails.CallbackRedirectUri);
+                    PublicApiSetting uiPublicApiSetting = publicApiSettings.Value.GetSettingByName("UI");
+                    response.Headers.Add("Location", uiPublicApiSetting.BaseUri);
                     return response;
                 }
                 
