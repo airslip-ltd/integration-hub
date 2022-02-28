@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -44,11 +45,28 @@ namespace Airslip.IntegrationHub.Functions
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
-            IRequestValidationService validationService = executionContext.InstanceServices
-                .GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             
             try
             {
+                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+
+                if (!supportedProvider)
+                {
+                    logger.Warning("{Provider} is an unsupported provider", provider);
+                    return req.CreateResponse(HttpStatusCode.BadRequest);
+                }
+                
+                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
+                HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
+
+                if (string.IsNullOrWhiteSpace(req.Url.Query))
+                {
+                    response.Headers.Add("Location", providerDetails.CallbackRedirectUri);
+                    return response;
+                }
+                
                 if (!validationService.ValidateRequest(provider, req))
                 {
                     logger.Information("Hmac validation failed for request");
@@ -59,7 +77,6 @@ namespace Airslip.IntegrationHub.Functions
                 if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl)
                     return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(callbackUrl);
                 
-                HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
 
@@ -93,7 +110,6 @@ namespace Airslip.IntegrationHub.Functions
             
             try
             {
-                // Need to simplify to one service call like GenerateAuthorisationUrl function
                 bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
 
                 if (!supportedProvider)
