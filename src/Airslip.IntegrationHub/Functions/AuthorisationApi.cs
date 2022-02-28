@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace Airslip.IntegrationHub.Functions
@@ -52,14 +51,6 @@ namespace Airslip.IntegrationHub.Functions
             
             try
             {
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
-
-                if (!supportedProvider)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
-                
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
 
                 if (string.IsNullOrWhiteSpace(req.Url.Query))
