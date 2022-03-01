@@ -66,10 +66,8 @@ public class CallbackService : ICallbackService
             case PosProviders.Volusion:
                 return string.Empty;
             case PosProviders.Shopify:
-                ShopifyProvider auth = queryString.GetQueryParams<ShopifyProvider>();
-                string grantOptions = auth.IsOnline ? "per-user" : "value";
                 return
-                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&grant_options[]={grantOptions}";
+                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&grant_options[]=value";
             case PosProviders.Ecwid:
                 return
                     $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&redirect_uri={providerDetails.CallbackRedirectUri.ToLower()}&response_type=code&scope={encodedScope}&state={HttpUtility.UrlDecode(cipheredSensitiveInfo)}"; // Will just go to the app store page. state is for debugging purposes.";
