@@ -14,25 +14,15 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 public class CallbackService : ICallbackService
 {
     private readonly EncryptionSettings _encryptionSettings;
-    private readonly IProviderDiscoveryService _providerDiscoveryService;
 
     public CallbackService(
-        IOptions<EncryptionSettings> encryptionOptions, 
-        IProviderDiscoveryService providerDiscoveryService)
+        IOptions<EncryptionSettings> encryptionOptions)
     {
         _encryptionSettings = encryptionOptions.Value;
-        _providerDiscoveryService = providerDiscoveryService;
     }
 
-    public IResponse GenerateUrl(string provider, string queryString)
+    public IResponse GenerateUrl(ProviderDetails providerDetails, string queryString)
     {
-       bool supportedProvider =  provider.TryParseIgnoreCase(out PosProviders parsedProvider);
-        
-        if (!supportedProvider)
-            return new ErrorResponse("PARSE_ERROR", $"{provider} is an unsupported provider");
-        
-        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(parsedProvider);
-
         string callbackUrl = _generateCallbackUrl(providerDetails, queryString);
        
         return new AuthCallbackGeneratorResponse(callbackUrl);
@@ -82,6 +72,11 @@ public class CallbackService : ICallbackService
             case PosProviders.Squarespace:
                 return
                     $"https://login.squarespace.com/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={encodedScope}&redirect_uri={HttpUtility.UrlEncode(providerDetails.CallbackRedirectUri)}&state={cipheredSensitiveInfo}&access_type=offline";
+            case PosProviders.AmazonSP:
+                string url = $"{providerDetails.ProviderSetting.BaseUri}/apps/authorize/consent?application_id={providerDetails.ProviderSetting.AppName}&state={cipheredSensitiveInfo}&redirect_uri={providerDetails.CallbackRedirectUri}";
+                if (providerDetails.ProviderSetting.TestMode == true)
+                    url += "&version=beta";
+                return url;
             default:
                 return string.Empty;
         }

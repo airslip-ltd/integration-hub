@@ -2,6 +2,7 @@
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Models.AmazonSP;
 using Airslip.IntegrationHub.Core.Models.Ecwid;
 using Airslip.IntegrationHub.Core.Models.Shopify;
 using Airslip.IntegrationHub.Core.Models.Squarespace;
@@ -66,6 +67,10 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
                     return new ErrorAuthorisingDetail { ErrorMessage = ecwidAuth.ErrorMessage, ErrorCode = ecwidAuth.ErrorCode};
                 ecwidAuth.PermanentAccessUrl = "https://my.ecwid.com/api/oauth/token";
                 return ecwidAuth;
+            case PosProviders.AmazonSP: 
+                AmazonSPAuthorisingDetail amazonAuth = req.Url.Query.GetQueryParams<AmazonSPAuthorisingDetail>();
+                amazonAuth.PermanentAccessUrl = "https://api.amazon.com/auth/o2/token";
+                return amazonAuth;
             default:
                 throw new NotImplementedException();
         }

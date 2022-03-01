@@ -2,6 +2,7 @@
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Models.AmazonSP;
 using Airslip.IntegrationHub.Core.Models.Ecwid;
 using Airslip.IntegrationHub.Core.Models.Shopify;
 using Airslip.IntegrationHub.Core.Models.Squarespace;
@@ -42,7 +43,7 @@ public class OAuth2Service : IOAuth2Service
             HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail);
-
+            
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             string content = await response.Content.ReadAsStringAsync();
 
@@ -110,6 +111,9 @@ public class OAuth2Service : IOAuth2Service
             PosProviders.Ecwid => new EcwidPermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
+            PosProviders.AmazonSP => new AmazonSPPermanentAccessHttpRequestMessage(
+                providerDetails,
+                shortLivedAuthorisationDetail),
             _ => throw new NotImplementedException()
         };
     }
@@ -141,7 +145,7 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.BigcommerceApi:
                 basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
-#if DEBUG
+#if DEBUG // Could delete now we have changed auth process?
                 basicAuth.EncryptedUserInfo =
                     "+bvlByiyWY0En780uwUgFO7VVvlUF6/NeBawhojg1U9vxfESckFkeWAkk4LkK/qNKNGJDybhMoGa5ZKYU/glEthNo7pCebSnNG12Ncir4jpUTyNheMDeNSAXbLLhWj+SiOOgmWaektxAX4MBZwwIZGNn2dEZfBDshoSta3AODXX11EVTrgOEGpyt4n/SMUTCvD2WCAqDro5AUvQxtGnHy1MpGtdBVJ+yCA5dZJbqHpTWt629s7MfPp5Ey//AbIfA";
 #endif
@@ -151,10 +155,14 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.Ecwid:
                 basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
-#if DEBUG
+#if DEBUG // Could delete now we have changed auth process?
                 basicAuth.EncryptedUserInfo =
                     "rBpyBX0TMNt1pGMBlJd2tchvSH/LQJkdjLsnUzMZCEC8KFkC+qBcb2Z3HBzhCiuFlGLaU3yeCDTiNrILCiQ+qOCdPvzt4+qGlmio177fpV0C+6egY0/wufaBfcIDYHCRGDWAbmDpiR8fKlJqP5kMuMr4jCCQ2XLfUwpmn3uAxR9Q7OVi2sBfEeBu3EQa7GRuHrNdB+wBagD9imdEPH9uC+Iw0PsuW4EL7ebOoNpU3VKc6d9uSfr86D5e+BgArPC8";
 #endif
+                break;
+            case PosProviders.AmazonSP:
+                basicAuth = Json.Deserialize<AmazonSPAuthorisationDetail>(content);
+                basicAuth.Login = shortLivedAuthorisationDetail.StoreName;
                 break;
         }
         

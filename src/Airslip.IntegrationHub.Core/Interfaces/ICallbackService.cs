@@ -4,5 +4,5 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface ICallbackService
 {
-    IResponse GenerateUrl(string provider, string queryString);
+    IResponse GenerateUrl(ProviderDetails providerDetails, string queryString);
 }

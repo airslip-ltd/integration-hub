@@ -27,9 +27,15 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             PublicApiSetting middlewareDestinationSettings = _publicApiSettings.GetSettingByName(providerSetting.MiddlewareDestinationAppName);
             string destinationBaseUri = middlewareDestinationSettings.ToBaseUri();
-            PublicApiSetting callbackSettings = _publicApiSettings.GetSettingByName("UI");
-            string callbackRedirectUri = $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
+
+            string publicApiSettingName = providerSetting.TestMode == true ? "Base" : "UI";
             
+            PublicApiSetting callbackSettings = _publicApiSettings.GetSettingByName(publicApiSettingName);
+            
+            string callbackRedirectUri = providerSetting.TestMode == true
+                ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
+                : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
+
             return new ProviderDetails(
                 provider,
                 callbackRedirectUri,
