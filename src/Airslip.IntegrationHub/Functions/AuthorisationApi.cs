@@ -48,7 +48,7 @@ namespace Airslip.IntegrationHub.Functions
             ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
-            
+
             try
             {
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
@@ -59,17 +59,17 @@ namespace Airslip.IntegrationHub.Functions
                     response.Headers.Add("Location", uiPublicApiSetting.BaseUri);
                     return response;
                 }
-                
+
                 if (!validationService.ValidateRequest(provider, req))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
                 }
-                
+
                 IResponse callbackUrl = callbackService.GenerateUrl(provider, req.Url.Query);
                 if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl)
                     return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(callbackUrl);
-                
+
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
 
@@ -100,7 +100,7 @@ namespace Airslip.IntegrationHub.Functions
             IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
             IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
-            
+
             try
             {
                 bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
@@ -149,7 +149,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiResponseWithoutBody(HttpStatusCode.BadRequest, Description = "Invalid JSON supplied")]
         [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
         [Function("AuthorisationGDPR")]
-        public static  async Task<HttpResponseData> GDPR(
+        public static async Task<HttpResponseData> GDPR(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/auth/{provider}/gdpr")]
             HttpRequestData req,
             string provider,
@@ -158,7 +158,7 @@ namespace Airslip.IntegrationHub.Functions
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices
                 .GetService<IRequestValidationService>() ?? throw new NotImplementedException();
-            
+
             try
             {
                 if (!validationService.ValidateRequest(provider, req))
@@ -166,10 +166,10 @@ namespace Airslip.IntegrationHub.Functions
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
                 }
-                
+
                 GDPRRequest gdprRequest = await req.Body.DeserializeStream<GDPRRequest>();
 
-                logger.Information("GDPR request made for {ShopId} with the body {Body}", 
+                logger.Information("GDPR request made for {ShopId} with the body {Body}",
                     gdprRequest.ShopId,
                     Json.Serialize(gdprRequest));
 
