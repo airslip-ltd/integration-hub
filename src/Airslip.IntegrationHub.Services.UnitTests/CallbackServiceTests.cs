@@ -70,11 +70,9 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                  .Setup(s => s.GetProviderDetails(It.IsAny<PosProviders>()))
                  .Returns(providerDetails);
              
-             _sut = new CallbackService(
-                 _encryptionSettingsMock.Object,
-                 _providerDiscoveryServiceMock.Object);
+             _sut = new CallbackService(_encryptionSettingsMock.Object);
              
-             AuthCallbackGeneratorResponse url = (AuthCallbackGeneratorResponse)_sut.GenerateUrl(provider, queryString);
+             AuthCallbackGeneratorResponse url = (AuthCallbackGeneratorResponse)_sut.GenerateUrl(providerDetails, queryString);
         
              string urlDecodedCallbackUrl = HttpUtility.UrlDecode(url.AuthorisationUrl);
         
