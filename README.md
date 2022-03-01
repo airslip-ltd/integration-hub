@@ -17,7 +17,7 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 | Name | Auth Type | Status |
 |:- |:- |:- |
-| Amazon SP API | OAUTH | Pending Verification |
+| Amazon SP API | OAUTH | In Development |
 | BigCommerce | OAUTH | Pending Tests |
 | Demandware | OAUTH | Awaiting Response |
 | eBay | OAUTH | Publish App Required |
@@ -68,7 +68,13 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 ## Shopify
 
-Has a marketplace to install the app.
+Has Marketplace: Yes
+
+Marketplace URL: https://apps.shopify.com
+
+Process: Create and manage account at https://partners.shopify.com
+
+### Parameters
 
 `shop` should be in the format of {shop-name}.myshopify.com
 
@@ -76,19 +82,29 @@ Has a marketplace to install the app.
 
 `hmac` is a generated value by Shopify
 
-Requires an additional parameter
-
-- isOnline
-
-## Squarespace
+`isOnline` changes the grant_options[] value. per-user is for Shopify ecommerce provider and value is for Shopify POS.
 
 ### Dev store
 
 Name: `airslip-development`
 
+## Squarespace
+
+Has Marketplace: Yes
+
+Marketplace URL: https://www.squarespace.com/extensions/home
+
 Auth Reference : https://developers.squarespace.com/oauth
 
-Request OAUTH access through their application form at https://partner.squarespace.com/oauth-form. Applications can take up to 7 days and Squarespace will review the registration and respond with client_id and client_secret as soon as possible.
+Process: Request OAUTH access through their application form at https://partner.squarespace.com/oauth-form. Applications can take up to 7 days and Squarespace will review the registration and respond with client_id and client_secret as soon as possible. A new support request should then be sent to list the app on the Squarespace marketplace.
+
+### Parameters
+
+`shop` should be in the format of {shop-name}.
+
+### Dev store
+
+Name: `airslip-development`
 
 ## BigCommerce
 
