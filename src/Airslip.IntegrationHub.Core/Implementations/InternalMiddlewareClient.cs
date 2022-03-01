@@ -1,14 +1,11 @@
-﻿using Airslip.Common.Security.Configuration;
-using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
-using Microsoft.Extensions.Options;
 using Serilog;
 using System;
 using System.Net.Http;
@@ -20,16 +17,13 @@ namespace Airslip.IntegrationHub.Core.Implementations
     public class InternalMiddlewareClient : IInternalMiddlewareClient
     {
         private readonly HttpClient _httpClient;
-        private readonly EncryptionSettings _encryptionSettings;
         private readonly ILogger _logger;
 
         public InternalMiddlewareClient(
             HttpClient httpClient,
-            IOptions<EncryptionSettings> encryptionOptions,
             ILogger logger)
         {
             _httpClient = httpClient;
-            _encryptionSettings = encryptionOptions.Value;
             _logger = logger;
         }
         
@@ -96,32 +90,6 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 return new InvalidResource("UNHANDLED_ERROR", ee.Message);
             }
         }
-        
-        // public MiddlewareAuthorisationRequest BuildMiddlewareAuthorisationModel(
-        //     ProviderDetails providerDetails,
-        //     BasicAuthorisationDetail basicAuthorisationDetail)
-        // {
-        //     SensitiveCallbackInfo sensitiveCallbackInfo = SensitiveCallbackInfo.DecryptCallbackInfo(
-        //         basicAuthorisationDetail.EncryptedUserInfo,
-        //         _encryptionSettings.PassPhraseToken);
-        //
-        //     return new MiddlewareAuthorisationRequest
-        //     {
-        //         Provider = providerDetails.Provider.ToString(),
-        //         StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
-        //         StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
-        //         Login = basicAuthorisationDetail.Login,
-        //         Password = basicAuthorisationDetail.Password,
-        //         EntityId = sensitiveCallbackInfo.EntityId,
-        //         UserId = sensitiveCallbackInfo.UserId,
-        //         AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
-        //         Environment = providerDetails.ProviderSetting.Environment,
-        //         Location = providerDetails.ProviderSetting.Location,
-        //         AdditionalFieldOne = providerDetails.ProviderSetting.AdditionalFieldOne,
-        //         AdditionalFieldTwo = providerDetails.ProviderSetting.AdditionalFieldTwo,
-        //         AdditionalFieldThree = providerDetails.ProviderSetting.AdditionalFieldThree,
-        //     };
-        // }
     }
 
     internal static class Endpoints
