@@ -46,7 +46,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
                 Environment = providerDetails.ProviderSetting.Environment,
                 Location = providerDetails.ProviderSetting.Location,
-                Context = basicAuthorisationDetail.Context
+                Context = basicAuthorisationDetail.Context,
+                AdditionalFieldOne = providerDetails.ProviderSetting.AdditionalFieldOne,
+                AdditionalFieldTwo = providerDetails.ProviderSetting.AdditionalFieldTwo,
+                AdditionalFieldThree = providerDetails.ProviderSetting.AdditionalFieldThree
             };
         }
     }
