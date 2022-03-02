@@ -53,6 +53,15 @@ locals {
 
   threed_cart_api_key = var.threed_cart_api_key
   threed_cart_api_secret = var.threed_cart_api_secret
+
+  amazon_sp_api_key = var.amazon_sp_api_key
+  amazon_sp_api_secret = var.amazon_sp_api_secret
+  amazon_sp_app_name = var.amazon_sp_app_name
+  amazon_sp_environment = var.amazon_sp_environment
+  amazon_sp_location = var.amazon_sp_location
+  amazon_sp_role = var.amazon_sp_role
+  amazon_sp_user_id = var.amazon_sp_user_id
+  amazon_sp_user_secret = var.amazon_sp_user_secret
 }
 
 module "ingredient_bowl" {
@@ -110,6 +119,14 @@ module "func_app_host" {
         "ProviderSettings:Settings:EtsyAPIv3:ApiSecret": local.etsyapiv3_api_secret,
         "ProviderSettings:Settings:_3DCart:ApiKey": local.threed_cart_api_key,
         "ProviderSettings:Settings:_3DCart:ApiSecret": local.threed_cart_api_secret,
+        "ProviderSettings:Settings:AmazonSP:ApiKey": local.amazon_sp_api_key,
+        "ProviderSettings:Settings:AmazonSP:ApiSecret": local.amazon_sp_api_secret,
+        "ProviderSettings:Settings:AmazonSP:AppName": local.amazon_sp_app_name,
+        "ProviderSettings:Settings:AmazonSP:Environment": local.amazon_sp_environment,
+        "ProviderSettings:Settings:AmazonSP:Location": local.amazon_sp_location,
+        "ProviderSettings:Settings:AmazonSP:AdditionalFieldOne": local.amazon_sp_role,
+        "ProviderSettings:Settings:AmazonSP:AdditionalFieldTwo": local.amazon_sp_user_id,
+        "ProviderSettings:Settings:AmazonSP:AdditionalFieldThree": local.amazon_sp_user_secret
       }
     }
   ]
