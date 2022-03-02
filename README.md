@@ -17,15 +17,15 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 | Name | Auth Type | Status |
 |:- |:- |:- |
-| Amazon SP API | OAUTH | In Development |
-| BigCommerce | OAUTH | Pending Tests |
+| Amazon SP API | OAUTH | Pending App Approval |
+| BigCommerce | OAUTH | Pending UI |
 | Demandware | OAUTH | Awaiting Response |
 | eBay | OAUTH | Publish App Required |
 | Ecwid | OAUTH | Publish App Required |
 | Etsy API v3 | OAUTH | Pending Verification |
 | Magento 2 API | OAUTH | Awaiting Response |
 | Shopify | OAUTH | Pending App Approval |
-| Squarespace | OAUTH | Publish App Required |
+| Squarespace | OAUTH | Pending UI |
 | WooCommerce API | OAUTH | Pending UI |
 | Walmart | OAUTH | Awaiting Response |
 | Shift4Shop (3DCart) | OAUTH | In Development |
@@ -158,3 +158,9 @@ Below is the URL template for every API call:
 Create integration and authentication instructions
 
 https://devdocs.magento.com/guides/v2.4/get-started/create-integration.html
+
+## Amazon SP API
+
+A user is required to be created in AWS with a policy and role.
+
+
