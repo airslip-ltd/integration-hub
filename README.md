@@ -68,12 +68,12 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 The following stores expect a shop parameter
 
-- Shopify
-- 3DCart
+- Shopify `airslip-development.myshopify.com`
+- 3DCart `airslip-development`
 
 The following stores expect a domain address passed in the shop parameter
 
-- WooCommerceApi
+- WooCommerceApi `https://www.airslip.com`
 
 ## Shopify
 
