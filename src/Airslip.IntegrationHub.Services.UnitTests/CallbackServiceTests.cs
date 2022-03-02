@@ -67,7 +67,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                  Factory.GetProviderSetting(posProvider));
              
              _providerDiscoveryServiceMock
-                 .Setup(s => s.GetProviderDetails(It.IsAny<PosProviders>()))
+                 .Setup(s => s.GetProviderDetails(It.IsAny<PosProviders>(), It.IsAny<bool?>()))
                  .Returns(providerDetails);
              
              _sut = new CallbackService(_encryptionSettingsMock.Object);

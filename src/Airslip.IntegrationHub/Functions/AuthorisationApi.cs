@@ -56,11 +56,13 @@ namespace Airslip.IntegrationHub.Functions
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
 
-                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
+                GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
+                
+                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider, generateUrlDetail.TestMode);
 
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
                 
-                if (string.IsNullOrWhiteSpace(req.Url.Query) && providerDetails.ProviderSetting.TestMode != true)
+                if (string.IsNullOrWhiteSpace(req.Url.Query) && generateUrlDetail.TestMode != true)
                 {
                     PublicApiSetting uiPublicApiSetting = publicApiSettings.Value.GetSettingByName("UI");
                     response.Headers.Add("Location", uiPublicApiSetting.BaseUri);
@@ -75,8 +77,7 @@ namespace Airslip.IntegrationHub.Functions
                 
                 IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, req.Url.Query);
                 
-                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl 
-                    || providerDetails.ProviderSetting.TestMode == true)
+                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || generateUrlDetail.TestMode)
                     return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(callbackUrl);
                 
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
