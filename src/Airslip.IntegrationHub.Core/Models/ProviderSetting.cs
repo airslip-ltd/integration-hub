@@ -13,7 +13,6 @@ namespace Airslip.IntegrationHub.Core.Models
         public string? AppName { get; set; }
         public string? Environment { get; set; }
         public string? Location { get; set; }
-        public bool? TestMode { get; set; }
         public string? AdditionalFieldOne { get; set; }
         public string? AdditionalFieldTwo { get; set; }
         public string? AdditionalFieldThree { get; set; }

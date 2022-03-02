@@ -21,18 +21,18 @@ namespace Airslip.IntegrationHub.Core.Implementations
         }
 
         // Step 2: Add provider details to app settings
-        public ProviderDetails GetProviderDetails(PosProviders provider)
+        public ProviderDetails GetProviderDetails(PosProviders provider, bool? testMode = null)
         {
             ProviderSetting providerSetting = _providerSettings.GetSettingByName(provider.ToString());
 
             PublicApiSetting middlewareDestinationSettings = _publicApiSettings.GetSettingByName(providerSetting.MiddlewareDestinationAppName);
             string destinationBaseUri = middlewareDestinationSettings.ToBaseUri();
 
-            string publicApiSettingName = providerSetting.TestMode == true ? "Base" : "UI";
+            string publicApiSettingName = testMode == true ? "Base" : "UI";
             
             PublicApiSetting callbackSettings = _publicApiSettings.GetSettingByName(publicApiSettingName);
             
-            string callbackRedirectUri = providerSetting.TestMode == true
+            string callbackRedirectUri = testMode == true
                 ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
                 : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
 

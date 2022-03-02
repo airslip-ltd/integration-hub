@@ -72,7 +72,7 @@ public class CallbackService : ICallbackService
                     $"https://login.squarespace.com/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={encodedScope}&redirect_uri={HttpUtility.UrlEncode(providerDetails.CallbackRedirectUri)}&state={cipheredSensitiveInfo}&access_type=offline";
             case PosProviders.AmazonSP:
                 string url = $"{providerDetails.ProviderSetting.BaseUri}/apps/authorize/consent?application_id={providerDetails.ProviderSetting.AppName}&state={cipheredSensitiveInfo}&redirect_uri={providerDetails.CallbackRedirectUri}";
-                if (providerDetails.ProviderSetting.TestMode == true)
+                if (providerDetails.ProviderSetting.Environment == "sandbox")
                     url += "&version=beta";
                 return url;
             default:
