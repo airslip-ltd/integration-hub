@@ -66,6 +66,15 @@ Middleware repository to authorise and direct traffic to the correct checkout pr
 
 # Authentication -  Generation of callback URL
 
+The following stores expect a shop parameter
+
+- Shopify
+- 3DCart
+
+The following stores expect a domain address passed in the shop parameter
+
+- WooCommerceApi
+
 ## Shopify
 
 Has Marketplace: Yes
