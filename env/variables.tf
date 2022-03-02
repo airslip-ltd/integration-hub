@@ -42,3 +42,12 @@ variable "etsyapiv3_api_secret" {}
 
 variable "threed_cart_api_key" {}
 variable "threed_cart_api_secret" {}
+
+variable "amazon_sp_api_key" {}
+variable "amazon_sp_api_secret" {}
+variable "amazon_sp_app_name" {}
+variable "amazon_sp_environment" {}
+variable "amazon_sp_location" {}
+variable "amazon_sp_role" {}
+variable "amazon_sp_user_id" {}
+variable "amazon_sp_user_secret" {}

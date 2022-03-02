@@ -69,6 +69,14 @@ jobs:
         ETSYAPIV3_API_SECRET: ${{ secrets.ETSYAPIV3_API_SECRET }}
         THREED_CART_API_KEY: ${{ secrets.THREED_CART_API_KEY }}
         THREED_CART_API_SECRET: ${{ secrets.THREED_CART_API_SECRET }}
+        AMAZON_SP_API_KEY: ${{ secrets.AMAZON_SP_API_KEY }}
+        AMAZON_SP_API_SECRET: ${{ secrets.AMAZON_SP_API_SECRET }}
+        AMAZON_SP_APP_NAME: ${{ secrets.AMAZON_SP_APP_NAME }}
+        AMAZON_SP_ENVIRONMENT: ${{ secrets.AMAZON_SP_ENVIRONMENT }}
+        AMAZON_SP_LOCATION: ${{ secrets.AMAZON_SP_LOCATION }}
+        AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
+        AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
+        AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
 
     - uses: azure/login@v1
       with:
@@ -194,6 +202,14 @@ jobs:
         ETSYAPIV3_API_SECRET: ${{ secrets.ETSYAPIV3_API_SECRET }}
         THREED_CART_API_KEY: ${{ secrets.THREED_CART_API_KEY }}
         THREED_CART_API_SECRET: ${{ secrets.THREED_CART_API_SECRET }}
+        AMAZON_SP_API_KEY: ${{ secrets.AMAZON_SP_API_KEY }}
+        AMAZON_SP_API_SECRET: ${{ secrets.AMAZON_SP_API_SECRET }}
+        AMAZON_SP_APP_NAME: ${{ secrets.AMAZON_SP_APP_NAME }}
+        AMAZON_SP_ENVIRONMENT: ${{ secrets.AMAZON_SP_ENVIRONMENT }}
+        AMAZON_SP_LOCATION: ${{ secrets.AMAZON_SP_LOCATION }}
+        AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
+        AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
+        AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
 
     - uses: azure/login@v1
       with:
