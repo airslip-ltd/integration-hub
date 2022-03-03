@@ -57,8 +57,6 @@ namespace Airslip.IntegrationHub.Functions
                 }
 
                 GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
-                
-                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider, generateUrlDetail.TestMode);
 
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
                 
@@ -69,7 +67,9 @@ namespace Airslip.IntegrationHub.Functions
                     return response;
                 }
 
-                if (!validationService.ValidateRequest(provider, req))
+                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider, generateUrlDetail.TestMode);
+                
+                if (!validationService.ValidateRequest(parsedProvider, req))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
@@ -171,7 +171,15 @@ namespace Airslip.IntegrationHub.Functions
 
             try
             {
-                if (!validationService.ValidateRequest(provider, req))
+                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+
+                if (!supportedProvider)
+                {
+                    logger.Warning("{Provider} is an unsupported provider", provider);
+                    return req.CreateResponse(HttpStatusCode.BadRequest);
+                }
+                
+                if (!validationService.ValidateRequest(parsedProvider, req))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
