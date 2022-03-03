@@ -27,9 +27,7 @@ public class RequestValidationService : IRequestValidationService
         HttpRequestData req, 
         AuthRequestTypes authRequestType)
     {
-        bool shouldValidate = providerDetails.ProviderSetting.ShouldValidate(authRequestType);
-
-        if (shouldValidate is false)
+        if (!providerDetails.ProviderSetting.ShouldValidate(authRequestType))
             return true;
 
         List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(providerDetails, req);

@@ -9,11 +9,8 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class HmacService : IHmacService
 {
-    public bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings) //, RequestType requestType
+    public bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings)
     {
-        //if (!providerDetails.ShouldValidate(requestType)) return true;
-
-        // Need to add for WooCommerce
         string? hmacKey = _getHmacKey(providerDetails.Provider);
 
         if (hmacKey is null)
