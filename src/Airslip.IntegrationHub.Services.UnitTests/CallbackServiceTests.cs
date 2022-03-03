@@ -40,9 +40,9 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         [Theory]
         [InlineData(
             "_3dcart",
-            "?client_id=app-id&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/_3DCart&response_type=code&store_url=https://airslip-development.3dcartstores.com",
+            "?client_id=app-id&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/_3DCart&response_type=code&shop=airslip-development",
             "state",
-            "https://apirest.3dcart.com/oauth/authorize?client_id=app-id&redirect_uri=callback-uri&response_type=code")]
+            "https://apirest.3dcart.com/oauth/authorize?client_id=app-id&redirect_uri=callback-uri&response_type=code&store_url=https://airslip-development.3dcartstores.com")]
          // [InlineData("shopify",
          //     "?shop=airslip-development.myshopify.com&isOnline=true",
          //     "state",
