@@ -16,8 +16,12 @@ public class HmacService : IHmacService
         _providerDiscoveryService = providerDiscoveryService;
     }
         
-    public bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings)
+    public bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings) //, RequestType requestType
     {
+        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
+
+        //if (!providerDetails.ShouldValidate(requestType)) return true;
+
         // Need to add for WooCommerce
         string? hmacKey = _getHmacKey(provider);
 
@@ -30,7 +34,6 @@ public class HmacService : IHmacService
         
         string hmacValue = hmacKeyValuePair.Value;
         queryStrings.Remove(hmacKeyValuePair);
-        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
 
         return HmacCipher.Validate(queryStrings, hmacValue, providerDetails.ProviderSetting.ApiSecret);
     }

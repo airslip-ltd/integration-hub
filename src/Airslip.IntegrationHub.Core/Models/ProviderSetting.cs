@@ -1,4 +1,5 @@
 using Airslip.IntegrationHub.Core.Interfaces;
+using System;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
@@ -16,6 +17,9 @@ namespace Airslip.IntegrationHub.Core.Models
         public string? AdditionalFieldOne { get; set; }
         public string? AdditionalFieldTwo { get; set; }
         public string? AdditionalFieldThree { get; set; }
+        public bool RequiresStoreName { get; set; }
+        public string AppListingUrl { get; set; } = string.Empty;
+        public string[] HmacValidateOn { get; set; } = Array.Empty<string>();
 
         public string FormatBaseUri(string value)
         {

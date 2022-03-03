@@ -21,16 +21,8 @@ public class RequestValidationService : IRequestValidationService
         _logger = logger;
     }
     
-    public bool ValidateRequest(string provider, HttpRequestData req)
+    public bool ValidateRequest(PosProviders parsedProvider, HttpRequestData req)
     {
-        bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
-
-        if (!supportedProvider)
-        {
-            _logger.Warning("{Provider} is an unsupported provider", provider);
-            return false;
-        }
-
         List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(parsedProvider, req);
                 
         return _hmacService.Validate(parsedProvider, queryStrings);
