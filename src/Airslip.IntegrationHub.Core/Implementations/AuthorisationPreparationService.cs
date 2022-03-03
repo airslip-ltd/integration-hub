@@ -77,15 +77,14 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     }
 
     public List<KeyValuePair<string, string>> GetParameters(
-        PosProviders provider,
+        ProviderDetails providerDetails,
         HttpRequestData req)
     {
         // Step 3: If using POST then add custom logic here
-        switch (provider)
+        switch (providerDetails.Provider)
         {
             case PosProviders.WoocommerceApi:
-                WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail =
-                    req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
+                WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
                 string queryString = wooCommerceAuthorisationDetail.GetQueryString();
                 return queryString.GetQueryParams(true).ToList();
             default:

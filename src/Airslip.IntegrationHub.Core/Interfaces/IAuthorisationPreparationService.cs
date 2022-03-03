@@ -1,5 +1,4 @@
-﻿using Airslip.Common.Types.Enums;
-using Airslip.IntegrationHub.Core.Models;
+﻿using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Collections.Generic;
 
@@ -10,8 +9,8 @@ public interface IAuthorisationPreparationService
     IProviderAuthorisation GetProviderAuthorisationDetail(
         ProviderDetails providerDetails,
         HttpRequestData req);
-    
+
     List<KeyValuePair<string, string>> GetParameters(
-        PosProviders provider,
+        ProviderDetails providerDetails,
         HttpRequestData req);
 }

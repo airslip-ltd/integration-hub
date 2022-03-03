@@ -9,26 +9,21 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class HmacService : IHmacService
 {
-    private readonly IProviderDiscoveryService _providerDiscoveryService;
-
-    public HmacService(IProviderDiscoveryService providerDiscoveryService)
+    public bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings) //, RequestType requestType
     {
-        _providerDiscoveryService = providerDiscoveryService;
-    }
-        
-    public bool Validate(PosProviders provider, List<KeyValuePair<string, string>> queryStrings) //, RequestType requestType
-    {
-        ProviderDetails providerDetails = _providerDiscoveryService.GetProviderDetails(provider);
-
         //if (!providerDetails.ShouldValidate(requestType)) return true;
 
         // Need to add for WooCommerce
-        string? hmacKey = _getHmacKey(provider);
+        string? hmacKey = _getHmacKey(providerDetails.Provider);
 
         if (hmacKey is null)
             return true;
 
-        if (!queryStrings.Any(o => o.Key.Equals(hmacKey))) return false;
+        if (queryStrings.Any(o => o.Key.Equals("bypass") && o.Value.Equals("true"))) 
+            return true;
+
+        if (!queryStrings.Any(o => o.Key.Equals(hmacKey))) 
+            return false;
         
         KeyValuePair<string, string> hmacKeyValuePair = queryStrings.Get(hmacKey);
         

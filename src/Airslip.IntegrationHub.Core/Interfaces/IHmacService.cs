@@ -5,7 +5,5 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IHmacService
 {
-    bool Validate(
-        PosProviders provider,
-        List<KeyValuePair<string, string>> queryStrings);
+    bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings);
 }

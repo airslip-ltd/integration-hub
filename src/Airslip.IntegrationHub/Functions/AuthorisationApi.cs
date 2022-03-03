@@ -47,16 +47,15 @@ namespace Airslip.IntegrationHub.Functions
 
             try
             {
+                GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
                 
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider, generateUrlDetail.TestMode);
 
-                if (!supportedProvider)
+                if (providerDetails is null)
                 {
                     logger.Warning("{Provider} is an unsupported provider", provider);
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
-
-                GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
 
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
                 
@@ -67,9 +66,7 @@ namespace Airslip.IntegrationHub.Functions
                     return response;
                 }
 
-                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider, generateUrlDetail.TestMode);
-                
-                if (!validationService.ValidateRequest(parsedProvider, req))
+                if (!validationService.ValidateRequest(providerDetails, req))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
@@ -113,9 +110,9 @@ namespace Airslip.IntegrationHub.Functions
 
             try
             {
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
 
-                if (!supportedProvider)
+                if (providerDetails is null)
                 {
                     logger.Warning("{Provider} is an unsupported provider", provider);
                     return req.CreateResponse(HttpStatusCode.BadRequest);
@@ -124,7 +121,7 @@ namespace Airslip.IntegrationHub.Functions
                 //Validate HMAC another way. Needs improving. Maybe specific to provider.
                 // List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
                 //
-                // bool isValid = hmacService.Validate(parsedProvider, queryStrings);
+                // bool isValid = hmacService.Validate(providerDetails, queryStrings);
                 //
                 // if (!isValid)
                 // {
@@ -132,7 +129,6 @@ namespace Airslip.IntegrationHub.Functions
                 //     return req.CreateResponse(HttpStatusCode.BadRequest);
                 // }
 
-                ProviderDetails providerDetails = providerDiscoveryService.GetProviderDetails(parsedProvider);
                 IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(providerDetails, req);
 
                 if (providerAuthorisingDetail is ErrorAuthorisingDetail errorAuthorisingDetail)
@@ -166,20 +162,20 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IRequestValidationService validationService = executionContext.InstanceServices
-                .GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
 
             try
             {
-                bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
 
-                if (!supportedProvider)
+                if (providerDetails is null)
                 {
                     logger.Warning("{Provider} is an unsupported provider", provider);
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
                 
-                if (!validationService.ValidateRequest(parsedProvider, req))
+                if (!validationService.ValidateRequest(providerDetails, req))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);

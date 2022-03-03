@@ -54,28 +54,29 @@ public class CallbackService : ICallbackService
             case PosProviders.Volusion:
                 return string.Empty;
             case PosProviders.Shopify:
-                return string.IsNullOrWhiteSpace(providerDetails.ProviderSetting.AppListingUrl) 
-                    ? $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&grant_options[]=value"
-                    : providerDetails.ProviderSetting.AppListingUrl;
+                if (providerDetails.ProviderSetting.RequiresStoreName && string.IsNullOrWhiteSpace(sensitiveCallbackInfo.Shop))
+                    return providerDetails.ProviderSetting.AppListingUrl;
+
+                return
+                    $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/admin/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={providerDetails.ProviderSetting.Scope}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&grant_options[]=value";
             case PosProviders.Ecwid:
                 return
                     $"https://my.ecwid.com/api/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&redirect_uri={providerDetails.CallbackRedirectUri.ToLower()}&response_type=code&scope={encodedScope}&state={HttpUtility.UrlDecode(cipheredSensitiveInfo)}"; // Will just go to the app store page. state is for debugging purposes.";
             case PosProviders._3DCart:
-                if (string.IsNullOrWhiteSpace(providerDetails.ProviderSetting.AppListingUrl))
-                {
-                    string threeDCartUrl = $"{providerDetails.ProviderSetting.FormatBaseUri("apirest")}/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&response_type=code";
-                    if (!string.IsNullOrWhiteSpace(sensitiveCallbackInfo.Shop))
-                        threeDCartUrl += $"&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
-                    return threeDCartUrl;
-                }
-                else
+                if (providerDetails.ProviderSetting.RequiresStoreName && string.IsNullOrWhiteSpace(sensitiveCallbackInfo.Shop))
                     return providerDetails.ProviderSetting.AppListingUrl;
+                
+                string threeDCartUrl = $"{providerDetails.ProviderSetting.FormatBaseUri("apirest")}/oauth/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}&response_type=code";
+                
+                if (!string.IsNullOrWhiteSpace(sensitiveCallbackInfo.Shop))
+                    threeDCartUrl += $"&store_url=https://{sensitiveCallbackInfo.Shop}.3dcartstores.com";
+                return threeDCartUrl;
             case PosProviders.BigcommerceApi:
                 return $"https://www.bigcommerce.com/apps/airslip?state={HttpUtility.UrlDecode(cipheredSensitiveInfo)}"; // Will just go to the app store page. state is for debugging purposes.
             case PosProviders.WoocommerceApi:
-                return string.IsNullOrWhiteSpace(providerDetails.ProviderSetting.AppListingUrl) 
-                    ? $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={providerDetails.CallbackRedirectUri}"
-                    : providerDetails.ProviderSetting.AppListingUrl;
+                if (providerDetails.ProviderSetting.RequiresStoreName && string.IsNullOrWhiteSpace(sensitiveCallbackInfo.Shop))
+                    return providerDetails.ProviderSetting.AppListingUrl;
+                return $"{string.Format(providerDetails.ProviderSetting.FormatBaseUri(sensitiveCallbackInfo.Shop))}/wc-auth/v1/authorize?app_name=Airslip&scope={providerDetails.ProviderSetting.Scope}&user_id={cipheredSensitiveInfo}&return_url=https://google.com&callback_url={providerDetails.CallbackRedirectUri}";
             case PosProviders.Squarespace:
                 return
                     $"https://login.squarespace.com/api/1/login/oauth/provider/authorize?client_id={providerDetails.ProviderSetting.ApiKey}&scope={encodedScope}&redirect_uri={HttpUtility.UrlEncode(providerDetails.CallbackRedirectUri)}&state={cipheredSensitiveInfo}&access_type=offline";
