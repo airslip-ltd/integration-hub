@@ -1,4 +1,5 @@
 using Airslip.IntegrationHub.Core.Interfaces;
+using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
 using Serilog;
 using System.Collections.Generic;
@@ -21,8 +22,16 @@ public class RequestValidationService : IRequestValidationService
         _logger = logger;
     }
     
-    public bool ValidateRequest(ProviderDetails providerDetails, HttpRequestData req)
+    public bool ValidateRequest(
+        ProviderDetails providerDetails, 
+        HttpRequestData req, 
+        AuthRequestTypes authRequestType)
     {
+        bool shouldValidate = providerDetails.ProviderSetting.ShouldValidate(authRequestType);
+
+        if (shouldValidate is false)
+            return true;
+
         List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(providerDetails, req);
                 
         return _hmacService.Validate(providerDetails, queryStrings);

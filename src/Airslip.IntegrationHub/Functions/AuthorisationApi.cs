@@ -66,7 +66,7 @@ namespace Airslip.IntegrationHub.Functions
                     return response;
                 }
 
-                if (!validationService.ValidateRequest(providerDetails, req))
+                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);
@@ -175,7 +175,7 @@ namespace Airslip.IntegrationHub.Functions
                     return req.CreateResponse(HttpStatusCode.BadRequest);
                 }
                 
-                if (!validationService.ValidateRequest(providerDetails, req))
+                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.GDPR))
                 {
                     logger.Information("Hmac validation failed for request");
                     return req.CreateResponse(HttpStatusCode.Unauthorized);

@@ -1,5 +1,7 @@
 using Airslip.IntegrationHub.Core.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
@@ -19,11 +21,16 @@ namespace Airslip.IntegrationHub.Core.Models
         public string? AdditionalFieldThree { get; set; }
         public bool RequiresStoreName { get; set; }
         public string AppListingUrl { get; set; } = string.Empty;
-        public string[] HmacValidateOn { get; set; } = Array.Empty<string>();
+        public List<string> HmacValidateOn { get; set; } = new();
 
         public string FormatBaseUri(string value)
         {
             return string.Format(BaseUri, value);
+        }
+
+        public bool ShouldValidate(AuthRequestTypes authRequestType)
+        {
+            return HmacValidateOn.Contains(authRequestType.ToString());
         }
     }
 }
