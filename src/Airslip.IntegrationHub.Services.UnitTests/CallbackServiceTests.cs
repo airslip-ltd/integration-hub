@@ -42,7 +42,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             "_3dcart",
             "?client_id=app-id&redirect_uri=https://dev-integrations.airslip.com/oauth/v1/auth/callback/_3DCart&response_type=code&store_url=https://airslip-development.3dcartstores.com",
             "state",
-            "https://apirest.3dcart.com/oauth/authorize?client_id=app-id&redirect_uri=callback-uri&response_type=code&store_url=https://.3dcartstores.com")]
+            "https://apirest.3dcart.com/oauth/authorize?client_id=app-id&redirect_uri=callback-uri&response_type=code")]
          // [InlineData("shopify",
          //     "?shop=airslip-development.myshopify.com&isOnline=true",
          //     "state",
@@ -67,7 +67,7 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                  Factory.GetProviderSetting(posProvider));
              
              _providerDiscoveryServiceMock
-                 .Setup(s => s.GetProviderDetails(It.IsAny<PosProviders>(), It.IsAny<bool?>()))
+                 .Setup(s => s.GetProviderDetails(It.IsAny<string>(), It.IsAny<bool?>()))
                  .Returns(providerDetails);
              
              _sut = new CallbackService(_encryptionSettingsMock.Object);

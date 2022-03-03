@@ -1,5 +1,3 @@
-using Airslip.Common.Types.Enums;
-using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Microsoft.Azure.Functions.Worker.Http;
 using Serilog;
@@ -13,18 +11,20 @@ public class RequestValidationService : IRequestValidationService
     private readonly IHmacService _hmacService;
     private readonly ILogger _logger;
 
-    public RequestValidationService(IAuthorisationPreparationService authorisationPreparation, 
-        IHmacService hmacService, ILogger logger)
+    public RequestValidationService(
+        IAuthorisationPreparationService authorisationPreparation, 
+        IHmacService hmacService, 
+        ILogger logger)
     {
         _authorisationPreparation = authorisationPreparation;
         _hmacService = hmacService;
         _logger = logger;
     }
     
-    public bool ValidateRequest(PosProviders parsedProvider, HttpRequestData req)
+    public bool ValidateRequest(ProviderDetails providerDetails, HttpRequestData req)
     {
-        List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(parsedProvider, req);
+        List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(providerDetails, req);
                 
-        return _hmacService.Validate(parsedProvider, queryStrings);
+        return _hmacService.Validate(providerDetails, queryStrings);
     }
 }
