@@ -1,4 +1,5 @@
-﻿using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Deletion.Models;
+using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
@@ -27,11 +28,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
             _logger = logger;
         }
         
-        public async Task<IResponse> SendToMiddleware(
+        public async Task<IResponse> Authorise(
             ProviderDetails providerDetails,  
             MiddlewareAuthorisationRequest middlewareAuthorisationRequest)
         {
-            string url = Endpoints.Result(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider);
+            string url = Endpoints.Authorise(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider);
 
             try
             {
@@ -82,7 +83,69 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 _logger.Error(hre,
                     "Error posting request to integration middleware for Url {PostUrl}, response code: {StatusCode}",
                     url, hre.StatusCode);
-                return new InvalidResource(nameof(SendToMiddleware), hre.Message);
+                return new InvalidResource(nameof(Authorise), hre.Message);
+            }
+            catch (Exception ee)
+            {
+                _logger.Fatal(ee, "Error posting request to integration middleware for Url {PostUrl}", url);
+                return new InvalidResource("UNHANDLED_ERROR", ee.Message);
+            }
+        }
+
+        public async Task<IResponse> Delete(string accountId, ProviderDetails providerDetails, DeleteRequest deleteRequest)
+        {
+            string url = Endpoints.Delete(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider, accountId);
+
+            try
+            {
+                _logger.Information("Posting to integration middleware for Url {PostUrl}",
+                    url);
+                
+                HttpRequestMessage httpRequestMessage = new()
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(url),
+                    Headers =
+                    {
+                        { "x-api-key", providerDetails.PublicApiSetting.ApiKey}
+                    },
+                    Content = new StringContent(
+                        Json.Serialize(deleteRequest),
+                        Encoding.UTF8,
+                        Json.MediaType)
+                };
+
+                HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
+
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.Error(
+                        "Error sending request to provider for Url {DeleteUrl}, response code: {StatusCode}", 
+                        url, 
+                        response.StatusCode);
+
+                    try
+                    {
+                        return Json.Deserialize<ErrorResponse>(content);
+                    }
+                    catch (Exception)
+                    {
+                        return new ErrorResponse("MIDDLEWARE_ERROR", content);
+                    }
+                }
+                
+                _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
+
+                return Json.Deserialize<DeleteResponse>(content);
+            }
+            catch (HttpRequestException hre)
+            {
+                _logger.Error(hre,
+                    "Error posting request to integration middleware for Url {PostUrl}, response code: {StatusCode}",
+                    url, hre.StatusCode);
+                return new InvalidResource(nameof(Authorise), hre.Message);
             }
             catch (Exception ee)
             {
@@ -94,7 +157,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
     internal static class Endpoints
     {
-        public static string Result(string baseUri, PosProviders provider) =>
+        public static string Authorise(string baseUri, PosProviders provider) =>
             $"{baseUri}/auth/{provider}";
+        
+        public static string Delete(string baseUri, PosProviders provider, string accountId) =>
+            $"{baseUri}/delete/{provider}/{accountId}";
     }
 }
