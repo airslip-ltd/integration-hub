@@ -39,6 +39,6 @@ public class AuthorisationService : IAuthorisationService
         if (middlewareAuthorisationBody.Failed)
             return new ErrorResponse("MIDDLEWARE_ERROR", "Error exchanging token");
 
-        return await _internalMiddlewareClient.SendToMiddleware(providerDetails, middlewareAuthorisationBody);
+        return await _internalMiddlewareClient.Authorise(providerDetails, middlewareAuthorisationBody);
     }
 }

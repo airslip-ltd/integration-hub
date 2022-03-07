@@ -1,5 +1,6 @@
 using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Auth.Functions.Middleware;
+using Airslip.Common.Deletion;
 using Airslip.Common.Functions.Extensions;
 using Airslip.Common.Monitoring;
 using Airslip.Common.Security.Configuration;
@@ -88,7 +89,8 @@ namespace Airslip.IntegrationHub
                         .UseHealthChecks();
 
                     services
-                        .AddProviderAuthorisation(context.Configuration);
+                        .AddProviderAuthorisation(context.Configuration)
+                        .UseDeletion<AccountDeletionService>();
                     
                     services
                         .AddSingleton<IInternalMiddlewareClient, InternalMiddlewareClient>()

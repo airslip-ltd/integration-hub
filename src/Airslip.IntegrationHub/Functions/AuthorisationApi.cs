@@ -148,52 +148,5 @@ namespace Airslip.IntegrationHub.Functions
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
         }
-
-        [OpenApiOperation("AuthorisationGDPR", Summary = "Process GDPR")]
-        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
-        [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Identity supplied")]
-        [OpenApiResponseWithoutBody(HttpStatusCode.BadRequest, Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
-        [Function("AuthorisationGDPR")]
-        public static async Task<HttpResponseData> GDPR(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/auth/{provider}/gdpr")]
-            HttpRequestData req,
-            string provider,
-            FunctionContext executionContext)
-        {
-            ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
-
-            try
-            {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
-
-                if (providerDetails is null)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
-                
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.GDPR))
-                {
-                    logger.Information("Hmac validation failed for request");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
-                }
-
-                GDPRRequest gdprRequest = await req.Body.DeserializeStream<GDPRRequest>();
-
-                logger.Information("GDPR request made for {ShopId} with the body {Body}",
-                    gdprRequest.ShopId,
-                    Json.Serialize(gdprRequest));
-
-                return req.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception e)
-            {
-                logger.Fatal(e, "Unhandled error message {ErrorMessage}", e.Message);
-                return req.CreateResponse(HttpStatusCode.BadRequest);
-            }
-        }
     }
 }
