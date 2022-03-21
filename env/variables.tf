@@ -51,3 +51,6 @@ variable "amazon_sp_location" {}
 variable "amazon_sp_role" {}
 variable "amazon_sp_user_id" {}
 variable "amazon_sp_user_secret" {}
+variable "log_level" {
+  default = "Warning"
+}
