@@ -31,7 +31,7 @@ locals {
   certificate_password      = var.certificate_password
   deployment_agent_group_id = var.deployment_agent_group_id
   hostname                  = var.hostname
-
+  log_level                 = var.log_level
 
   shopify_api_key = var.shopify_api_key
   shopify_api_secret = var.shopify_api_secret
@@ -97,6 +97,7 @@ module "func_app_host" {
       function_app_name = "proc",
       app_settings = {
         "EnvironmentSettings:EnvironmentName": var.environment,
+        "Serilog:MinimumLevel:Default": local.log_level,
         "PublicApiSettings:Settings:Base:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Base:UriSuffix": "oauth",
         "PublicApiSettings:Settings:UI:BaseUri": local.ui_hostname,

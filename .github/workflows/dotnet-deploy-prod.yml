@@ -36,7 +36,6 @@ jobs:
         files: '["${{ env.PUBLISH_PATH }}/*.json"]'
       env:
         LOGZ_IO_AUTH_TOKEN: ${{ secrets.LOGZ_IO_AUTH_TOKEN }}
-        LOGZ_IO_LOG_LEVEL: Warning
         LOGZ_IO_ENVIRONMENT: ${{ env.ENVIRONMENT_NAME }}
         LOGZ_IO_SERVICE_NAME: ${{ env.APPSERVICE_NAME }}
         LOGZ_IO_HOSTING_NAME: Azure
@@ -77,6 +76,7 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
+        LOGZ_IO_LOG_LEVEL: Warning
 
     - uses: azure/login@v1
       with:
@@ -169,7 +169,6 @@ jobs:
         files: '["${{ env.PUBLISH_PATH }}/*.json"]'
       env:
         LOGZ_IO_AUTH_TOKEN: ${{ secrets.LOGZ_IO_AUTH_TOKEN }}
-        LOGZ_IO_LOG_LEVEL: Warning
         LOGZ_IO_ENVIRONMENT: ${{ env.ENVIRONMENT_NAME }}
         LOGZ_IO_SERVICE_NAME: ${{ env.APPSERVICE_NAME }}
         LOGZ_IO_HOSTING_NAME: Azure
@@ -210,6 +209,7 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
+        LOGZ_IO_LOG_LEVEL: Warning
 
     - uses: azure/login@v1
       with:
