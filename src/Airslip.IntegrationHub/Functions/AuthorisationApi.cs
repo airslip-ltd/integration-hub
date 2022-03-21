@@ -45,13 +45,6 @@ namespace Airslip.IntegrationHub.Functions
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
 
-            logger.Verbose("Verbose log");
-            logger.Debug("Debug log");
-            logger.Information("Information log");
-            logger.Warning("Warning log");
-            logger.Error("Error log");
-            logger.Fatal("Fatal log");
-            
             try
             {
                 GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
