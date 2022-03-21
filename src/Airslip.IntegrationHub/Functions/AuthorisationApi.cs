@@ -45,6 +45,13 @@ namespace Airslip.IntegrationHub.Functions
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
 
+            logger.Verbose("Verbose log");
+            logger.Debug("Debug log");
+            logger.Information("Information log");
+            logger.Warning("Warning log");
+            logger.Error("Error log");
+            logger.Fatal("Fatal log");
+            
             try
             {
                 GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
@@ -89,8 +96,7 @@ namespace Airslip.IntegrationHub.Functions
         }
 
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
-        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path,
-            Description = "The name of the provider, must be one of our supported providers")]
+        [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse),
             Description = "Invalid JSON supplied")]
         [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse),
