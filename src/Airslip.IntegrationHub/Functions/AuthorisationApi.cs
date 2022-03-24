@@ -1,7 +1,7 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Extensions;
+using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Configuration;
-using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
@@ -19,7 +19,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Requests.GDPR;
 using Microsoft.Extensions.Options;
 
 namespace Airslip.IntegrationHub.Functions
@@ -44,6 +43,7 @@ namespace Airslip.IntegrationHub.Functions
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
 
             try
             {
@@ -75,7 +75,7 @@ namespace Airslip.IntegrationHub.Functions
                 IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, req.Url.Query);
                 
                 if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || generateUrlDetail.TestMode)
-                    return await req.CommonResponseHandler<AuthCallbackGeneratorResponse>(callbackUrl);
+                    return await functionApiTools.CommonResponseHandler<AuthCallbackGeneratorResponse>(req, callbackUrl);
                 
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
@@ -106,6 +106,7 @@ namespace Airslip.IntegrationHub.Functions
             IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
             IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
+            IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
 
             try
             {
@@ -139,7 +140,7 @@ namespace Airslip.IntegrationHub.Functions
 
                 IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails, providerAuthorisingDetail);
 
-                return await req.CommonResponseHandler<AccountResponse>(authorisedResponse);
+                return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
             }
             catch (Exception e)
             {

@@ -83,6 +83,7 @@ namespace Airslip.IntegrationHub
                         });
 
                     services
+                        .AddAirslipFunctionTools()
                         .AddAirslipFunctionAuth(context.Configuration);
 
                     services

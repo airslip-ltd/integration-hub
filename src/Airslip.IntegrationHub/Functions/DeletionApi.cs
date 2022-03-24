@@ -3,6 +3,7 @@ using Airslip.Common.Auth.Functions.Attributes;
 using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Deletion.Interfaces;
 using Airslip.Common.Deletion.Models;
+using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
@@ -42,17 +43,16 @@ public static class DeletionApi
         FunctionContext executionContext)
     {
         ILogger logger = executionContext.InstanceServices.GetService<ILogger>()!;
-        IDeletionService deletionService = executionContext
-            .InstanceServices
-            .GetService<IDeletionService>() ?? throw new NotImplementedException();
-        
+        IDeletionService deletionService = executionContext.InstanceServices.GetService<IDeletionService>() ?? throw new NotImplementedException();
+        IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
+
         try
         {
             DeleteRequest deleteRequest = await req.Body.DeserializeStream<DeleteRequest>();
            
             IResponse response = await deletionService.DeleteRecord(provider, accountId, deleteRequest);
 
-            return await req.CommonResponseHandler<DeleteResponse>(response);
+            return await functionApiTools.CommonResponseHandler<DeleteResponse>(req, response);
         }
         catch (Exception ex)
         {
