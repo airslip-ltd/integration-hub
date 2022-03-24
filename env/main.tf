@@ -44,6 +44,7 @@ locals {
 
   ebay_api_key = var.ebay_api_key
   ebay_api_secret = var.ebay_api_secret
+  ebay_app_name = var.ebay_app_name
 
   bigcommerceapi_api_key = var.bigcommerceapi_api_key
   bigcommerceapi_api_secret = var.bigcommerceapi_api_secret
@@ -114,6 +115,7 @@ module "func_app_host" {
         "ProviderSettings:Settings:Ecwid:ApiSecret": local.ecwid_api_secret,
         "ProviderSettings:Settings:Ebay:ApiKey": local.ebay_api_key,
         "ProviderSettings:Settings:Ebay:ApiSecret": local.ebay_api_secret,
+        "ProviderSettings:Settings:Ebay:AppName": local.ebay_app_name,
         "ProviderSettings:Settings:BigcommerceApi:ApiKey": local.bigcommerceapi_api_key,
         "ProviderSettings:Settings:BigcommerceApi:ApiSecret": local.bigcommerceapi_api_secret,
         "ProviderSettings:Settings:EtsyAPIv3:ApiKey": local.etsyapiv3_api_key,
