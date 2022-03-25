@@ -6,8 +6,5 @@ namespace Airslip.IntegrationHub.Core.Models.Squarespace
     {
         [JsonProperty(PropertyName = "code")]
         public override string ShortLivedCode { get; set; } = string.Empty;
-        
-        [JsonProperty(PropertyName = "state")]
-        public override string EncryptedUserInfo { get; set; } = string.Empty;
     }
 }

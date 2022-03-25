@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.BigCommerce;
 
 public class BigCommerceApiAuthorisationDetail : BasicAuthorisationDetail
 {

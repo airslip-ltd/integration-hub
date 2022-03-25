@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.Etsy;
 
 public class EtsyAPIv3AuthorisationDetail : BasicAuthorisationDetail
 {

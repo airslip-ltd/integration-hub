@@ -9,7 +9,4 @@ public class AmazonSPAuthorisingDetail : ShortLivedAuthorisationDetail
     
     [JsonProperty(PropertyName = "selling_partner_id")]
     public override string StoreName { get; set; } = string.Empty;
-    
-    [JsonProperty(PropertyName = "state")]
-    public override string EncryptedUserInfo { get; set; } = string.Empty;
 }
