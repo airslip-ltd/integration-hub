@@ -33,12 +33,14 @@ namespace Airslip.IntegrationHub.Core.Implementations
             SensitiveCallbackInfo sensitiveCallbackInfo = SensitiveCallbackInfo.DecryptCallbackInfo(
                 basicAuthorisationDetail.EncryptedUserInfo,
                 _encryptionSettings.PassPhraseToken);
+
+            string shop = basicAuthorisationDetail.Shop ?? sensitiveCallbackInfo.Shop;
             
             return new MiddlewareAuthorisationRequest
             {
                 Provider = providerDetails.Provider.ToString(),
-                StoreName = sensitiveCallbackInfo.Shop, // May need to consolidate store name and store url
-                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(basicAuthorisationDetail.Shop ?? sensitiveCallbackInfo.Shop), // Need to change to StoreUrl
+                StoreName = shop, // May need to consolidate store name and store url
+                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(shop), // Need to change to StoreUrl
                 Login = basicAuthorisationDetail.Login,
                 Password = basicAuthorisationDetail.Password,
                 EntityId = sensitiveCallbackInfo.EntityId,

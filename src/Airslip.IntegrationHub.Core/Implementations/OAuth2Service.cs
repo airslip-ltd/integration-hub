@@ -124,7 +124,6 @@ public class OAuth2Service : IOAuth2Service
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
     {
         BasicAuthorisationDetail basicAuth = new();
-
         
         // Step 5: Add case for permanent access token
         switch (providerDetails.Provider)
@@ -163,6 +162,7 @@ public class OAuth2Service : IOAuth2Service
             case PosProviders.AmazonSP:
                 basicAuth = Json.Deserialize<AmazonSPAuthorisationDetail>(content);
                 basicAuth.Login = shortLivedAuthorisationDetail.StoreName;
+                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
                 break;
         }
         
