@@ -1,14 +1,11 @@
 using Newtonsoft.Json;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.Etsy;
 
 public class EtsyAPIv3AuthorisingDetail : ShortLivedAuthorisationDetail
 {
     [JsonProperty(PropertyName = "code")]
     public override string ShortLivedCode { get; set; } = string.Empty;
-        
-    [JsonProperty(PropertyName = "state")]
-    public override string EncryptedUserInfo { get; set; } = string.Empty;
         
     public override string PermanentAccessUrl { get; set; } = "";
         

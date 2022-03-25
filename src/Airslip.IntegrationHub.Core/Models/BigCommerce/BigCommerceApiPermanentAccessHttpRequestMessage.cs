@@ -2,7 +2,7 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace Airslip.IntegrationHub.Core.Models;
+namespace Airslip.IntegrationHub.Core.Models.BigCommerce;
 
 public class BigCommerceApiPermanentAccessHttpRequestMessage : PermanentAccessHttpRequestMessage
 {

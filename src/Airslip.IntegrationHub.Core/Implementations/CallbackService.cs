@@ -48,7 +48,7 @@ public class CallbackService : ICallbackService
                 return $"{providerDetails.ProviderSetting.BaseUri}/oauth/connect?response_type=code&redirect_uri={providerDetails.CallbackRedirectUri}&scope={encodedScope}&client_id={providerDetails.ProviderSetting.ApiKey}&state={cipheredSensitiveInfo}&code_challenge={cipheredSensitiveInfo}&code_challenge_method=S256";
             case PosProviders.EBay:
                 return
-                    $"https://auth.sandbox.ebay.com/oauth2/consents?client_id={providerDetails.ProviderSetting.ApiKey}&response_type=code&redirect_uri={providerDetails.CallbackRedirectUri}&scope={encodedScope}&state={cipheredSensitiveInfo}";
+                    $"https://auth.sandbox.ebay.com/oauth2/consents?client_id={providerDetails.ProviderSetting.ApiKey}&response_type=code&redirect_uri={providerDetails.ProviderSetting.AppName}&scope={encodedScope}&state={cipheredSensitiveInfo}";
             case PosProviders.Vend:
                 return
                     $"{providerDetails.ProviderSetting.BaseUri}?response_type=code&client_id={providerDetails.ProviderSetting.ApiKey}&redirect_uri={providerDetails.CallbackRedirectUri}&state={cipheredSensitiveInfo}";

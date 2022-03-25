@@ -6,7 +6,17 @@ namespace Airslip.IntegrationHub.Core.Models
     {
         public virtual string ShortLivedCode { get; set; } = string.Empty;
         public virtual string StoreName { get; set; } = string.Empty;
-        public virtual string EncryptedUserInfo { get; set; } = string.Empty;
+        [JsonProperty(PropertyName = "state")]
+        public string StateEncryptedUserInfo { get; set; } = string.Empty;
+    
+        [JsonProperty(PropertyName = "user_info")]
+        public string? PassedEncryptedUserInfo { get; set; }
+
+        public virtual string EncryptedUserInfo
+        {
+            get => PassedEncryptedUserInfo ?? StateEncryptedUserInfo;
+            set => StateEncryptedUserInfo = value;
+        }
         public virtual string PermanentAccessUrl { get; set; } = string.Empty;
         public string? BaseUri { get; set; }
 
