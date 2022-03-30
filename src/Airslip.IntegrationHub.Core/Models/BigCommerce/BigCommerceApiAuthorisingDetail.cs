@@ -12,5 +12,4 @@ public class BigCommerceApiAuthorisingDetail : ShortLivedAuthorisationDetail
     
     [JsonProperty(PropertyName = "context")]
     public override string MiscellaneousInfo { get; set; } = string.Empty;
-    public string Scope { get; set; } = string.Empty;
 }

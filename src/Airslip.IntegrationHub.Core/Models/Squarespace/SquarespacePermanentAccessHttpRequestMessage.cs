@@ -27,7 +27,7 @@ public class SquarespacePermanentAccessHttpRequestMessage : PermanentAccessHttpR
         {
             new("grant_type", shortLivedAuthorisationDetail.GrantType),
             new("code", shortLivedAuthorisationDetail.ShortLivedCode),
-            new("redirect_uri", providerDetails.CallbackRedirectUri)
+            new("redirect_uri", providerDetails.CallbackRedirectUri) // Requires the same redirect_uri used to generate the auth URL
         });
     }
 }

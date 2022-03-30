@@ -1,3 +1,5 @@
+using Airslip.IntegrationHub.Core.Implementations;
+using Airslip.IntegrationHub.Core.Interfaces;
 using Newtonsoft.Json;
 
 namespace Airslip.IntegrationHub.Core.Models
@@ -23,6 +25,8 @@ namespace Airslip.IntegrationHub.Core.Models
         [JsonProperty(PropertyName = "grant_type")]
         public virtual string GrantType { get; } = "authorization_code";
         public virtual string MiscellaneousInfo { get; set; } = string.Empty;
+        
+        public string? Scope { get; set; }
 
         public void FormatBaseUri(string value)
         {
@@ -36,5 +40,13 @@ namespace Airslip.IntegrationHub.Core.Models
         
         [JsonProperty(PropertyName = "error_code")]
         public string? ErrorCode { get; set; }
+
+        public SensitiveCallbackInfo SensitiveCallbackInfo { get; set; } = new();
+
+        public void DecryptSensitiveInformation(string passPhrase)
+        {
+            if(!string.IsNullOrWhiteSpace(EncryptedUserInfo))
+                SensitiveCallbackInfo = SensitiveInformationService.DecryptCallbackInfo(EncryptedUserInfo, passPhrase);
+        }
     }
 }

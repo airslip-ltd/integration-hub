@@ -44,42 +44,53 @@ namespace Airslip.IntegrationHub.Functions
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
+            ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
 
             try
             {
-                GenerateUrlDetail generateUrlDetail = req.Url.Query.GetQueryParams<GenerateUrlDetail>();
-                
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider, generateUrlDetail.TestMode);
+                SensitiveCallbackInfo sensitiveCallbackInfo = sensitiveInformationService.DeserializeSensitiveInfoQueryString(req.Url.Query);
+
+                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider, sensitiveCallbackInfo.TestMode);
 
                 if (providerDetails is null)
                 {
                     logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
+                    return await functionApiTools.BadRequest(req, new InvalidAttribute(nameof(provider), provider, $"{provider} is an unsupported provider"));
                 }
 
-                HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
+                HttpResponseData response = req.CreateResponse();
                 
-                if (string.IsNullOrWhiteSpace(req.Url.Query) && generateUrlDetail.TestMode != true)
+                if (string.IsNullOrWhiteSpace(req.Url.Query) && sensitiveCallbackInfo.TestMode != true)
                 {
                     PublicApiSetting uiPublicApiSetting = publicApiSettings.Value.GetSettingByName("UI");
+                    response.StatusCode = HttpStatusCode.Redirect;
                     response.Headers.Add("Location", uiPublicApiSetting.BaseUri);
                     return response;
                 }
-
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate))
+                
+                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate) && sensitiveCallbackInfo.TestMode != true)
                 {
                     logger.Information("Hmac validation failed for request");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
+                    response.StatusCode = HttpStatusCode.Unauthorized;
+                    return await functionApiTools.Unauthorised(req, 
+                        new UnauthorisedResponse(provider, "Hmac validation failed for request"));
                 }
                 
-                IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, req.Url.Query);
                 
-                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || generateUrlDetail.TestMode)
+                if (providerDetails.ProviderSetting.ValidateIfRequiresStoreName(sensitiveCallbackInfo.Shop))
+                {
+                    logger.Information("{Provider} requires a shop name", provider);
+                    return await functionApiTools.Unauthorised(req, 
+                        new UnauthorisedResponse(provider, $"{provider} requires a shop name"));
+                }
+
+                IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, sensitiveCallbackInfo);
+                
+                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || sensitiveCallbackInfo.TestMode)
                     return await functionApiTools.CommonResponseHandler<AuthCallbackGeneratorResponse>(req, callbackUrl);
                 
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
-
             }
             catch (Exception e)
             {
@@ -107,6 +118,7 @@ namespace Airslip.IntegrationHub.Functions
             IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
+            ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
 
             try
             {
@@ -137,9 +149,12 @@ namespace Airslip.IntegrationHub.Functions
                     await responseData.WriteAsJsonAsync(new ErrorResponse(errorAuthorisingDetail.ErrorCode ?? "AuthorisingError", errorAuthorisingDetail.ErrorMessage));
                     return responseData;
                 }
+                
+                // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info 
+                if(providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
+                    providerDetails = providerDiscoveryService.GetProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
 
-                IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails, providerAuthorisingDetail);
-
+                IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails!, providerAuthorisingDetail);
                 return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
             }
             catch (Exception e)

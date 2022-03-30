@@ -25,7 +25,7 @@ public class OAuth2Service : IOAuth2Service
     private readonly ILogger _logger;
 
     public OAuth2Service(
-        IInternalMiddlewareService internalMiddlewareService, 
+        IInternalMiddlewareService internalMiddlewareService,
         IHttpClientFactory httpClientFactory,
         ILogger logger)
     {
@@ -46,7 +46,7 @@ public class OAuth2Service : IOAuth2Service
             HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail);
-            
+
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             string content = await response.Content.ReadAsStringAsync();
 
@@ -76,12 +76,13 @@ public class OAuth2Service : IOAuth2Service
             _logger.Error(hre,
                 "Error posting request to OAuth2 request for provider {Provier}, response code: {StatusCode}",
                 providerDetails.Provider, hre.StatusCode);
-            
+
             throw;
         }
         catch (Exception ee)
         {
-            _logger.Fatal(ee, "Unhandled error posting request to OAuth2 endpoint for provider {Provider}", providerDetails.Provider);
+            _logger.Fatal(ee, "Unhandled error posting request to OAuth2 endpoint for provider {Provider}",
+                providerDetails.Provider);
             throw;
         }
     }
@@ -127,7 +128,7 @@ public class OAuth2Service : IOAuth2Service
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
     {
         BasicAuthorisationDetail basicAuth = new();
-        
+
         // Step 5: Add case for permanent access token
         switch (providerDetails.Provider)
         {
@@ -147,20 +148,12 @@ public class OAuth2Service : IOAuth2Service
                 break;
             case PosProviders.BigcommerceApi:
                 basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
-#if DEBUG // Could delete now we have changed auth process?
-                basicAuth.EncryptedUserInfo =
-                    "+bvlByiyWY0En780uwUgFO7VVvlUF6/NeBawhojg1U9vxfESckFkeWAkk4LkK/qNKNGJDybhMoGa5ZKYU/glEthNo7pCebSnNG12Ncir4jpUTyNheMDeNSAXbLLhWj+SiOOgmWaektxAX4MBZwwIZGNn2dEZfBDshoSta3AODXX11EVTrgOEGpyt4n/SMUTCvD2WCAqDro5AUvQxtGnHy1MpGtdBVJ+yCA5dZJbqHpTWt629s7MfPp5Ey//AbIfA";
-#endif
                 break;
             case PosProviders._3DCart:
                 basicAuth = Json.Deserialize<ThreeDCartAuthorisationDetail>(content);
                 break;
             case PosProviders.Ecwid:
                 basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
-#if DEBUG // Could delete now we have changed auth process?
-                basicAuth.EncryptedUserInfo =
-                    "rBpyBX0TMNt1pGMBlJd2tchvSH/LQJkdjLsnUzMZCEC8KFkC+qBcb2Z3HBzhCiuFlGLaU3yeCDTiNrILCiQ+qOCdPvzt4+qGlmio177fpV0C+6egY0/wufaBfcIDYHCRGDWAbmDpiR8fKlJqP5kMuMr4jCCQ2XLfUwpmn3uAxR9Q7OVi2sBfEeBu3EQa7GRuHrNdB+wBagD9imdEPH9uC+Iw0PsuW4EL7ebOoNpU3VKc6d9uSfr86D5e+BgArPC8";
-#endif
                 break;
             case PosProviders.AmazonSP:
                 basicAuth = Json.Deserialize<AmazonSPAuthorisationDetail>(content);
@@ -169,8 +162,7 @@ public class OAuth2Service : IOAuth2Service
                 break;
         }
         
-        if( basicAuth.EncryptedUserInfo == string.Empty)
-            basicAuth.EncryptedUserInfo = shortLivedAuthorisationDetail.EncryptedUserInfo;
+        basicAuth.SensitiveCallbackInfo = shortLivedAuthorisationDetail.SensitiveCallbackInfo;
 
         return basicAuth;
     }

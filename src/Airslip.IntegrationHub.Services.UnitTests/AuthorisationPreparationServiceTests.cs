@@ -1,3 +1,4 @@
+using Airslip.Common.Security.Configuration;
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.IntegrationHub.Core.Implementations;
@@ -25,7 +26,7 @@ public class AuthorisationPreparationServiceTests
     {
         string projectName = "Airslip.IntegrationHub";
         Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
-        Mock<IOptions<PublicApiSettings>> publicApiSettingsMock = OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
+        Mock<IOptions<EncryptionSettings>> EncryptionSettingsMock = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
         
         IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(projectName)!;
         SettingCollection<ProviderSetting> providerSettings = new();
@@ -35,7 +36,7 @@ public class AuthorisationPreparationServiceTests
             .Setup(s => s.Value)
             .Returns(providerSettings);
 
-        _sut = new AuthorisationPreparationService();
+        _sut = new AuthorisationPreparationService(EncryptionSettingsMock.Object);
     }
     
     [Fact]

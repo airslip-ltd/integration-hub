@@ -24,12 +24,11 @@ namespace Airslip.IntegrationHub.Core.Implementations
         public ProviderDetails? GetProviderDetails(string provider, bool? testMode = null)
         {
             bool supportedProvider = provider.TryParseIgnoreCase(out PosProviders parsedProvider);
+            ProviderSetting? providerSetting = _providerSettings.GetSettingByName(provider);
 
-            if (supportedProvider is false)
+            if (supportedProvider is false || providerSetting is null)
                 return null;
             
-            ProviderSetting providerSetting = _providerSettings.GetSettingByName(provider);
-
             PublicApiSetting middlewareDestinationSettings = _publicApiSettings.GetSettingByName(providerSetting.MiddlewareDestinationAppName);
             string destinationBaseUri = middlewareDestinationSettings.ToBaseUri();
 

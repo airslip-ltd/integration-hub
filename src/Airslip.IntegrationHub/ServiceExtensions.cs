@@ -30,7 +30,8 @@ public static class ServiceExtensions
             .AddScoped<IHmacService, HmacService>()
             .AddScoped<IInternalMiddlewareService, InternalMiddlewareService>()
             .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()
-            .AddScoped<IRequestValidationService, RequestValidationService>();
+            .AddScoped<IRequestValidationService, RequestValidationService>()
+            .AddScoped<ISensitiveInformationService, SensitiveInformationService>();
 
         return services;
     }

@@ -2,4 +2,5 @@
 
 public interface IProviderAuthorisation
 {
+    public SensitiveCallbackInfo SensitiveCallbackInfo { get; set; }
 }
