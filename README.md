@@ -141,6 +141,8 @@ Provider Name: `WoocommerceApi`
 
 Store name format is **www.{example}.com**. The API Keys and Secrets are hosted on the customers website. The callback url needs to be over SSL.
 
+### Error Handling: If the WooCommerce website isn't installed then a 404 is returned by the proovider, this should be handled internally.
+
 ## Shift4Shop (3DCart)
 
 [Development Management Website](https://devportal.3dcart.com/app.asp?ut1q=27a&c7=SxZm2%2F5JRPs%3D)
