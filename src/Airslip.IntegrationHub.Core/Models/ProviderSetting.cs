@@ -22,7 +22,8 @@ namespace Airslip.IntegrationHub.Core.Models
         public bool RequiresStoreName { get; set; }
         public string AppListingUrl { get; set; } = string.Empty;
         public List<AuthRequestTypes> HmacValidateOn { get; set; } = new();
-
+        public string ReturnPage { get; set; } = string.Empty;
+        
         public string FormatBaseUri(string value)
         {
             return string.Format(BaseUri, value);
@@ -31,6 +32,11 @@ namespace Airslip.IntegrationHub.Core.Models
         public bool ShouldValidate(AuthRequestTypes authRequestType)
         {
             return HmacValidateOn.Contains(authRequestType);
+        }
+
+        public bool ValidateIfRequiresStoreName(string? storeName)
+        {
+            return RequiresStoreName && string.IsNullOrWhiteSpace(storeName);
         }
     }
 }

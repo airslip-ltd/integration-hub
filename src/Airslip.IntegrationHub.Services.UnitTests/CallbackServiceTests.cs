@@ -4,11 +4,13 @@ using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
+using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Responses;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Language.Flow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,19 +24,15 @@ namespace Airslip.IntegrationHub.Services.UnitTests
         private CallbackService? _sut;
 
         private readonly Mock<IProviderDiscoveryService> _providerDiscoveryServiceMock;
-        private readonly Mock<IOptions<EncryptionSettings>> _encryptionSettingsMock;
+        private readonly Mock<ISensitiveInformationService> _sensitiveInformationServiceMock;
        
         public CallbackServiceTests()
         {
             string projectName = "Airslip.IntegrationHub";
-            _encryptionSettingsMock = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
+            Mock<IOptions<EncryptionSettings>> encryptionSettingsMock = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
             _providerDiscoveryServiceMock = new Mock<IProviderDiscoveryService>();
             
-            IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(projectName)!;
-            
-           
-
-           
+            _sensitiveInformationServiceMock = new Mock<ISensitiveInformationService>(encryptionSettingsMock.Object);
         }
         
         [Theory]
@@ -70,9 +68,15 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                  .Setup(s => s.GetProviderDetails(It.IsAny<string>(), It.IsAny<bool?>()))
                  .Returns(providerDetails);
              
-             _sut = new CallbackService(_encryptionSettingsMock.Object);
+             _sut = new CallbackService();
+
+             SensitiveCallbackInfo sensitiveCallbackInfo = new();
              
-             AuthCallbackGeneratorResponse url = (AuthCallbackGeneratorResponse)_sut.GenerateUrl(providerDetails, queryString);
+             _sensitiveInformationServiceMock
+                 .Setup(service => service.DecryptCallbackInfo(queryString))
+                 .Returns(sensitiveCallbackInfo);
+             
+             AuthCallbackGeneratorResponse url = (AuthCallbackGeneratorResponse)_sut.GenerateUrl(providerDetails, sensitiveCallbackInfo);
         
              string urlDecodedCallbackUrl = HttpUtility.UrlDecode(url.AuthorisationUrl);
         
