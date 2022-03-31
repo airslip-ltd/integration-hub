@@ -99,7 +99,7 @@ module "func_app_host" {
       app_settings = {
         "EnvironmentSettings:EnvironmentName": var.environment,
         "Serilog:MinimumLevel:Default": local.log_level,
-        "PublicApiSettings:Settings:Base:BaseUri": local.hostname,
+        "PublicApiSettings:Settings:Base:BaseUri": "https://${local.hostname}",
         "PublicApiSettings:Settings:Base:UriSuffix": "",
         "PublicApiSettings:Settings:UI:BaseUri": local.ui_hostname,
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
