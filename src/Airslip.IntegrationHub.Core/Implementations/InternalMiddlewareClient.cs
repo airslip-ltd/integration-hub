@@ -70,7 +70,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     }
                     catch (Exception)
                     {
-                        return new ErrorResponse("MIDDLEWARE_ERROR", content);
+                        return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error authorising in internal middleware {content}");
                     }
                 }
                 
@@ -132,7 +132,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     }
                     catch (Exception)
                     {
-                        return new ErrorResponse("MIDDLEWARE_ERROR", content);
+                        return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error deleting {content}");
                     }
                 }
                 
