@@ -58,37 +58,38 @@ namespace Airslip.IntegrationHub.Functions
                     return await functionApiTools.BadRequest(req, new InvalidAttribute(nameof(provider), provider, $"{provider} is an unsupported provider"));
                 }
 
-                HttpResponseData response = req.CreateResponse();
-                
+                HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
+
+                // This is in place to cater for the app redirects from third party providers
+                //  the idea here is that the user will hit the UI hompage where they click on our
+                //  app link within the third party tool
                 if (string.IsNullOrWhiteSpace(req.Url.Query) && sensitiveCallbackInfo.TestMode != true)
                 {
                     PublicApiSetting uiPublicApiSetting = publicApiSettings.Value.GetSettingByName("UI");
-                    response.StatusCode = HttpStatusCode.Redirect;
                     response.Headers.Add("Location", uiPublicApiSetting.BaseUri);
                     return response;
                 }
-                
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate) && sensitiveCallbackInfo.TestMode != true)
+
+                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate))
                 {
                     logger.Information("Hmac validation failed for request");
                     response.StatusCode = HttpStatusCode.Unauthorized;
-                    return await functionApiTools.Unauthorised(req, 
+                    return await functionApiTools.Unauthorised(req,
                         new UnauthorisedResponse(provider, "Hmac validation failed for request"));
                 }
-                
-                
+
                 if (providerDetails.ProviderSetting.ValidateIfRequiresStoreName(sensitiveCallbackInfo.Shop))
                 {
                     logger.Information("{Provider} requires a shop name", provider);
-                    return await functionApiTools.Unauthorised(req, 
+                    return await functionApiTools.Unauthorised(req,
                         new UnauthorisedResponse(provider, $"{provider} requires a shop name"));
                 }
 
                 IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, sensitiveCallbackInfo);
-                
+
                 if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || sensitiveCallbackInfo.TestMode)
                     return await functionApiTools.CommonResponseHandler<AuthCallbackGeneratorResponse>(req, callbackUrl);
-                
+
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
             }
@@ -149,9 +150,9 @@ namespace Airslip.IntegrationHub.Functions
                     await responseData.WriteAsJsonAsync(new ErrorResponse(errorAuthorisingDetail.ErrorCode ?? "AuthorisingError", errorAuthorisingDetail.ErrorMessage));
                     return responseData;
                 }
-                
+
                 // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info 
-                if(providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
+                if (providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
                     providerDetails = providerDiscoveryService.GetProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
 
                 IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails!, providerAuthorisingDetail);
