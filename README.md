@@ -174,4 +174,15 @@ https://devdocs.magento.com/guides/v2.4/get-started/create-integration.html
 
 A user is required to be created in AWS with a policy and role.
 
-
+| Airslip Name | Provider Key |
+|:- |:- |
+| CartId | AmazonSP |
+| ApiKey | amazon_sp_client_id |
+| ApiSecret | amazon_sp_client_secret |
+| LoginField | amazon_seller_id |
+| PasswordField | amazon_sp_refresh_token |
+| Environment | amazon_sp_api_environment |
+| Location | amazon_sp_aws_region |
+| AdditionalFieldOne | amazon_sp_aws_role_arn |
+| AdditionalFieldTwo | amazon_sp_aws_user_key_id |
+| AdditionalFieldThree | amazon_sp_aws_user_secret |
