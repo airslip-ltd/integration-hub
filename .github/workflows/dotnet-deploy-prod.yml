@@ -77,7 +77,7 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
-        LOGZ_IO_LOG_LEVEL: Warning
+        LOGZ_IO_LOG_LEVEL: Information
 
     - uses: azure/login@v1
       with:
@@ -211,7 +211,7 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
-        LOGZ_IO_LOG_LEVEL: Warning
+        LOGZ_IO_LOG_LEVEL: Information
 
     - uses: azure/login@v1
       with:
