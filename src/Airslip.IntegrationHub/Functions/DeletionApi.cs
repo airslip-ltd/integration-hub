@@ -30,7 +30,7 @@ public static class DeletionApi
     [OpenApiRequestBody(Json.MediaType, typeof(DeleteRequest))]
     [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Api Key supplied")]
     [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
-    [OpenApiResponseWithoutBody(HttpStatusCode.OK, Description = "Account ws deleted successfully")]
+    [OpenApiResponseWithoutBody(HttpStatusCode.OK, Description = "Account was deleted successfully")]
     [OpenApiParameter("provider", In = ParameterLocation.Path, Required = true)]
     [OpenApiParameter("accountId", In = ParameterLocation.Path, Required = true)]
     [Function(nameof(DeletionApi))]
