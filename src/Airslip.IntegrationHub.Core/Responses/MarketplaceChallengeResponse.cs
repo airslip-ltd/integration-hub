@@ -5,11 +5,9 @@ namespace Airslip.IntegrationHub.Core.Responses;
 public class MarketplaceChallengeResponse : ISuccess
 {
     public string ChallengeResponse { get; }
-    public bool IsIdentical { get; }
 
-    public MarketplaceChallengeResponse(string challengeResponse, bool isIdentical)
+    public MarketplaceChallengeResponse(string challengeResponse)
     {
         ChallengeResponse = challengeResponse;
-        IsIdentical = isIdentical;
     }
 }
