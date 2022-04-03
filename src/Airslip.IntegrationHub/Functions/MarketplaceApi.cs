@@ -61,8 +61,6 @@ public static class MarketplaceApi
 
             string verificationToken = "my-token-012345678901234567890123456789";
             
-            EventNotificationSDK.
-            
             PublicApiSetting callbackSettings = publicApiOptions.Value.GetSettingByName("Base");
 
             string endpoint = $"{callbackSettings.ToBaseUri()}/delete/marketplace";
