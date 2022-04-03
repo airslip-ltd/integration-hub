@@ -59,7 +59,7 @@ public static class MarketplaceApi
         {
             MarketplaceChallengeRequest request = req.Url.Query.GetQueryParams<MarketplaceChallengeRequest>();
 
-            string verificationToken = "085d1a150103e3b2ec769a9e5b17f054b6f19b3b062cd8c959ada3b846028f6c";
+            string verificationToken = "my-token-012345678901234567890123456789";
             
             PublicApiSetting callbackSettings = publicApiOptions.Value.GetSettingByName("Base");
 
@@ -103,7 +103,8 @@ public static class MarketplaceApi
         ILogger logger = executionContext.InstanceServices.GetService<ILogger>()!;
         IMarketplaceService marketplaceService = executionContext.InstanceServices.GetService<IMarketplaceService>() ?? throw new NotImplementedException();
         IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
-    
+        return await functionApiTools.CommonResponseHandler<Success>(req, Success.Instance);
+
         try
         {
             DeleteMarketplaceRequest request =await req.Body.DeserializeStream<DeleteMarketplaceRequest>();
