@@ -17,7 +17,7 @@ public static class ServiceExtensions
     /// <param name="configuration">The primary configuration where relevant elements can be found</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static IServiceCollection AddProviderAuthorisation(
+    public static IServiceCollection AddCustomServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -31,7 +31,8 @@ public static class ServiceExtensions
             .AddScoped<IInternalMiddlewareService, InternalMiddlewareService>()
             .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()
             .AddScoped<IRequestValidationService, RequestValidationService>()
-            .AddScoped<ISensitiveInformationService, SensitiveInformationService>();
+            .AddScoped<ISensitiveInformationService, SensitiveInformationService>()
+            .AddScoped<IBillingService, BillingService>();
 
         return services;
     }

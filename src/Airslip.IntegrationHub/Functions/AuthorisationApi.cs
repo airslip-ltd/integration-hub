@@ -119,7 +119,6 @@ namespace Airslip.IntegrationHub.Functions
             IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
-            ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
 
             try
             {

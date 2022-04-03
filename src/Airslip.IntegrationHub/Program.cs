@@ -90,7 +90,7 @@ namespace Airslip.IntegrationHub
                         .UseHealthChecks();
 
                     services
-                        .AddProviderAuthorisation(context.Configuration)
+                        .AddCustomServices(context.Configuration)
                         .UseDeletion<AccountDeletionService>();
                     
                     services

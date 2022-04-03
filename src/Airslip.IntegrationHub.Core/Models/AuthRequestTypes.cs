@@ -4,5 +4,6 @@ public enum AuthRequestTypes
 {
     Generate,
     Authorise,
-    GDPR
+    GDPR,
+    Billing
 }
