@@ -46,7 +46,7 @@ public static class MarketplaceApi
     [Function("GenerateChallengeResponse")]
     [ApiKeyAuthorize]
     public static async Task<HttpResponseData> GenerateChallengeResponse(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/delete/{provider}/marketplace")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/delete/marketplace")]
         HttpRequestData req,
         string provider,
         FunctionContext executionContext)
@@ -61,20 +61,29 @@ public static class MarketplaceApi
 
             string verificationToken = "my-token-012345678901234567890123456789";
             
+            EventNotificationSDK.
+            
             PublicApiSetting callbackSettings = publicApiOptions.Value.GetSettingByName("Base");
 
-            string endpoint = $"{callbackSettings.ToBaseUri()}/delete/{provider}/marketplace";
+            string endpoint = $"{callbackSettings.ToBaseUri()}/delete/marketplace";
 
             IncrementalHash sha256 = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             sha256.AppendData(Encoding.UTF8.GetBytes(request.ChallengeCode));
             sha256.AppendData(Encoding.UTF8.GetBytes(verificationToken));
             sha256.AppendData(Encoding.UTF8.GetBytes(endpoint));
             byte[] bytes = sha256.GetHashAndReset();
-            string s = BitConverter.ToString(bytes).Replace("-", string.Empty).ToLower();
+            string challengeResponse = BitConverter.ToString(bytes).Replace("-", string.Empty).ToLower();
+            
+            IncrementalHash sha256X = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            sha256X.AppendData(Encoding.UTF8.GetBytes(request.ChallengeCode + verificationToken + endpoint));
+            byte[] bytes2 = sha256X.GetHashAndReset();
+            string expectedChallengeResponse = BitConverter.ToString(bytes2).Replace("-", string.Empty).ToLower();
+
+            bool isIdentical = expectedChallengeResponse == challengeResponse;
             
             logger.Information("Logging challengeResponse: {ChallengeResponse}",  $"{request.ChallengeCode}|{verificationToken}|{endpoint}");
 
-            return await functionApiTools.CommonResponseHandler<MarketplaceChallengeResponse>(req, new MarketplaceChallengeResponse(s));
+            return await functionApiTools.CommonResponseHandler<MarketplaceChallengeResponse>(req, new MarketplaceChallengeResponse(challengeResponse, isIdentical));
         }
         catch (Exception ex)
         {
@@ -95,7 +104,7 @@ public static class MarketplaceApi
     [Function(nameof(MarketplaceApi))]
     [ApiKeyAuthorize]
     public static async Task<HttpResponseData> Delete(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/delete/{provider}/marketplace")]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/delete/marketplace")]
         HttpRequestData req, 
         string provider,
         FunctionContext executionContext)
