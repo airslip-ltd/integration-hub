@@ -44,10 +44,8 @@ namespace Airslip.IntegrationHub.Functions
             string provider)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            ICallbackService callbackService = executionContext.InstanceServices.GetService<ICallbackService>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
             IOptions<PublicApiSettings> publicApiSettings = executionContext.InstanceServices.GetService<IOptions<PublicApiSettings>>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
             ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
             IIntegrationUrlService integrationUrlService = executionContext.InstanceServices.GetService<IIntegrationUrlService>() ?? throw new NotImplementedException();
@@ -57,21 +55,6 @@ namespace Airslip.IntegrationHub.Functions
                 // Need to change name to something more appropriate
                 SensitiveCallbackInfo sensitiveCallbackInfo = sensitiveInformationService.DeserializeSensitiveInfoQueryString(req.Url.Query);
                 
-                // WIP test
-                if (true)
-                {
-                    IResponse r = await integrationUrlService.GetAuthorisationUrl(provider, sensitiveCallbackInfo, CancellationToken.None);
-                    return await functionApiTools.CommonResponseHandler<AuthorisationResponse>(req, r);
-                }
-
-                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider, sensitiveCallbackInfo.TestMode);
-
-                if (providerDetails is null)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return await functionApiTools.BadRequest(req, new InvalidAttribute(nameof(provider), provider, $"{provider} is an unsupported provider"));
-                }
-
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
 
                 // This is in place to cater for the app redirects from third party providers
@@ -84,25 +67,14 @@ namespace Airslip.IntegrationHub.Functions
                     return response;
                 }
 
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.Generate))
-                {
-                    logger.Information("Hmac validation failed for request");
-                    response.StatusCode = HttpStatusCode.Unauthorized;
-                    return await functionApiTools.Unauthorised(req,
-                        new UnauthorisedResponse(provider, "Hmac validation failed for request"));
-                }
+                IResponse validationResponse = validationService.ValidateRequest(req, provider, AuthRequestTypes.Generate);
+                if (validationResponse is not ISuccess)
+                    return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
 
-                if (providerDetails.ProviderSetting.ValidateIfRequiresStoreName(sensitiveCallbackInfo.Shop))
-                {
-                    logger.Information("{Provider} requires a shop name", provider);
-                    return await functionApiTools.Unauthorised(req,
-                        new UnauthorisedResponse(provider, $"{provider} requires a shop name"));
-                }
+                IResponse authorisationUrl = await integrationUrlService.GetAuthorisationUrl(provider, sensitiveCallbackInfo, CancellationToken.None);
 
-                IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, sensitiveCallbackInfo);
-
-                if (callbackUrl is not AuthorisationResponse generatedUrl || sensitiveCallbackInfo.TestMode)
-                    return await functionApiTools.CommonResponseHandler<AuthorisationResponse>(req, callbackUrl);
+                if (authorisationUrl is not AuthorisationResponse generatedUrl || sensitiveCallbackInfo.TestMode)
+                    return await functionApiTools.CommonResponseHandler<AuthorisationResponse>(req, authorisationUrl);
 
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
@@ -134,29 +106,18 @@ namespace Airslip.IntegrationHub.Functions
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
             ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
+            IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
 
             try
             {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider);
+                // TODO: Finish off creating a generic callback function
+                
+                IResponse validationResponse = validationService.ValidateRequest(req, provider, AuthRequestTypes.Authorise);
+                
+                if (validationResponse is not ISuccess)
+                    return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
 
-                if (providerDetails is null)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
-
-                //Validate HMAC another way. Needs improving. Maybe specific to provider.
-                // List<KeyValuePair<string, string>> queryStrings = authorisationPreparationService.GetParameters(parsedProvider, req);
-                //
-                // bool isValid = hmacService.Validate(providerDetails, queryStrings);
-                //
-                // if (!isValid)
-                // {
-                //     logger.Warning("There has been a problem validating the callback request");
-                //     return req.CreateResponse(HttpStatusCode.BadRequest);
-                // }
-
-                IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(providerDetails, req);
+                IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(req, provider);
 
                 if (providerAuthorisingDetail is ErrorAuthorisingDetail errorAuthorisingDetail)
                 {
@@ -165,7 +126,7 @@ namespace Airslip.IntegrationHub.Functions
                     return responseData;
                 }
 
-                // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info 
+                // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info
                 if (providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
                     providerDetails = providerDiscoveryService.GetPosProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
 

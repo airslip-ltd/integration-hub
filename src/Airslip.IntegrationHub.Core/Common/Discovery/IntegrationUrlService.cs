@@ -32,8 +32,11 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             SensitiveCallbackInfo sensitiveCallbackInfo,
             CancellationToken cancellationToken)
         {
-            IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider, sensitiveCallbackInfo.IntegrationProviderId ?? string.Empty, sensitiveCallbackInfo.TestMode);
-            
+            IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
+                provider, 
+                sensitiveCallbackInfo.IntegrationProviderId, 
+                sensitiveCallbackInfo.TestMode);
+
             string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";
             Dictionary<string, string> replacements = new();
             // Apply some dynamic replacement
@@ -60,7 +63,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 replacements.Add("version", integrationDetails.IntegrationSetting.Version);
             
             if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ReturnPageFormat))
-                replacements.Add("returnPage",  $"{integrationDetails}/{integrationDetails.IntegrationSetting.ReturnPageFormat}");
+                replacements.Add("returnPage",  integrationDetails.IntegrationSetting.ReturnPage);
 
             if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.Scope))
             {
@@ -158,7 +161,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         //     IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(integrationProvider.Provider, 
         //         integrationProvider.Id);
         //
-        //     string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.DeleteRouteFormat}";
+        //     string url = $"{integrationDetails.Uri}/delete/{integration}/{integrationId}";
         //     
         //     replacements.Add("integration", integrationProvider.Id);
         //     replacements.Add("integrationId", integrationId);

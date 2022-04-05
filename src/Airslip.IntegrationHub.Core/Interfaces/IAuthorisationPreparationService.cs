@@ -7,10 +7,10 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 public interface IAuthorisationPreparationService
 {
     IProviderAuthorisation GetProviderAuthorisationDetail(
-        ProviderDetails providerDetails,
-        HttpRequestData req);
+        HttpRequestData req,
+        string provider);
 
     List<KeyValuePair<string, string>> GetParameters(
-        ProviderDetails providerDetails,
+        string provider,
         HttpRequestData req);
 }

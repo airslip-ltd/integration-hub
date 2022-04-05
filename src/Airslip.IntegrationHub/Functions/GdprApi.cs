@@ -1,5 +1,6 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Extensions;
+using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
@@ -40,24 +41,14 @@ namespace Airslip.IntegrationHub.Functions
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
 
             try
             {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider);
-
-                if (providerDetails is null)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
+                IResponse validationResponse = validationService.ValidateRequest(req, provider, AuthRequestTypes.Authorise);
+                if (validationResponse is not ISuccess)
+                    return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
                 
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.GDPR))
-                {
-                    logger.Information("Hmac validation failed for request");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
-                }
-
                 GDPRRequest gdprRequest = await req.Body.DeserializeStream<GDPRRequest>();
 
                 logger.Information("GDPR request made for {ShopId} with the body {Body}",

@@ -1,6 +1,7 @@
 ﻿using Airslip.Common.Security.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Models.AmazonSP;
@@ -23,15 +24,17 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 public class AuthorisationPreparationService : IAuthorisationPreparationService
 {
     private readonly EncryptionSettings _encryptionSettings;
+    private IIntegrationDiscoveryService _discoveryService;
 
-    public AuthorisationPreparationService(IOptions<EncryptionSettings> encryptionOptions)
+    public AuthorisationPreparationService(IOptions<EncryptionSettings> encryptionOptions, IIntegrationDiscoveryService discoveryService)
     {
+        _discoveryService = discoveryService;
         _encryptionSettings = encryptionOptions.Value;
     }
 
     public IProviderAuthorisation GetProviderAuthorisationDetail(
-        ProviderDetails providerDetails,
-        HttpRequestData req)
+        HttpRequestData req,
+        string provider)
     {
         // Step 2: Add provider to get access token
         switch (providerDetails.Provider)
@@ -92,13 +95,13 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     }
 
     public List<KeyValuePair<string, string>> GetParameters(
-        ProviderDetails providerDetails,
+        string provider,
         HttpRequestData req)
     {
         // Step 3: If using POST then add custom logic here
-        switch (providerDetails.Provider)
+        switch (provider)
         {
-            case PosProviders.WoocommerceApi:
+            case nameof(PosProviders.WoocommerceApi):
                 WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
                 string queryString = wooCommerceAuthorisationDetail.GetQueryString();
                 return queryString.GetQueryParams(true).ToList();

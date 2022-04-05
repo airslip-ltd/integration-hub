@@ -1,6 +1,7 @@
 ﻿using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
@@ -29,10 +30,10 @@ public class AuthorisationService : IAuthorisationService
     }
 
     public async Task<IResponse> CreateAccount(
-        ProviderDetails providerDetails,
+        IntegrationDetails integrationDetails,
         IProviderAuthorisation providerAuthorisingDetail)
     {
-        MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
+        MiddlewareAuthorisationRequest middlewareAuthorisationBody = integrationDetails.IntegrationSetting.AuthStrategy switch
         {
             ProviderAuthStrategy.ShortLived => await _oauth2Service.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail) providerAuthorisingDetail),
             ProviderAuthStrategy.Basic => _internalMiddlewareService.BuildMiddlewareAuthorisationModel(providerDetails, (BasicAuthorisationDetail) providerAuthorisingDetail),
@@ -44,7 +45,7 @@ public class AuthorisationService : IAuthorisationService
             return new ErrorResponse("MIDDLEWARE_ERROR", "Error exchanging token");
 
         _logger.Information("Sending to middleware {Middleware} with body {Body}", 
-            providerDetails.ProviderSetting.MiddlewareDestinationAppName, 
+            integrationDetails.IntegrationSetting.PublicApiSettingName, 
             Json.Serialize(middlewareAuthorisationBody));
         
         return await _internalMiddlewareClient.Authorise(providerDetails, middlewareAuthorisationBody);

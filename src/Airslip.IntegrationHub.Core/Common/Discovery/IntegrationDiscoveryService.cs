@@ -18,9 +18,10 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
         _integrationSettings = integrationSettings.Value;
     }
         
-    public IntegrationDetails GetIntegrationDetails(string provider, string integration, bool testMode = false)
+    public IntegrationDetails GetIntegrationDetails(string provider, string? integration, bool testMode = false)
     {
         IntegrationSetting integrationSetting = _integrationSettings.GetSettingByName(provider);
+
         string uri = string.Empty;
         string apiKey = string.Empty;
         string callbackUrl = string.Empty;
@@ -33,7 +34,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 callbackUrl = integrationSetting.SourceType switch
                 {
                     SourceType.SingleSource => $"{_settings.Base.ToBaseUri()}/providers/{provider.ToLower()}/authorised",
-                    _ => $"{_settings.Base.ToBaseUri()}/providers/{provider.ToLower()}/{integration.ToLower()}/authorised"
+                    _ => $"{_settings.Base.ToBaseUri()}/providers/{provider.ToLower()}/{integration?.ToLower()}/authorised"
                 };
                 break;
             case AuthorisationRouteType.External:
@@ -42,10 +43,13 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 string publicApiSettingName = testMode ? "Base" : "UI";
             
                 PublicApiSetting callbackSettings = _settings.GetSettingByName(publicApiSettingName);
-                
+
                 callbackUrl = testMode
                     ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
                     : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
+                
+                _formatReturnPage(testMode, integrationSetting, callbackSettings);
+             
                 break;
             default:
                 break;
@@ -56,5 +60,16 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
             apiKey, 
             integrationSetting,
             callbackUrl);
+    }
+
+    private void _formatReturnPage(
+        bool testMode, IntegrationSetting integrationSetting, PublicApiSetting callbackSettings)
+    {
+        if (string.IsNullOrEmpty(integrationSetting.ReturnPageFormat)) return;
+        
+        if (testMode)
+            callbackSettings = _settings.GetSettingByName("UI");
+
+        integrationSetting.FormatReturnPage(callbackSettings.BaseUri);
     }
 }

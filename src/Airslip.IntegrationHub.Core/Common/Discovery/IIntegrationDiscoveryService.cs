@@ -2,5 +2,5 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery;
 
 public interface IIntegrationDiscoveryService
 {
-    IntegrationDetails GetIntegrationDetails(string provider, string integration, bool testMode = false);
+    IntegrationDetails GetIntegrationDetails(string provider, string? integration, bool testMode = false);
 }

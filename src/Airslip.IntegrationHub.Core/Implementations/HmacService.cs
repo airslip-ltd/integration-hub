@@ -9,9 +9,9 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class HmacService : IHmacService
 {
-    public bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings)
+    public bool Validate(string provider, string apiSecret, List<KeyValuePair<string, string>> queryStrings)
     {
-        string? hmacKey = _getHmacKey(providerDetails.Provider);
+        string? hmacKey = _getHmacKey(provider);
 
         if (hmacKey is null)
             return true;
@@ -27,14 +27,14 @@ public class HmacService : IHmacService
         string hmacValue = hmacKeyValuePair.Value;
         queryStrings.Remove(hmacKeyValuePair);
 
-        return HmacCipher.Validate(queryStrings, hmacValue, providerDetails.ProviderSetting.ApiSecret);
+        return HmacCipher.Validate(queryStrings, hmacValue, apiSecret);
     }
 
-    private static string? _getHmacKey(PosProviders provider)
+    private static string? _getHmacKey(string provider)
     {
         return provider switch
         {
-            PosProviders.Shopify => "hmac",
+            nameof(PosProviders.Shopify) => "hmac",
             _ => null
         };
     }
