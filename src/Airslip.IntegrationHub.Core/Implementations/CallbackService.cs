@@ -1,10 +1,8 @@
-﻿using Airslip.Common.Security.Configuration;
-using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Interfaces;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Responses;
-using Microsoft.Extensions.Options;
 using System.Web;
 
 namespace Airslip.IntegrationHub.Core.Implementations;
@@ -15,7 +13,7 @@ public class CallbackService : ICallbackService
     {
         string callbackUrl = _generateCallbackUrl(providerDetails, sensitiveCallbackInfo);
        
-        return new AuthCallbackGeneratorResponse(callbackUrl);
+        return new AuthorisationResponse(callbackUrl);
     }
 
     private string _generateCallbackUrl(

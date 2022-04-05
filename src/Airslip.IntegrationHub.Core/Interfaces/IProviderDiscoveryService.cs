@@ -2,6 +2,6 @@
 {
     public interface IProviderDiscoveryService
     {
-        ProviderDetails? GetProviderDetails(string provider, bool? testMode = null);
+        ProviderDetails? GetPosProviderDetails(string provider, bool? testMode = null);
     }
 }

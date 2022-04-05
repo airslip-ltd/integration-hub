@@ -2,6 +2,7 @@ using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
@@ -22,6 +23,7 @@ public class ProviderDiscoveryServiceTests
     {
         string projectName = "Airslip.IntegrationHub";
         Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
+        Mock<IOptions<SettingCollection<IntegrationSetting>>> integrationSettingsMock = new();
         Mock<IOptions<PublicApiSettings>> publicApiSettingsMock =
             OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
 
@@ -36,6 +38,7 @@ public class ProviderDiscoveryServiceTests
 
         _sut = new ProviderDiscoveryService(
             providerSettingsMock.Object,
+            integrationSettingsMock.Object,
             publicApiSettingsMock.Object);
     }
 
@@ -52,7 +55,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData("AmazonSP", $"{nameof(PosProviders.Api2Cart)}")]
     public void Can_get_provider_details(string provider, string expectedDestination)
     {
-        ProviderDetails providerDetails = _sut.GetProviderDetails(provider)!;
+        ProviderDetails providerDetails = _sut.GetPosProviderDetails(provider)!;
         providerDetails.Provider.Should().Be(provider.ParseIgnoreCase<PosProviders>());
         providerDetails.ProviderSetting.BaseUri.Should().NotBeEmpty();
         providerDetails.ProviderSetting.MiddlewareDestinationAppName.Should().Be(expectedDestination);
@@ -75,7 +78,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData("Ecwid", "https://app.ecwid.com/api/v3/{0}")]
     public void Can_get_providers_default_base_uri(string provider, string expectedBaseUri)
     {
-        ProviderDetails providerDetails = _sut.GetProviderDetails(provider)!;
+        ProviderDetails providerDetails = _sut.GetPosProviderDetails(provider)!;
         providerDetails.ProviderSetting.BaseUri.Should().Be(expectedBaseUri);
     }
 }
