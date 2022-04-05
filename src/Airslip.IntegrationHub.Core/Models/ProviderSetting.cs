@@ -1,7 +1,5 @@
 using Airslip.IntegrationHub.Core.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
