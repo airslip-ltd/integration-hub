@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Airslip.IntegrationHub.Core.Common.Discovery
 {
@@ -52,11 +53,32 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
                 replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
             
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.Scope))
-                replacements.Add("scope", integrationDetails.IntegrationSetting.Scope);
+            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+                replacements.Add("appName", integrationDetails.IntegrationSetting.AppName);
+            
+            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+                replacements.Add("version", integrationDetails.IntegrationSetting.Version);
+            
+            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ReturnPageFormat))
+                replacements.Add("returnPage",  $"{integrationDetails}/{integrationDetails.IntegrationSetting.ReturnPageFormat}");
 
-            if(!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
-                replacements.Add("callbackRedirectUri",integrationDetails.CallbackUrl);
+            if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.Scope))
+            {
+                string scope = integrationDetails.IntegrationSetting.RequireUrlEncode
+                    ? HttpUtility.UrlEncode(integrationDetails.IntegrationSetting.Scope)
+                    : integrationDetails.IntegrationSetting.Scope;
+                
+                replacements.Add("scope", scope);
+            }
+
+            if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
+            {
+                string callbackUrl = integrationDetails.IntegrationSetting.RequireUrlEncode
+                    ? HttpUtility.UrlEncode(integrationDetails.CallbackUrl)
+                    : integrationDetails.CallbackUrl;
+                
+                replacements.Add("callbackUrl", callbackUrl);
+            }
             
             url = url.ApplyReplacements(replacements);
             

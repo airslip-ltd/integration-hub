@@ -17,10 +17,14 @@ public record IntegrationSetting
     public bool AnonymousUsage { get; init; } = false;
     public bool OAuthRedirect { get; init; } = false;
     public bool RequiresStoreName { get; set; }
+    public bool RequireUrlEncode { get; set; }
+    public string Version { get; set; } = string.Empty;
     public string AuthorisationBaseUri { get; set; } = string.Empty;
     public string ApiKey { get; set; } = string.Empty;
+    public string AppName { get; set; } = string.Empty;
     public string ApiSecret { get; set; } = string.Empty;
     public string Scope { get; set; } = string.Empty;
+    public string ReturnPageFormat { get; set; } = string.Empty;
     public ProviderAuthStrategy AuthStrategy { get; set; }
     public List<AuthRequestTypes> HmacValidateOn { get; set; } = new();
 }

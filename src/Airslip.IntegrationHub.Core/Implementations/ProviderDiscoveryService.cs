@@ -37,13 +37,13 @@ namespace Airslip.IntegrationHub.Core.Implementations
             
             PublicApiSetting callbackSettings = _publicApiSettings.GetSettingByName(publicApiSettingName);
             
-            string callbackRedirectUri = testMode == true
+            string callbackUrl = testMode == true
                 ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
                 : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
 
             return new ProviderDetails(
                 parsedProvider,
-                callbackRedirectUri,
+                callbackUrl,
                 destinationBaseUri,
                 middlewareDestinationSettings,
                 providerSetting);

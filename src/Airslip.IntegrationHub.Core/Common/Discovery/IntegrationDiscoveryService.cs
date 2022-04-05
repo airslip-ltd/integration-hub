@@ -42,7 +42,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 string publicApiSettingName = testMode ? "Base" : "UI";
             
                 PublicApiSetting callbackSettings = _settings.GetSettingByName(publicApiSettingName);
-            
+                
                 callbackUrl = testMode
                     ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
                     : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
