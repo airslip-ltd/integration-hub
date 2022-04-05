@@ -44,7 +44,7 @@ namespace Airslip.IntegrationHub.Functions
 
             try
             {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider);
 
                 if (providerDetails is null)
                 {

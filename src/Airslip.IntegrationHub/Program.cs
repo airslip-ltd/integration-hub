@@ -7,6 +7,7 @@ using Airslip.Common.Security.Configuration;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
@@ -101,10 +102,7 @@ namespace Airslip.IntegrationHub
                             string baseUri = settings.Value.GetSettingByName("Api2Cart").ToBaseUri();
                             httpClient.AddDefaults(baseUri);
                         });
-                    
-                    SettingCollection<ProviderSetting> appSettings = new();
-                    context.Configuration.GetSection($"{nameof(ProviderSetting)}s").Bind(appSettings);
-                    
+
                     // TODO: Create validation for known provider settings so there is never an empty api key
                     
                 })

@@ -24,7 +24,7 @@ public class AccountDeletionService : IDeletionService
     
     public async Task<IResponse> DeleteRecord(string integration, string id, DeleteRequest requestDetails)
     {
-        ProviderDetails? providerDetails = _providerDiscoveryService.GetProviderDetails(integration);
+        ProviderDetails? providerDetails = _providerDiscoveryService.GetPosProviderDetails(integration);
 
         if (providerDetails is null)
         {

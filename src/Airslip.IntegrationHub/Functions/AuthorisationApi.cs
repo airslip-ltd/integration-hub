@@ -18,8 +18,12 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common.Discovery;
+using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -29,6 +33,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiSecurity(AirslipSchemeOptions.ApiKeyScheme, SecuritySchemeType.ApiKey, Name = AirslipSchemeOptions.ApiKeyHeaderField, In = OpenApiSecurityLocationType.Header)]
         [OpenApiResponseWithoutBody(HttpStatusCode.Unauthorized, Description = "Invalid Api Key supplied")]
         [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
+        [OpenApiParameter("integrationType", Required = true, In = ParameterLocation.Path, Description = "The name of the integration type, must be one of our supported integrations")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
         [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(string), Description = "The URL to be used to start an external authorisation process")]
         [Function("GenerateAuthorisationUrl")]
@@ -45,12 +50,21 @@ namespace Airslip.IntegrationHub.Functions
             IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
             ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
+            IIntegrationUrlService integrationUrlService = executionContext.InstanceServices.GetService<IIntegrationUrlService>() ?? throw new NotImplementedException();
 
             try
             {
+                // Need to change name to something more appropriate
                 SensitiveCallbackInfo sensitiveCallbackInfo = sensitiveInformationService.DeserializeSensitiveInfoQueryString(req.Url.Query);
+                
+                // WIP test
+                if (true)
+                {
+                    IResponse r = await integrationUrlService.GetAuthorisationUrl(provider, sensitiveCallbackInfo, CancellationToken.None);
+                    return await functionApiTools.CommonResponseHandler<AuthorisationResponse>(req, r);
+                }
 
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider, sensitiveCallbackInfo.TestMode);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider, sensitiveCallbackInfo.TestMode);
 
                 if (providerDetails is null)
                 {
@@ -87,8 +101,8 @@ namespace Airslip.IntegrationHub.Functions
 
                 IResponse callbackUrl = callbackService.GenerateUrl(providerDetails, sensitiveCallbackInfo);
 
-                if (callbackUrl is not AuthCallbackGeneratorResponse generatedUrl || sensitiveCallbackInfo.TestMode)
-                    return await functionApiTools.CommonResponseHandler<AuthCallbackGeneratorResponse>(req, callbackUrl);
+                if (callbackUrl is not AuthorisationResponse generatedUrl || sensitiveCallbackInfo.TestMode)
+                    return await functionApiTools.CommonResponseHandler<AuthorisationResponse>(req, callbackUrl);
 
                 response.Headers.Add("Location", generatedUrl.AuthorisationUrl);
                 return response;
@@ -123,7 +137,7 @@ namespace Airslip.IntegrationHub.Functions
 
             try
             {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
+                ProviderDetails? providerDetails = providerDiscoveryService.GetPosProviderDetails(provider);
 
                 if (providerDetails is null)
                 {
@@ -153,7 +167,7 @@ namespace Airslip.IntegrationHub.Functions
 
                 // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info 
                 if (providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
-                    providerDetails = providerDiscoveryService.GetProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
+                    providerDetails = providerDiscoveryService.GetPosProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
 
                 IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails!, providerAuthorisingDetail);
                 return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
