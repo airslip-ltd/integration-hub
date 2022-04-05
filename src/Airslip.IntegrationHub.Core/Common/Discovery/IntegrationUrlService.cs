@@ -31,7 +31,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             SensitiveCallbackInfo sensitiveCallbackInfo,
             CancellationToken cancellationToken)
         {
-            IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider, sensitiveCallbackInfo.InstitutionId ?? string.Empty, sensitiveCallbackInfo.TestMode);
+            IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider, sensitiveCallbackInfo.IntegrationProviderId ?? string.Empty, sensitiveCallbackInfo.TestMode);
             
             string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";
             Dictionary<string, string> replacements = new();
@@ -40,8 +40,8 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             replacements.Add("airslipUserType", sensitiveCallbackInfo.AirslipUserType.ToString().ToLower());
             replacements.Add("userId", sensitiveCallbackInfo.UserId);
             replacements.Add("provider", provider);
-            if(sensitiveCallbackInfo.InstitutionId != null)
-                replacements.Add("integration", sensitiveCallbackInfo.InstitutionId);
+            if(sensitiveCallbackInfo.IntegrationProviderId != null)
+                replacements.Add("integrationProviderId", sensitiveCallbackInfo.IntegrationProviderId);
             
             if(!string.IsNullOrEmpty(sensitiveCallbackInfo.Shop))
                 replacements.Add("shop", sensitiveCallbackInfo.Shop);
@@ -49,11 +49,11 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             if(!string.IsNullOrEmpty(sensitiveCallbackInfo.CipheredSensitiveInfo))
                 replacements.Add("state", sensitiveCallbackInfo.CipheredSensitiveInfo);
             
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ProviderSetting.ApiKey))
-                replacements.Add("apiKey", integrationDetails.IntegrationSetting.ProviderSetting.ApiKey);
+            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+                replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
             
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ProviderSetting.Scope))
-                replacements.Add("scope", integrationDetails.IntegrationSetting.ProviderSetting.Scope);
+            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.Scope))
+                replacements.Add("scope", integrationDetails.IntegrationSetting.Scope);
 
             if(!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
                 replacements.Add("callbackRedirectUri",integrationDetails.CallbackUrl);

@@ -37,7 +37,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 };
                 break;
             case AuthorisationRouteType.External:
-                uri = integrationSetting.ProviderSetting.BaseUri;
+                uri = integrationSetting.AuthorisationBaseUri;
                 
                 string publicApiSettingName = testMode ? "Base" : "UI";
             

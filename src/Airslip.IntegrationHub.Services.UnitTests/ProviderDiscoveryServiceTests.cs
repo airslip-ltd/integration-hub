@@ -23,7 +23,6 @@ public class ProviderDiscoveryServiceTests
     {
         string projectName = "Airslip.IntegrationHub";
         Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
-        Mock<IOptions<SettingCollection<IntegrationSetting>>> integrationSettingsMock = new();
         Mock<IOptions<PublicApiSettings>> publicApiSettingsMock =
             OptionsMock.SetUpOptionSettings<PublicApiSettings>(projectName)!;
 
@@ -38,7 +37,6 @@ public class ProviderDiscoveryServiceTests
 
         _sut = new ProviderDiscoveryService(
             providerSettingsMock.Object,
-            integrationSettingsMock.Object,
             publicApiSettingsMock.Object);
     }
 
