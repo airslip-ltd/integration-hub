@@ -1,112 +1,165 @@
 ﻿using Airslip.Common.Security.Configuration;
-using Airslip.Common.Types.Enums;
+using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common;
 using Airslip.IntegrationHub.Core.Common.Discovery;
+using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Models.AmazonSP;
-using Airslip.IntegrationHub.Core.Models.BigCommerce;
-using Airslip.IntegrationHub.Core.Models.eBay;
-using Airslip.IntegrationHub.Core.Models.Ecwid;
-using Airslip.IntegrationHub.Core.Models.Etsy;
-using Airslip.IntegrationHub.Core.Models.Shopify;
-using Airslip.IntegrationHub.Core.Models.Squarespace;
-using Airslip.IntegrationHub.Core.Models.ThreeDCart;
-using Airslip.IntegrationHub.Core.Models.WooCommerce;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class AuthorisationPreparationService : IAuthorisationPreparationService
 {
     private readonly EncryptionSettings _encryptionSettings;
-    private IIntegrationDiscoveryService _discoveryService;
+    private readonly IIntegrationDiscoveryService _discoveryService;
+    private readonly ISensitiveInformationService _sensitiveInformationService;
 
-    public AuthorisationPreparationService(IOptions<EncryptionSettings> encryptionOptions, IIntegrationDiscoveryService discoveryService)
+    public AuthorisationPreparationService(IOptions<EncryptionSettings> encryptionOptions, IIntegrationDiscoveryService discoveryService, ISensitiveInformationService sensitiveInformationService)
     {
         _discoveryService = discoveryService;
+        _sensitiveInformationService = sensitiveInformationService;
         _encryptionSettings = encryptionOptions.Value;
     }
 
-    public IProviderAuthorisation GetProviderAuthorisationDetail(
-        HttpRequestData req,
-        string provider)
+    public SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string,string> parameters)
     {
-        // Step 2: Add provider to get access token
-        switch (providerDetails.Provider)
+        string? state = GetStateParameter(parameters);
+
+        return state is null 
+            ? null 
+            : _sensitiveInformationService.DecryptCallbackInfo(state);
+    }
+    
+
+    public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails, Dictionary<string, string> parameters)
+    {
+        string authBaseUri = integrationDetails.IntegrationSetting.AuthoriseBaseUri ?? integrationDetails.IntegrationSetting.AuthorisationBaseUri;
+        string url = $"{authBaseUri}/{integrationDetails.IntegrationSetting.AuthoriseRouteFormat}";
+
+        AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        
+        Dictionary<string, string> replacements = new();
+        if(parameters.TryGetValue(authParameterNames.Shop, out string? shop))
+            replacements.Add("shop", shop);
+        
+        if(parameters.TryGetValue(authParameterNames.Code, out string? code))
+            replacements.Add("code", code);
+        
+        if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+            replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
+        
+        if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiSecret))
+            replacements.Add("apiSecret", integrationDetails.IntegrationSetting.ApiSecret);
+
+        if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
+            replacements.Add("callbackUrl", integrationDetails.CallbackUrl);
+
+        url = url.ApplyReplacements(replacements);
+        // TODO: Add key value pairs for all due to squarespace not working with a querystring POST
+        // KeyValuePair<string, string>[] d = {
+        //     new("grant_type", "authorization_code"),
+        //     new("code", parameters["code"]),
+        //     new("redirect_uri", integrationDetails.CallbackUrl) 
+        // };
+
+        HttpRequestMessage httpRequestMessage =  new()
         {
-            case PosProviders.Shopify:
-                ShortLivedAuthorisationDetail s = req.Url.Query.GetQueryParams<ShopifyAuthorisingDetail>();
-                s.FormatBaseUri(s.StoreName);
-                s.PermanentAccessUrl = $"https://{s.StoreName}/admin/oauth/access_token";
-                s.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return s;
-            case PosProviders.Squarespace:
-                ShortLivedAuthorisationDetail ss = req.Url.Query.GetQueryParams<SquarespaceAuthorisingDetail>();
-                ss.PermanentAccessUrl = "https://login.squarespace.com/api/1/login/oauth/provider/tokens";
-                ss.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return ss;
-            case PosProviders.WoocommerceApi:
-                BasicAuthorisationDetail w = req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
-                w.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return w;
-            case PosProviders.EBay:
-                ShortLivedAuthorisationDetail e = req.Url.Query.GetQueryParams<EbayAuthorisingDetail>();
-                e.PermanentAccessUrl = providerDetails.ProviderSetting.BaseUri + "/identity/v1/oauth2/token";
-                e.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return e;
-            case PosProviders.EtsyAPIv3:
-                ShortLivedAuthorisationDetail et = req.Url.Query.GetQueryParams<EtsyAPIv3AuthorisingDetail>();
-                et.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return et;
-            case PosProviders.BigcommerceApi:
-                ShortLivedAuthorisationDetail b = req.Url.Query.GetQueryParams<BigCommerceApiAuthorisingDetail>();
-                b.PermanentAccessUrl = "https://login.bigcommerce.com/oauth2/token";
-                providerDetails.ProviderSetting.Scope = b.Scope ?? string.Empty;
-                b.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return b;
-            case PosProviders._3DCart:
-                ShortLivedAuthorisationDetail t = req.Url.Query.GetQueryParams<ThreeDCartAuthorisingDetail>();
-                if(!string.IsNullOrEmpty(t.ErrorMessage))
-                    return new ErrorAuthorisingDetail { ErrorMessage = t.ErrorMessage, ErrorCode = t.ErrorCode};
-                
-                t.PermanentAccessUrl = providerDetails.ProviderSetting.FormatBaseUri("apirest") + "/oauth/token";
-                t.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return t;
-            case PosProviders.Ecwid:
-                EcwidAuthorisingDetail ec = req.Url.Query.GetQueryParams<EcwidAuthorisingDetail>();
-                if(!string.IsNullOrEmpty(ec.ErrorMessage))
-                    return new ErrorAuthorisingDetail { ErrorMessage = ec.ErrorMessage, ErrorCode = ec.ErrorCode};
-                ec.PermanentAccessUrl = "https://my.ecwid.com/api/oauth/token";
-                ec.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return ec;
-            case PosProviders.AmazonSP: 
-                ShortLivedAuthorisationDetail a = req.Url.Query.GetQueryParams<AmazonSPAuthorisingDetail>();
-                a.PermanentAccessUrl = "https://api.amazon.com/auth/o2/token";
-                a.DecryptSensitiveInformation(_encryptionSettings.PassPhraseToken);
-                return a;
-            default:
-                throw new NotImplementedException();
+            RequestUri = new Uri(url),
+            Method = integrationDetails.IntegrationSetting.ExchangeCodeMethodType switch
+            {
+                MethodTypes.POST => HttpMethod.Post,
+                MethodTypes.GET => HttpMethod.Get,
+                _ => HttpMethod.Post
+            },
+            //Content = new FormUrlEncodedContent(d)
+        };
+        
+        if (integrationDetails.IntegrationSetting.AuthoriseHeadersRequired)
+        {
+            ProductInfoHeaderValue productValue = new("Airslip", "1.0");
+            ProductInfoHeaderValue commentValue = new("(+https://www.airslip.com)");
+
+            httpRequestMessage.Headers.UserAgent.Add(productValue);
+            httpRequestMessage.Headers.UserAgent.Add(commentValue);
         }
+        
+        if (integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Basic)
+        {
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                "Basic",
+                Convert.ToBase64String(Encoding.ASCII.GetBytes($"{integrationDetails.IntegrationSetting.ApiKey}:{integrationDetails.IntegrationSetting.ApiSecret}")));
+        }
+
+        return httpRequestMessage;
     }
 
-    public List<KeyValuePair<string, string>> GetParameters(
-        string provider,
-        HttpRequestData req)
+    public string? GetStateParameter(IReadOnlyDictionary<string, string> parameters)
     {
-        // Step 3: If using POST then add custom logic here
-        switch (provider)
+        parameters.TryGetValue("user_info", out string? state);
+        if (state is not null) 
+            return state;
+        
+        parameters.TryGetValue("state", out state);
+        if (state is not null) 
+            return state;
+        
+        parameters.TryGetValue("user_id", out state);
+        if (state is not null) 
+            return state;
+
+        return null;
+    }
+
+    public BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(
+        IntegrationDetails integrationDetails, 
+        Dictionary<string, string> parameters)
+    {
+        AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        
+        parameters.TryGetValue(
+            authParameterNames.Login,
+            out string? loginValue);
+        
+        loginValue ??= integrationDetails.IntegrationSetting.ApiSecret;
+        
+        parameters.TryGetValue(
+            authParameterNames.Password,
+            out string? passwordValue);
+        
+        parameters.TryGetValue(
+            authParameterNames.AccessScope,
+            out string? scopeValue);
+        
+        parameters.TryGetValue(
+            authParameterNames.Shop,
+            out string? shopValue);
+        
+        return new BasicAuthorisationDetail
         {
-            case nameof(PosProviders.WoocommerceApi):
-                WooCommerceAuthorisationDetail wooCommerceAuthorisationDetail = req.Body.DeserializeFunctionStream<WooCommerceAuthorisationDetail>();
-                string queryString = wooCommerceAuthorisationDetail.GetQueryString();
-                return queryString.GetQueryParams(true).ToList();
-            default:
-                return req.Url.Query.GetQueryParams().ToList();
-        }
+            Login = loginValue,
+            Password = passwordValue ?? string.Empty,
+            AccessScope = scopeValue ?? string.Empty,
+            Shop = shopValue
+        };
+    }
+
+    public Dictionary<string, string> GetParameters(HttpRequestData req)
+    {
+        if (req.Method == "GET")
+            return req.Url.Query.QueryStringToDictionary();
+        
+        object o = req.Body.DeserializeFunctionStream<object>();
+        req.Body.Position = 0;
+        string s = Json.Serialize(o);
+        return Json.Deserialize<Dictionary<string, string>>(s);
     }
 }

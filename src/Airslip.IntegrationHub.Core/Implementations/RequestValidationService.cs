@@ -33,8 +33,14 @@ public class RequestValidationService : IRequestValidationService
         string provider,
         AuthRequestTypes authRequestType)
     {
-        SensitiveCallbackInfo sensitiveCallbackInfo =
-            _sensitiveInformationService.DeserializeSensitiveInfoQueryString(req.Url.Query);
+        Dictionary<string, string> parameters = _authorisationPreparation.GetParameters(req);
+
+        SensitiveCallbackInfo? sensitiveCallbackInfo = authRequestType == AuthRequestTypes.Generate
+            ? _sensitiveInformationService.DeserializeQueryString(req.Url.Query)
+            : _authorisationPreparation.TransformParametersToSensitiveCallbackInfo(parameters);
+
+        if (sensitiveCallbackInfo is null)
+            return new NotFoundResponse("state", "Unable to find state");
 
         IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
             provider,
@@ -49,10 +55,8 @@ public class RequestValidationService : IRequestValidationService
 
         if (integrationDetails.IntegrationSetting.ShouldValidateHmac(authRequestType))
         {
-            List<KeyValuePair<string, string>> queryStrings = _authorisationPreparation.GetParameters(provider, req);
-
             bool isValid =
-                _hmacService.Validate(provider, integrationDetails.IntegrationSetting.ApiSecret, queryStrings);
+                _hmacService.Validate(provider, integrationDetails.IntegrationSetting.ApiSecret, parameters);
             if (!isValid)
             {
                 return new UnauthorisedResponse(provider, "Hmac validation failed for request");

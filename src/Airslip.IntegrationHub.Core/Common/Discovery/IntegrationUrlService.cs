@@ -6,7 +6,6 @@ using Airslip.Common.Utilities.Extensions;
 using Airslip.Common.Utilities.Models;
 using Airslip.IntegrationHub.Core.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -34,7 +33,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         {
             IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
                 provider, 
-                sensitiveCallbackInfo.IntegrationProviderId, 
+                sensitiveCallbackInfo.IntegrationProviderId,
                 sensitiveCallbackInfo.TestMode);
 
             string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";

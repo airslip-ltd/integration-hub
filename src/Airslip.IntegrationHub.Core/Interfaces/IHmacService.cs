@@ -4,5 +4,5 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IHmacService
 {
-    bool Validate(string provider, string apiSecret, List<KeyValuePair<string, string>> queryStrings);
+    bool Validate(string provider, string apiSecret, Dictionary<string, string> queryStrings);
 }

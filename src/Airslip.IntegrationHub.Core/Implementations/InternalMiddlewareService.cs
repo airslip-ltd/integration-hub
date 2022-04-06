@@ -1,4 +1,5 @@
-﻿using Airslip.IntegrationHub.Core.Interfaces;
+﻿using Airslip.IntegrationHub.Core.Common.Discovery;
+using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
 using Serilog;
@@ -15,33 +16,36 @@ namespace Airslip.IntegrationHub.Core.Implementations
         }
 
         public MiddlewareAuthorisationRequest BuildMiddlewareAuthorisationModel(
-            ProviderDetails providerDetails,
+            string provider,
+            IntegrationDetails integrationDetails,
+            SensitiveCallbackInfo sensitiveCallbackInfo,
             BasicAuthorisationDetail basicAuthorisationDetail)
         {
-            if (basicAuthorisationDetail.SensitiveCallbackInfo.EntityId == string.Empty)
+            if (sensitiveCallbackInfo.EntityId == string.Empty)
             {
                 _logger.Fatal("{Parameter} cannot be empty", basicAuthorisationDetail.EncryptedUserInfo);
                 return new MiddlewareAuthorisationRequest();
             }
 
-            string shop = basicAuthorisationDetail.Shop ?? basicAuthorisationDetail.SensitiveCallbackInfo.Shop;
+            string shop = basicAuthorisationDetail.Shop ?? sensitiveCallbackInfo.Shop;
+            string shopUrl = integrationDetails.IntegrationSetting.FormatBaseUri(shop);
 
             return new MiddlewareAuthorisationRequest
             {
-                Provider = providerDetails.Provider.ToString(),
-                StoreName = shop, // May need to consolidate store name and store url
-                StoreUrl = providerDetails.ProviderSetting.FormatBaseUri(shop), // Need to change to StoreUrl
+                Provider = provider,
+                StoreName = shop,
+                StoreUrl = shopUrl,
                 Login = basicAuthorisationDetail.Login,
                 Password = basicAuthorisationDetail.Password,
-                EntityId = basicAuthorisationDetail.SensitiveCallbackInfo.EntityId,
-                UserId = basicAuthorisationDetail.SensitiveCallbackInfo.UserId,
-                AirslipUserType = basicAuthorisationDetail.SensitiveCallbackInfo.AirslipUserType,
-                Environment = providerDetails.ProviderSetting.Environment,
-                Location = providerDetails.ProviderSetting.Location,
+                EntityId = sensitiveCallbackInfo.EntityId,
+                UserId = sensitiveCallbackInfo.UserId,
+                AirslipUserType = sensitiveCallbackInfo.AirslipUserType,
+                Environment = integrationDetails.IntegrationSetting.Environment,
+                Location = integrationDetails.IntegrationSetting.Location,
                 Context = basicAuthorisationDetail.Context,
-                AdditionalFieldOne = providerDetails.ProviderSetting.AdditionalFieldOne,
-                AdditionalFieldTwo = providerDetails.ProviderSetting.AdditionalFieldTwo,
-                AdditionalFieldThree = providerDetails.ProviderSetting.AdditionalFieldThree
+                AdditionalFieldOne = integrationDetails.IntegrationSetting.AdditionalFieldOne,
+                AdditionalFieldTwo = integrationDetails.IntegrationSetting.AdditionalFieldTwo,
+                AdditionalFieldThree = integrationDetails.IntegrationSetting.AdditionalFieldThree
             };
         }
     }

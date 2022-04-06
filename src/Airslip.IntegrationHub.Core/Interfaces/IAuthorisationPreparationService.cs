@@ -1,16 +1,20 @@
-﻿using Airslip.IntegrationHub.Core.Models;
+﻿using Airslip.IntegrationHub.Core.Common.Discovery;
+using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Collections.Generic;
+using System.Net.Http;
 
 namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IAuthorisationPreparationService
 {
-    IProviderAuthorisation GetProviderAuthorisationDetail(
-        HttpRequestData req,
-        string provider);
+    HttpRequestMessage GetHttpRequestMessageForAccessToken(
+        IntegrationDetails integrationDetails,
+        Dictionary<string, string> parameters);
+    Dictionary<string, string> GetParameters(HttpRequestData req);
 
-    List<KeyValuePair<string, string>> GetParameters(
-        string provider,
-        HttpRequestData req);
+    string? GetStateParameter(IReadOnlyDictionary<string, string> parameters);
+    SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string, string> parameters);
+
+    BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(IntegrationDetails integrationDetails, Dictionary<string, string> parameters);
 }

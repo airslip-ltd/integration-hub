@@ -1,7 +1,9 @@
 using Airslip.Common.Security.Configuration;
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Implementations;
+using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -26,6 +28,8 @@ public class AuthorisationPreparationServiceTests
     {
         string projectName = "Airslip.IntegrationHub";
         Mock<IOptions<SettingCollection<ProviderSetting>>> providerSettingsMock = new();
+        Mock<IIntegrationDiscoveryService> integrationDiscoveryServiceMock = new();
+        Mock<ISensitiveInformationService> sensitiveInformationServiceMock = new();
         Mock<IOptions<EncryptionSettings>> EncryptionSettingsMock = OptionsMock.SetUpOptionSettings<EncryptionSettings>(projectName)!;
         
         IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(projectName)!;
@@ -36,7 +40,7 @@ public class AuthorisationPreparationServiceTests
             .Setup(s => s.Value)
             .Returns(providerSettings);
 
-        _sut = new AuthorisationPreparationService(EncryptionSettingsMock.Object);
+        _sut = new AuthorisationPreparationService(EncryptionSettingsMock.Object, integrationDiscoveryServiceMock.Object, sensitiveInformationServiceMock.Object);
     }
     
     [Fact]

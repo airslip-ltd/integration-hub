@@ -1,5 +1,5 @@
-﻿using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Requests;
+﻿using Airslip.Common.Types.Interfaces;
+using Airslip.IntegrationHub.Core.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -7,9 +7,7 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IOAuth2Service
 {
-    Task<MiddlewareAuthorisationRequest> QueryPermanentAccessToken(
-        ProviderDetails providerDetails,
-        ShortLivedAuthorisationDetail shortLivedAuthorisationDetail);
+    Task<IResponse> ExchangeCodeForAccessToken(string provider, HttpRequestMessage httpRequestMessage);
     
     HttpRequestMessage GetHttpRequestMessage(
         ProviderDetails providerDetails,

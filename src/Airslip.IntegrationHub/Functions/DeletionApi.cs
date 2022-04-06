@@ -1,6 +1,5 @@
 ﻿using Airslip.Common.Auth.Data;
 using Airslip.Common.Auth.Functions.Attributes;
-using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Deletion.Interfaces;
 using Airslip.Common.Deletion.Models;
 using Airslip.Common.Functions.Interfaces;

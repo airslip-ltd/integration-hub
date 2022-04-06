@@ -1,18 +1,18 @@
 ﻿using Airslip.Common.Types.Enums;
+using Airslip.Common.Types.Failures;
+using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Models.AmazonSP;
 using Airslip.IntegrationHub.Core.Models.BigCommerce;
 using Airslip.IntegrationHub.Core.Models.eBay;
 using Airslip.IntegrationHub.Core.Models.Ecwid;
 using Airslip.IntegrationHub.Core.Models.Etsy;
-using Airslip.IntegrationHub.Core.Models.Shopify;
 using Airslip.IntegrationHub.Core.Models.Squarespace;
 using Airslip.IntegrationHub.Core.Models.ThreeDCart;
-using Airslip.IntegrationHub.Core.Requests;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -20,32 +20,22 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class OAuth2Service : IOAuth2Service
 {
-    private readonly IInternalMiddlewareService _internalMiddlewareService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger _logger;
 
     public OAuth2Service(
-        IInternalMiddlewareService internalMiddlewareService,
         IHttpClientFactory httpClientFactory,
         ILogger logger)
     {
-        _internalMiddlewareService = internalMiddlewareService;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
-    public async Task<MiddlewareAuthorisationRequest> QueryPermanentAccessToken(
-        ProviderDetails providerDetails,
-        ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
+    public async Task<IResponse> ExchangeCodeForAccessToken(string provider, HttpRequestMessage httpRequestMessage)
     {
         try
         {
-            // Change create client name
-            HttpClient httpClient = _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
-
-            HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail);
+            HttpClient httpClient = _httpClientFactory.CreateClient();
 
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             string content = await response.Content.ReadAsStringAsync();
@@ -54,49 +44,42 @@ public class OAuth2Service : IOAuth2Service
             {
                 _logger.Error(
                     "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
-                    shortLivedAuthorisationDetail.PermanentAccessUrl,
+                    httpRequestMessage.RequestUri,
                     response.StatusCode,
                     content);
 
-                return new MiddlewareAuthorisationRequest();
+                // Parse and return proper error
+                return new HandledError(nameof(ExchangeCodeForAccessToken), "Error exchanging code for access token");
             }
+            
+            Dictionary<string, string> parameters = Json.Deserialize<Dictionary<string, string>>(content);
 
-            // 101 invalid request
-            BasicAuthorisationDetail basicAuth = ParseResponseMessage(
-                content,
-                providerDetails,
-                shortLivedAuthorisationDetail);
-
-            return _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
-                providerDetails,
-                basicAuth);
+            return new AccessTokenModel(parameters);
         }
         catch (HttpRequestException hre)
         {
             _logger.Error(hre,
-                "Error posting request to OAuth2 request for provider {Provier}, response code: {StatusCode}",
-                providerDetails.Provider, hre.StatusCode);
+                "Error posting request to OAuth2 request for provider {Provider}, response code: {StatusCode}",
+                provider, 
+                hre.StatusCode);
 
             throw;
         }
         catch (Exception ee)
         {
-            _logger.Fatal(ee, "Unhandled error posting request to OAuth2 endpoint for provider {Provider}",
-                providerDetails.Provider);
+            _logger.Fatal(ee,
+                "Unhandled error posting request to OAuth2 endpoint for provider {Provider}",
+                provider);
             throw;
         }
     }
-
-    // Step X: Add provider for OAuth2
+    
     public HttpRequestMessage GetHttpRequestMessage(
         ProviderDetails providerDetails,
         ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
     {
         return providerDetails.Provider switch
         {
-            PosProviders.Shopify => new ShopifyPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
             PosProviders.Squarespace => new SquarespacePermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
@@ -115,9 +98,6 @@ public class OAuth2Service : IOAuth2Service
             PosProviders.Ecwid => new EcwidPermanentAccessHttpRequestMessage(
                 providerDetails,
                 shortLivedAuthorisationDetail),
-            PosProviders.AmazonSP => new AmazonSPPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
             _ => throw new NotImplementedException()
         };
     }
@@ -132,11 +112,6 @@ public class OAuth2Service : IOAuth2Service
         // Step 5: Add case for permanent access token
         switch (providerDetails.Provider)
         {
-            case PosProviders.Shopify:
-                basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
-                basicAuth.Login = providerDetails.ProviderSetting.ApiSecret;
-                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
-                break;
             case PosProviders.Squarespace:
                 basicAuth = Json.Deserialize<SquarespaceAuthorisationDetail>(content);
                 break;
@@ -155,15 +130,18 @@ public class OAuth2Service : IOAuth2Service
             case PosProviders.Ecwid:
                 basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
                 break;
-            case PosProviders.AmazonSP:
-                basicAuth = Json.Deserialize<AmazonSPAuthorisationDetail>(content);
-                basicAuth.Login = shortLivedAuthorisationDetail.StoreName;
-                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
-                break;
         }
         
-        basicAuth.SensitiveCallbackInfo = shortLivedAuthorisationDetail.SensitiveCallbackInfo;
-
         return basicAuth;
+    }
+}
+
+public class AccessTokenModel : ISuccess
+{
+    public Dictionary<string, string> Parameters { get; }
+
+    public AccessTokenModel(Dictionary<string, string> parameters)
+    {
+        Parameters = parameters;
     }
 }

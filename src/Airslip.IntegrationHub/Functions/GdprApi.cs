@@ -1,17 +1,11 @@
-﻿using Airslip.Common.Auth.Data;
-using Airslip.Common.Auth.Functions.Extensions;
-using Airslip.Common.Functions.Interfaces;
-using Airslip.Common.Types.Configuration;
-using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -21,7 +15,6 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
-using Microsoft.Extensions.Options;
 
 namespace Airslip.IntegrationHub.Functions
 {

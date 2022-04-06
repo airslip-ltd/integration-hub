@@ -1,11 +1,13 @@
 using Airslip.IntegrationHub.Core.Implementations;
-using Airslip.IntegrationHub.Core.Interfaces;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
     public class ShortLivedAuthorisationDetail : IProviderAuthorisation
     {
+        public HttpRequestMessage HttpRequestMessage { get; set; } = new(); 
+        
         public virtual string ShortLivedCode { get; set; } = string.Empty;
         public virtual string StoreName { get; set; } = string.Empty;
         [JsonProperty(PropertyName = "state")]

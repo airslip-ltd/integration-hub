@@ -20,7 +20,7 @@ public class SquarespacePermanentAccessHttpRequestMessage : PermanentAccessHttpR
         Headers.UserAgent.Add(commentValue);
         
         Headers.Authorization = BuildBasicAuth(
-            providerDetails.ProviderSetting.ApiKey, 
+            providerDetails.ProviderSetting.ApiKey,
             providerDetails.ProviderSetting.ApiSecret);
          
         Content = new FormUrlEncodedContent(new KeyValuePair<string, string>[]

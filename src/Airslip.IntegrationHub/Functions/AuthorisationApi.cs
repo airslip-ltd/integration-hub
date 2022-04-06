@@ -1,5 +1,4 @@
 ﻿using Airslip.Common.Auth.Data;
-using Airslip.Common.Auth.Functions.Extensions;
 using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Failures;
@@ -19,10 +18,8 @@ using System.Net;
 using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common.Discovery;
-using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Airslip.IntegrationHub.Functions
@@ -53,7 +50,7 @@ namespace Airslip.IntegrationHub.Functions
             try
             {
                 // Need to change name to something more appropriate
-                SensitiveCallbackInfo sensitiveCallbackInfo = sensitiveInformationService.DeserializeSensitiveInfoQueryString(req.Url.Query);
+                SensitiveCallbackInfo sensitiveCallbackInfo = sensitiveInformationService.DeserializeQueryString(req.Url.Query);
                 
                 HttpResponseData response = req.CreateResponse(HttpStatusCode.Redirect);
 
@@ -88,10 +85,8 @@ namespace Airslip.IntegrationHub.Functions
 
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
         [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
-        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse),
-            Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse),
-            Description = "Details of the account that has been setup")]
+        [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse), Description = "Details of the account that has been setup")]
         [Function("AuthorisationCallback")]
         public static async Task<HttpResponseData> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "v1/auth/callback/{provider}")]
@@ -100,37 +95,18 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
-            IHmacService hmacService = executionContext.InstanceServices.GetService<IHmacService>() ?? throw new NotImplementedException();
-            IAuthorisationPreparationService authorisationPreparationService = executionContext.InstanceServices.GetService<IAuthorisationPreparationService>() ?? throw new NotImplementedException();
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
-            ISensitiveInformationService sensitiveInformationService = executionContext.InstanceServices.GetService<ISensitiveInformationService>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
 
             try
             {
-                // TODO: Finish off creating a generic callback function
-                
                 IResponse validationResponse = validationService.ValidateRequest(req, provider, AuthRequestTypes.Authorise);
                 
                 if (validationResponse is not ISuccess)
                     return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
 
-                IProviderAuthorisation providerAuthorisingDetail = authorisationPreparationService.GetProviderAuthorisationDetail(req, provider);
-
-                if (providerAuthorisingDetail is ErrorAuthorisingDetail errorAuthorisingDetail)
-                {
-                    HttpResponseData responseData = req.CreateResponse(HttpStatusCode.BadRequest);
-                    await responseData.WriteAsJsonAsync(new ErrorResponse(errorAuthorisingDetail.ErrorCode ?? "AuthorisingError", errorAuthorisingDetail.ErrorMessage));
-                    return responseData;
-                }
-
-                // Need to refactor. I need provider details to deserialize content for a post and a get but I need Sensitive Info
-                if (providerAuthorisingDetail.SensitiveCallbackInfo.TestMode)
-                    providerDetails = providerDiscoveryService.GetPosProviderDetails(provider, providerAuthorisingDetail.SensitiveCallbackInfo.TestMode);
-
-                IResponse authorisedResponse = await authorisationService.CreateAccount(providerDetails!, providerAuthorisingDetail);
+                IResponse authorisedResponse = await authorisationService.CreateAccount(req, provider);
                 return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
             }
             catch (Exception e)

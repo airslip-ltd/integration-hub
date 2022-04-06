@@ -24,7 +24,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             _logger = Logger.None;
         }
 
-        public SensitiveCallbackInfo DeserializeSensitiveInfoQueryString(string queryString)
+        public SensitiveCallbackInfo DeserializeQueryString(string queryString)
         {
             SensitiveCallbackInfo sensitiveCallbackInfo = queryString.GetQueryParams<SensitiveCallbackInfo>();
             

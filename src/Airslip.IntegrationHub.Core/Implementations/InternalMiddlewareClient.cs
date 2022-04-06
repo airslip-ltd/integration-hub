@@ -1,12 +1,15 @@
 ﻿using Airslip.Common.Deletion.Models;
+using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
+using Microsoft.Extensions.Options;
 using Serilog;
 using System;
 using System.Net.Http;
@@ -19,21 +22,26 @@ namespace Airslip.IntegrationHub.Core.Implementations
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger _logger;
+        private readonly PublicApiSettings _publicApiSettings;
 
         public InternalMiddlewareClient(
             HttpClient httpClient,
-            ILogger logger)
+            ILogger logger,
+            IOptions<PublicApiSettings> options)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _publicApiSettings = options.Value;
         }
         
         public async Task<IResponse> Authorise(
-            ProviderDetails providerDetails,  
+            string provider,
+            IntegrationDetails integrationDetails,
             MiddlewareAuthorisationRequest middlewareAuthorisationRequest)
         {
-            string url = Endpoints.Authorise(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider);
-
+            PublicApiSetting middlewareSettings = _publicApiSettings.GetSettingByName(integrationDetails.IntegrationSetting.PublicApiSettingName);
+            string url = Endpoints.Authorise(middlewareSettings.ToBaseUri(), provider);
+            
             try
             {
                 _logger.Information("Posting to integration middleware for Url {PostUrl}",
@@ -45,7 +53,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     RequestUri = new Uri(url),
                     Headers =
                     {
-                        { "x-api-key", providerDetails.PublicApiSetting.ApiKey}
+                        { "x-api-key", middlewareSettings.ApiKey}
                     },
                     Content = new StringContent(
                         Json.Serialize(middlewareAuthorisationRequest),
@@ -157,7 +165,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
     internal static class Endpoints
     {
-        public static string Authorise(string baseUri, PosProviders provider) =>
+        public static string Authorise(string baseUri, string provider) =>
             $"{baseUri}/auth/{provider}";
         
         public static string Delete(string baseUri, PosProviders provider, string accountId) =>

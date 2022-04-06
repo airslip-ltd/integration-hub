@@ -48,7 +48,8 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                     ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
                     : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
                 
-                _formatReturnPage(testMode, integrationSetting, callbackSettings);
+                if (!string.IsNullOrEmpty(integrationSetting.ReturnPageFormat))
+                    _formatReturnPage(testMode, integrationSetting, callbackSettings);
              
                 break;
             default:
@@ -65,8 +66,6 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
     private void _formatReturnPage(
         bool testMode, IntegrationSetting integrationSetting, PublicApiSetting callbackSettings)
     {
-        if (string.IsNullOrEmpty(integrationSetting.ReturnPageFormat)) return;
-        
         if (testMode)
             callbackSettings = _settings.GetSettingByName("UI");
 

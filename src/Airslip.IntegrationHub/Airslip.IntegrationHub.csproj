@@ -12,7 +12,7 @@
 		<PackageReference Include="Airslip.Common.Monitoring" Version="6.0.0" />
 		<PackageReference Include="Airslip.Common.Security" Version="6.0.0" />
 		<PackageReference Include="Airslip.Common.Types" Version="6.2.5" />
-		<PackageReference Include="Airslip.Common.Utilities" Version="6.1.0" />
+		<PackageReference Include="Airslip.Common.Utilities" Version="6.1.2" />
 		<PackageReference Include="Airslip.Common.Auth.AspNetCore" Version="6.0.6" />
 		<PackageReference Include="Airslip.Common.Services.AutoMapper" Version="6.0.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="10.3.6" />
