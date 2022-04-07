@@ -12,6 +12,7 @@ using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Extensions.Options;
 using Serilog;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,24 +63,18 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 };
 
                 HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
-
-                if (!response.IsSuccessStatusCode)
+                
+                if (response.StatusCode == HttpStatusCode.BadRequest)
                 {
-                    _logger.Error(
-                        "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}", 
-                        url, 
-                        response.StatusCode);
-
                     string content = await response.Content.ReadAsStringAsync();
                     
-                    try
-                    {
-                        return Json.Deserialize<ErrorResponses>(content);
-                    }
-                    catch (Exception)
-                    {
-                        return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error authorising in internal middleware {content}");
-                    }
+                    _logger.Error(
+                        "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, content: {Content}", 
+                        url, 
+                        response.StatusCode,
+                        content);
+                   
+                    return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error authorising in internal middleware {content}");
                 }
                 
                 _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);

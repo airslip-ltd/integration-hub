@@ -1,4 +1,5 @@
 ﻿using Airslip.Common.Security.Configuration;
+using Airslip.Common.Security.Implementations;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common;
@@ -10,10 +11,12 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Web;
 
 namespace Airslip.IntegrationHub.Core.Implementations;
 
@@ -38,49 +41,76 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             ? null 
             : _sensitiveInformationService.DecryptCallbackInfo(state);
     }
+
+    public ICollection<KeyValuePair<string, string>> QueryStringReplacer(
+        Dictionary<string, string> parameters,
+        string authoriseRouteFormat,
+        string shopParameter,
+        string codeParameter,
+        string apiKey,
+        string apiSecret,
+        string callbackUrl,
+        string appName)
+    {
+        Dictionary<string, string> replacements = new();
+        
+        if(parameters.TryGetValue(shopParameter, out string? shop))
+            replacements.Add("shop", shop);
+        
+        if(parameters.TryGetValue(codeParameter, out string? code))
+            replacements.Add("code", HttpUtility.UrlEncode(code));
+        
+        if(!string.IsNullOrEmpty(apiKey))
+            replacements.Add("apiKey", apiKey);
+        
+        if(!string.IsNullOrEmpty(apiSecret))
+            replacements.Add("apiSecret", apiSecret);
+
+        if (!string.IsNullOrEmpty(callbackUrl))
+            replacements.Add("callbackUrl", callbackUrl);
+        
+        if(!string.IsNullOrEmpty(appName))
+            replacements.Add("appName", appName);
+
+        string relativeUrl = authoriseRouteFormat.ApplyReplacements(replacements);
+        
+        return relativeUrl
+            .GetQueryParams()
+            .ToList();
+    }
     
 
     public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails, Dictionary<string, string> parameters)
     {
-        string authBaseUri = integrationDetails.IntegrationSetting.AuthoriseBaseUri ?? integrationDetails.IntegrationSetting.AuthorisationBaseUri;
-        string url = $"{authBaseUri}/{integrationDetails.IntegrationSetting.AuthoriseRouteFormat}";
-
         AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+
+        ICollection<KeyValuePair<string, string>> queryParams = QueryStringReplacer(
+            parameters,
+            integrationDetails.IntegrationSetting.AuthoriseRouteFormat,
+            authParameterNames.Shop,
+            authParameterNames.Code,
+            integrationDetails.IntegrationSetting.ApiKey,
+            integrationDetails.IntegrationSetting.ApiSecret,
+            integrationDetails.CallbackUrl,
+            integrationDetails.IntegrationSetting.AppName);
         
         Dictionary<string, string> replacements = new();
+        
         if(parameters.TryGetValue(authParameterNames.Shop, out string? shop))
             replacements.Add("shop", shop);
         
-        if(parameters.TryGetValue(authParameterNames.Code, out string? code))
-            replacements.Add("code", code);
-        
-        if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
-            replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
-        
-        if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiSecret))
-            replacements.Add("apiSecret", integrationDetails.IntegrationSetting.ApiSecret);
-
-        if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
-            replacements.Add("callbackUrl", integrationDetails.CallbackUrl);
-
-        url = url.ApplyReplacements(replacements);
-        // TODO: Add key value pairs for all due to squarespace not working with a querystring POST
-        // KeyValuePair<string, string>[] d = {
-        //     new("grant_type", "authorization_code"),
-        //     new("code", parameters["code"]),
-        //     new("redirect_uri", integrationDetails.CallbackUrl) 
-        // };
+        string requestUri = integrationDetails.IntegrationSetting.AuthoriseBaseUri!.ApplyReplacements(replacements);
 
         HttpRequestMessage httpRequestMessage =  new()
         {
-            RequestUri = new Uri(url),
+            RequestUri = new Uri(requestUri),
             Method = integrationDetails.IntegrationSetting.ExchangeCodeMethodType switch
             {
                 MethodTypes.POST => HttpMethod.Post,
                 MethodTypes.GET => HttpMethod.Get,
                 _ => HttpMethod.Post
             },
-            //Content = new FormUrlEncodedContent(d)
+            Content = new FormUrlEncodedContent(queryParams)
         };
         
         if (integrationDetails.IntegrationSetting.AuthoriseHeadersRequired)

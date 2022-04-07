@@ -48,7 +48,7 @@ public class AuthorisationService : IAuthorisationService
 
         IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
             provider, 
-            sensitiveInfo.IntegrationProviderId, 
+            sensitiveInfo.IntegrationProviderId,
             sensitiveInfo.TestMode);
 
         if (integrationDetails.IntegrationSetting.AuthStrategy == ProviderAuthStrategy.ShortLived)

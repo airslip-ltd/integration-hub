@@ -13,6 +13,7 @@ using Airslip.IntegrationHub.Core.Models.ThreeDCart;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -42,18 +43,21 @@ public class OAuth2Service : IOAuth2Service
 
             if (!response.IsSuccessStatusCode)
             {
+                // Add error column name object, parse then log proper error
                 _logger.Error(
                     "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
                     httpRequestMessage.RequestUri,
                     response.StatusCode,
                     content);
 
-                // Parse and return proper error
                 return new HandledError(nameof(ExchangeCodeForAccessToken), "Error exchanging code for access token");
             }
-            
-            Dictionary<string, string> parameters = Json.Deserialize<Dictionary<string, string>>(content);
 
+            Dictionary<string, object> parsedParameters = Json.Deserialize<Dictionary<string, object>>(content);
+
+            Dictionary<string, string> parameters = parsedParameters
+                .ToDictionary(k => k.Key, k => k.Value.ToString()!);
+            
             return new AccessTokenModel(parameters);
         }
         catch (HttpRequestException hre)
