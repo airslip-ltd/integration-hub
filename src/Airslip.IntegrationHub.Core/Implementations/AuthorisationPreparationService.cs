@@ -57,6 +57,15 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         
         if(parameters.TryGetValue("institution", out string? integrationProviderId))
             replacements.Add("integrationProviderId", integrationProviderId);
+        
+        if(parameters.TryGetValue("userId", out string? airslipUserId))
+            replacements.Add("airslipUserId", airslipUserId);
+        
+        if(parameters.TryGetValue("entityId", out string? airslipEntityId))
+            replacements.Add("airslipEntityId", airslipEntityId);
+        
+        if(parameters.TryGetValue("airslipUserType", out string? airslipUserType))
+            replacements.Add("airslipUserType", airslipUserType);
 
         return replacements;
     }
