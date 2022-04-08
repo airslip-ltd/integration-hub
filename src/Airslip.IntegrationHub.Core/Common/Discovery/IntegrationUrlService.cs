@@ -30,7 +30,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         private readonly IOAuth2Service _oauth2Service;
         private readonly IInternalMiddlewareClient _internalMiddlewareClient;
         private readonly IInternalMiddlewareService _internalMiddlewareService;
-        private readonly ILogger _logger;
 
         public IntegrationUrlService(
             IHttpClientFactory factory,
@@ -38,8 +37,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             IAuthorisationPreparationService authorisationPreparationService, 
             IOAuth2Service oauth2Service,
             IInternalMiddlewareClient internalMiddlewareClient, 
-            IInternalMiddlewareService internalMiddlewareService,
-            ILogger logger)
+            IInternalMiddlewareService internalMiddlewareService)
         {
             _httpClient = factory.CreateClient(nameof(IntegrationUrlService));
             _discoveryService = discoveryService;
@@ -47,7 +45,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             _oauth2Service = oauth2Service;
             _internalMiddlewareClient = internalMiddlewareClient;
             _internalMiddlewareService = internalMiddlewareService;
-            _logger = logger;
         }
 
         public async Task<IResponse> GetAuthorisationUrl(
@@ -75,8 +72,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
 
             if (!string.IsNullOrEmpty(sensitiveCallbackInfo.CipheredSensitiveInfo))
                 replacements.Add("state", sensitiveCallbackInfo.CipheredSensitiveInfo);
-            
-            _logger.Information("ApiKey for {Provider} is {ApiKey}", provider, integrationDetails.IntegrationSetting.ApiKey);
 
             if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
                 replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
@@ -110,8 +105,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
 
             url = url.ApplyReplacements(replacements);
             
-            _logger.Information("Url for {Provider} is {Url}", provider, url);
-
             IResponse? result;
 
             if (integrationDetails.IntegrationSetting.OAuthRedirect)
