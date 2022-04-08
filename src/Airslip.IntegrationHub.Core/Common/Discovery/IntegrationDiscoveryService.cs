@@ -1,7 +1,10 @@
 using Airslip.Common.Types.Configuration;
+using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Enums;
 using Microsoft.Extensions.Options;
+using Serilog;
+using System;
 
 namespace Airslip.IntegrationHub.Core.Common.Discovery;
 
@@ -9,26 +12,33 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
 {
     private readonly PublicApiSettings _settings;
     private readonly SettingCollection<IntegrationSetting> _integrationSettings;
+    private readonly ILogger _logger;
 
     public IntegrationDiscoveryService(
-        IOptions<SettingCollection<IntegrationSetting>> integrationSettings, 
-        IOptions<PublicApiSettings> options)
+        IOptions<SettingCollection<IntegrationSetting>> integrationSettings,
+        IOptions<PublicApiSettings> options, ILogger logger)
     {
+        _logger = logger;
         _settings = options.Value;
         _integrationSettings = integrationSettings.Value;
     }
-        
+
     public IntegrationDetails GetIntegrationDetails(string provider, string? integration = null, bool testMode = false)
     {
-        IntegrationSetting integrationSetting = _integrationSettings.GetSettingByName(provider);
+        _logger.Information("Provider: {Provider}", provider);
+
+        IntegrationSetting integrationSetting = _getIntegrationSetting(provider);
+
+        _logger.Information("IntegrationSettings: {ProviderSettings}", Json.Serialize(integrationSetting));
 
         string uri = string.Empty;
         string apiKey = string.Empty;
         string callbackUrl = string.Empty;
         switch (integrationSetting.AuthorisationRouteType)
         {
-            case AuthorisationRouteType.Internal: 
-                PublicApiSetting integrationDestinationSetting = _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
+            case AuthorisationRouteType.Internal:
+                PublicApiSetting integrationDestinationSetting =
+                    _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
                 PublicApiSetting baseSetting = _settings.GetSettingByName("Base");
                 uri = integrationDestinationSetting.ToBaseUri();
                 apiKey = integrationDestinationSetting.ApiKey;
@@ -40,28 +50,36 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 break;
             case AuthorisationRouteType.External:
                 uri = integrationSetting.AuthorisationBaseUri;
-                
+
                 string publicApiSettingName = testMode ? "Base" : "UI";
-            
+
                 PublicApiSetting callbackSettings = _settings.GetSettingByName(publicApiSettingName);
 
                 callbackUrl = testMode
-                    ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower() 
+                    ? $"{callbackSettings.ToBaseUri()}/auth/callback/{provider}".ToLower()
                     : $"{callbackSettings.ToBaseUri()}/integrate/complete/hub/{provider}".ToLower();
-                
+
                 if (!string.IsNullOrEmpty(integrationSetting.ReturnPageFormat))
                     _formatReturnPage(testMode, integrationSetting, callbackSettings);
-             
+
                 break;
             default:
                 break;
         }
 
         return new IntegrationDetails(
-            uri, 
-            apiKey, 
+            uri,
+            apiKey,
             integrationSetting,
             callbackUrl);
+    }
+
+    private IntegrationSetting _getIntegrationSetting(string provider)
+    {
+        IntegrationSetting integrationSetting = _integrationSettings.GetSettingByName(provider);
+        return string.IsNullOrEmpty(integrationSetting.PublicApiSettingName)
+            ? _integrationSettings.GetSettingByName(provider.FirstCharToUpper())
+            : integrationSetting;
     }
 
     private void _formatReturnPage(
