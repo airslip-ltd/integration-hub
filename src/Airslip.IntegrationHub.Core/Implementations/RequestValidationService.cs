@@ -2,6 +2,7 @@ using Airslip.Common.Types;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.IntegrationHub.Core.Common.Discovery;
+using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -35,6 +36,12 @@ public class RequestValidationService : IRequestValidationService
     {
         Dictionary<string, string> parameters = _authorisationPreparation.GetParameters(req);
 
+        IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider);
+        
+        // May need to validate 
+        if(integrationDetails.IntegrationSetting.IntegrationType == IntegrationTypes.Banking)
+            return Success.Instance;
+
         SensitiveCallbackInfo? sensitiveCallbackInfo = authRequestType == AuthRequestTypes.Generate
             ? _sensitiveInformationService.DeserializeQueryString(req.Url.Query)
             : _authorisationPreparation.TransformParametersToSensitiveCallbackInfo(parameters);
@@ -42,7 +49,7 @@ public class RequestValidationService : IRequestValidationService
         if (sensitiveCallbackInfo is null)
             return new NotFoundResponse("state", "Unable to find state");
 
-        IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
+        integrationDetails = _discoveryService.GetIntegrationDetails(
             provider,
             sensitiveCallbackInfo.IntegrationProviderId,
             sensitiveCallbackInfo.TestMode);

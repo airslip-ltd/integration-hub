@@ -98,6 +98,7 @@ namespace Airslip.IntegrationHub.Functions
             IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
+            IIntegrationUrlService integrationUrlService = executionContext.InstanceServices.GetService<IIntegrationUrlService>() ?? throw new NotImplementedException();
 
             try
             {
@@ -106,8 +107,10 @@ namespace Airslip.IntegrationHub.Functions
                 if (validationResponse is not ISuccess)
                     return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
 
-                IResponse authorisedResponse = await authorisationService.CreateAccount(req, provider);
+                IResponse authorisedResponse = await integrationUrlService.ApproveIntegration(req, provider);
+                //IResponse authorisedResponse = await authorisationService.CreateAccount(req, provider);
                 return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
+                //return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
             }
             catch (Exception e)
             {

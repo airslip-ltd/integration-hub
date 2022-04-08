@@ -41,8 +41,27 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             ? null 
             : _sensitiveInformationService.DecryptCallbackInfo(state);
     }
+    
+    public Dictionary<string,string> BankingQueryStringReplacer(Dictionary<string, string> parameters)
+    {
+        Dictionary<string, string> replacements = new();
 
-    public ICollection<KeyValuePair<string, string>> QueryStringReplacer(
+        if(parameters.TryGetValue("consent", out string? consent))
+            replacements.Add("consent", consent);
+        
+        if(parameters.TryGetValue("application-user-id", out string? appUserId))
+            replacements.Add("appUserId", appUserId);
+        
+        if(parameters.TryGetValue("user-uuid", out string? userId))
+            replacements.Add("userId", userId);
+        
+        if(parameters.TryGetValue("institution", out string? integrationProviderId))
+            replacements.Add("integrationProviderId", integrationProviderId);
+
+        return replacements;
+    }
+
+    public ICollection<KeyValuePair<string, string>> CommerceQueryStringReplacer(
         Dictionary<string, string> parameters,
         string authoriseRouteFormat,
         string shopParameter,
@@ -79,12 +98,11 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             .ToList();
     }
     
-
     public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails, Dictionary<string, string> parameters)
     {
         AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
 
-        ICollection<KeyValuePair<string, string>> queryParams = QueryStringReplacer(
+        ICollection<KeyValuePair<string, string>> queryParams = CommerceQueryStringReplacer(
             parameters,
             integrationDetails.IntegrationSetting.AuthoriseRouteFormat,
             authParameterNames.Shop,

@@ -15,6 +15,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             _logger = logger;
         }
 
+        // Commerce - Api2Cart
         public MiddlewareAuthorisationRequest BuildMiddlewareAuthorisationModel(
             string provider,
             IntegrationDetails integrationDetails,
@@ -23,7 +24,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
         {
             if (sensitiveCallbackInfo.EntityId == string.Empty)
             {
-                _logger.Fatal("{Parameter} cannot be empty", basicAuthorisationDetail.EncryptedUserInfo);
+                _logger.Fatal("{Parameter} cannot be empty", sensitiveCallbackInfo.EntityId);
                 return new MiddlewareAuthorisationRequest();
             }
 

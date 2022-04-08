@@ -32,6 +32,7 @@ public record IntegrationSetting
     public string ReturnPageFormat { get; set; } = string.Empty;
     public string ReturnPage { get; private set; } = string.Empty;
     public ProviderAuthStrategy AuthStrategy { get; set; }
+    public IntegrationTypes IntegrationType { get; set; }
     public List<AuthRequestTypes> HmacValidateOn { get; set; } = new();
     public string? Environment { get; set; }
     public string? Location { get; set; }

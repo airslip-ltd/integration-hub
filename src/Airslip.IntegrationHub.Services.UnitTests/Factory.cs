@@ -48,15 +48,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
             }
         };
 
-        public static ShortLivedAuthorisationDetail ShortLivedAuthorisationDetail = new()
-        {
-            ShortLivedCode = "short-lived-code",
-            EncryptedUserInfo = "airslip-user-info",
-            StoreName = "store-name",
-            PermanentAccessUrl = "permanent-access-url",
-            BaseUri = "base-uri",
-        };
-
         public static PublicApiSetting GetPublicApiSetting(PosProviders posProvider)
         {
             IConfiguration appSettingsConfig = OptionsMock.InitialiseConfiguration(_projectName)!;

@@ -4,8 +4,15 @@ using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.Common.Utilities.Models;
+using Airslip.IntegrationHub.Core.Enums;
+using Airslip.IntegrationHub.Core.Implementations;
+using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
+using Airslip.IntegrationHub.Core.Requests;
+using Airslip.IntegrationHub.Core.Responses;
+using Microsoft.Azure.Functions.Worker.Http;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -18,21 +25,31 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
     {
         private readonly IIntegrationDiscoveryService _discoveryService;
         private readonly HttpClient _httpClient;
+        private readonly IAuthorisationPreparationService _authorisationPreparationService;
+        private readonly IOAuth2Service _oauth2Service;
+        private readonly IInternalMiddlewareClient _internalMiddlewareClient;
+        private readonly IInternalMiddlewareService _internalMiddlewareService;
 
         public IntegrationUrlService(IHttpClientFactory factory,
-            IIntegrationDiscoveryService discoveryService)
+            IIntegrationDiscoveryService discoveryService,
+            IAuthorisationPreparationService authorisationPreparationService, IOAuth2Service oauth2Service,
+            IInternalMiddlewareClient internalMiddlewareClient, IInternalMiddlewareService internalMiddlewareService)
         {
             _httpClient = factory.CreateClient(nameof(IntegrationUrlService));
             _discoveryService = discoveryService;
+            _authorisationPreparationService = authorisationPreparationService;
+            _oauth2Service = oauth2Service;
+            _internalMiddlewareClient = internalMiddlewareClient;
+            _internalMiddlewareService = internalMiddlewareService;
         }
 
         public async Task<IResponse> GetAuthorisationUrl(
-            string provider, 
+            string provider,
             SensitiveCallbackInfo sensitiveCallbackInfo,
             CancellationToken cancellationToken)
         {
             IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(
-                provider, 
+                provider,
                 sensitiveCallbackInfo.IntegrationProviderId,
                 sensitiveCallbackInfo.TestMode);
 
@@ -43,33 +60,33 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             replacements.Add("airslipUserType", sensitiveCallbackInfo.AirslipUserType.ToString().ToLower());
             replacements.Add("userId", sensitiveCallbackInfo.UserId);
             replacements.Add("provider", provider);
-            if(sensitiveCallbackInfo.IntegrationProviderId != null)
+            if (sensitiveCallbackInfo.IntegrationProviderId != null)
                 replacements.Add("integrationProviderId", sensitiveCallbackInfo.IntegrationProviderId);
-            
-            if(!string.IsNullOrEmpty(sensitiveCallbackInfo.Shop))
+
+            if (!string.IsNullOrEmpty(sensitiveCallbackInfo.Shop))
                 replacements.Add("shop", sensitiveCallbackInfo.Shop);
-            
-            if(!string.IsNullOrEmpty(sensitiveCallbackInfo.CipheredSensitiveInfo))
+
+            if (!string.IsNullOrEmpty(sensitiveCallbackInfo.CipheredSensitiveInfo))
                 replacements.Add("state", sensitiveCallbackInfo.CipheredSensitiveInfo);
-            
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+
+            if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
                 replacements.Add("apiKey", integrationDetails.IntegrationSetting.ApiKey);
-            
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+
+            if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
                 replacements.Add("appName", integrationDetails.IntegrationSetting.AppName);
-            
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
+
+            if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ApiKey))
                 replacements.Add("version", integrationDetails.IntegrationSetting.Version);
-            
-            if(!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ReturnPageFormat))
-                replacements.Add("returnPage",  integrationDetails.IntegrationSetting.ReturnPage);
+
+            if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.ReturnPageFormat))
+                replacements.Add("returnPage", integrationDetails.IntegrationSetting.ReturnPage);
 
             if (!string.IsNullOrEmpty(integrationDetails.IntegrationSetting.Scope))
             {
                 string scope = integrationDetails.IntegrationSetting.RequireUrlEncode
                     ? HttpUtility.UrlEncode(integrationDetails.IntegrationSetting.Scope)
                     : integrationDetails.IntegrationSetting.Scope;
-                
+
                 replacements.Add("scope", scope);
             }
 
@@ -78,12 +95,12 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 string callbackUrl = integrationDetails.IntegrationSetting.RequireUrlEncode
                     ? HttpUtility.UrlEncode(integrationDetails.CallbackUrl)
                     : integrationDetails.CallbackUrl;
-                
+
                 replacements.Add("callbackUrl", callbackUrl);
             }
-            
+
             url = url.ApplyReplacements(replacements);
-            
+
             IResponse? result;
 
             if (integrationDetails.IntegrationSetting.OAuthRedirect)
@@ -94,11 +111,11 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             {
                 HttpActionResult apiCallResponse = await _httpClient
                     .GetApiRequest<AuthorisationResponse>(url, integrationDetails.ApiKey, cancellationToken);
-                
+
                 result = apiCallResponse.StatusCode switch
                 {
                     HttpStatusCode.OK => apiCallResponse.Response!,
-                    HttpStatusCode.BadRequest => apiCallResponse.Response ?? 
+                    HttpStatusCode.BadRequest => apiCallResponse.Response ??
                                                  new ErrorResponse("BadRequest", apiCallResponse.Content),
                     HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
                     _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
@@ -107,46 +124,85 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
 
             return result;
         }
-        //
-        // public async Task<IResponse> ApproveIntegration(string provider, string integration,
-        //     Dictionary<string, string> replacements, CancellationToken cancellationToken)
-        // {
-        //     IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider, integration);
-        //
-        //     string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthoriseRouteFormat}";
-        //     
-        //     // Rework state from incoming data
-        //     if (integrationDetails.IntegrationSetting.AnonymousUsage)
-        //     {
-        //         SensitiveCallbackInfo info = _decodeCallbackInfo(replacements);
-        //
-        //         if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
-        //             url = $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select( o=> $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
-        //
-        //         url = $"{url}&user_info={GetEncryptedUserInformation(info, _tokenEncryptionSettings.PassPhraseToken)}";
-        //     }
-        //     else if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
-        //         url = $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select( o=> $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
-        //
-        //     // Apply some dynamic replacement
-        //     replacements.Add("provider", provider);
-        //     replacements.Add("integration", integration);
-        //
-        //     url = url.ApplyReplacements(replacements);
-        //     
-        //     HttpActionResult apiCallResponse = await _httpClient
-        //         .GetApiRequest<AccountAuthorisedResponse>(url, integrationDetails.ApiKey, cancellationToken);
-        //
-        //     return apiCallResponse.StatusCode switch
-        //     {
-        //         HttpStatusCode.OK => apiCallResponse.Response!,
-        //         HttpStatusCode.BadRequest => apiCallResponse.Response ?? 
-        //                                      new ErrorResponse("BadRequest", apiCallResponse.Content),
-        //         HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
-        //         _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
-        //     };
-        // }
-        //
+
+        public async Task<IResponse> ApproveIntegration(
+            HttpRequestData req,
+            string provider,
+            CancellationToken cancellationToken = default)
+        {
+            Dictionary<string, string> parameters = _authorisationPreparationService.GetParameters(req);
+
+            SensitiveCallbackInfo sensitiveInfo =
+                _authorisationPreparationService.TransformParametersToSensitiveCallbackInfo(parameters)!;
+
+            IntegrationDetails integrationDetails = sensitiveInfo is null
+                ? _discoveryService.GetIntegrationDetails(provider)
+                : _discoveryService.GetIntegrationDetails(
+                    provider,
+                    sensitiveInfo.IntegrationProviderId,
+                    sensitiveInfo.TestMode);
+
+            if (integrationDetails.IntegrationSetting.AuthStrategy == ProviderAuthStrategy.ShortLived)
+            {
+                HttpRequestMessage httpRequestMessage =
+                    _authorisationPreparationService.GetHttpRequestMessageForAccessToken(integrationDetails,
+                        parameters);
+
+                IResponse accessTokenResponse =
+                    await _oauth2Service.ExchangeCodeForAccessToken(provider, httpRequestMessage);
+                if (accessTokenResponse is AccessTokenModel accessTokenModel)
+                    parameters = accessTokenModel.Parameters;
+                else
+                    return accessTokenResponse;
+            }
+
+            if (integrationDetails.IntegrationSetting.IntegrationType == IntegrationTypes.Commerce)
+            {
+                BasicAuthorisationDetail basicAuthorisationDetail = _authorisationPreparationService
+                    .BuildSuccessfulAuthorisationModel(integrationDetails, parameters);
+
+                MiddlewareAuthorisationRequest r = _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
+                    provider,
+                    integrationDetails,
+                    sensitiveInfo!,
+                    basicAuthorisationDetail);
+
+                return await _internalMiddlewareClient.Authorise(provider, integrationDetails, r);
+            }
+
+            var replacements =
+                _authorisationPreparationService.BankingQueryStringReplacer(parameters);
+
+            string relativeUrl =
+                integrationDetails.IntegrationSetting.AuthoriseRouteFormat.ApplyReplacements(replacements);
+            string url = $"{integrationDetails.Uri}/{relativeUrl}";
+
+            if (integrationDetails.IntegrationSetting.AnonymousUsage)
+            {
+                if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
+                    url =
+                        $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
+
+                url = $"{url}&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
+            }
+            else if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
+                url =
+                    $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
+
+
+            HttpActionResult apiCallResponse = await _httpClient
+                .GetApiRequest<AccountResponse>(url, integrationDetails.ApiKey, cancellationToken);
+
+            return apiCallResponse.StatusCode switch
+            {
+                HttpStatusCode.OK => apiCallResponse.Response!,
+                HttpStatusCode.BadRequest => apiCallResponse.Response ??
+                                             new ErrorResponse("BadRequest", apiCallResponse.Content),
+                HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
+                _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
+            };
+        }
+
         // public async Task<IResponse> DeleteIntegration(string integrationId, CancellationToken cancellationToken)
         // {
         //     Dictionary<string, string> replacements = new();
@@ -183,16 +239,16 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         //     };
         // }
         //
-        private string GetEncryptedUserInformation(SensitiveCallbackInfo info, string passPhraseToken)
-        {
-            string serialisedUserInformation = Json.Serialize(info);
-
-            string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
-                serialisedUserInformation,
-                passPhraseToken);
-
-            return cipheredSensitiveInfo;
-        }
+        // private string GetEncryptedUserInformation(SensitiveCallbackInfo info, string passPhraseToken)
+        // {
+        //     string serialisedUserInformation = Json.Serialize(info);
+        //
+        //     string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
+        //         serialisedUserInformation,
+        //         passPhraseToken);
+        //
+        //     return cipheredSensitiveInfo;
+        // }
 
         // private SensitiveCallbackInfo _decodeCallbackInfo(Dictionary<string, string> queryParams)
         // {

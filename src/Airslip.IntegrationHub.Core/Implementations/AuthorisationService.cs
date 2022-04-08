@@ -71,14 +71,6 @@ public class AuthorisationService : IAuthorisationService
             sensitiveInfo,
             basicAuthorisationDetail);
 
-        // MiddlewareAuthorisationRequest middlewareAuthorisationBody = providerDetails.ProviderSetting.AuthStrategy switch
-        // {
-        //     ProviderAuthStrategy.ShortLived => await _oauth2Service.QueryPermanentAccessToken(providerDetails, (ShortLivedAuthorisationDetail) providerAuthorisingDetail),
-        //     ProviderAuthStrategy.Basic => _internalMiddlewareService.BuildMiddlewareAuthorisationModel(providerDetails, (BasicAuthorisationDetail) providerAuthorisingDetail),
-        //     ProviderAuthStrategy.Bridge => _internalMiddlewareService.BuildMiddlewareAuthorisationModel(providerDetails, (BasicAuthorisationDetail) providerAuthorisingDetail),
-        //     _ => throw new NotSupportedException()
-        // };
-
         if (r.GetType() != typeof(MiddlewareAuthorisationRequest))
             return new ErrorResponse("MIDDLEWARE_ERROR", "Error exchanging token");
 

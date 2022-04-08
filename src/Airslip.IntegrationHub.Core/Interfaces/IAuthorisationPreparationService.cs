@@ -19,7 +19,7 @@ public interface IAuthorisationPreparationService
 
     BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(IntegrationDetails integrationDetails, Dictionary<string, string> parameters);
 
-    ICollection<KeyValuePair<string, string>> QueryStringReplacer(
+    ICollection<KeyValuePair<string, string>> CommerceQueryStringReplacer(
         Dictionary<string, string> parameters,
         string authoriseRouteFormat,
         string shopParameter,
@@ -28,4 +28,6 @@ public interface IAuthorisationPreparationService
         string apiSecret,
         string callbackUrl,
         string appName);
+
+    Dictionary<string, string> BankingQueryStringReplacer(Dictionary<string, string> parameters);
 }

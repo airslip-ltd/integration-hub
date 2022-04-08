@@ -18,7 +18,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
         _integrationSettings = integrationSettings.Value;
     }
         
-    public IntegrationDetails GetIntegrationDetails(string provider, string? integration, bool testMode = false)
+    public IntegrationDetails GetIntegrationDetails(string provider, string? integration = null, bool testMode = false)
     {
         IntegrationSetting integrationSetting = _integrationSettings.GetSettingByName(provider);
 
@@ -28,13 +28,14 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
         switch (integrationSetting.AuthorisationRouteType)
         {
             case AuthorisationRouteType.Internal: 
-                PublicApiSetting setting = _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
-                uri = setting.ToBaseUri();
-                apiKey = setting.ApiKey;
+                PublicApiSetting integrationDestinationSetting = _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
+                PublicApiSetting baseSetting = _settings.GetSettingByName("Base");
+                uri = integrationDestinationSetting.ToBaseUri();
+                apiKey = integrationDestinationSetting.ApiKey;
                 callbackUrl = integrationSetting.SourceType switch
                 {
-                    SourceType.SingleSource => $"{_settings.Base.ToBaseUri()}/providers/{provider.ToLower()}/authorised",
-                    _ => $"{_settings.Base.ToBaseUri()}/providers/{provider.ToLower()}/{integration?.ToLower()}/authorised"
+                    SourceType.SingleSource => $"{baseSetting.ToBaseUri()}/auth/callback/{provider.ToLower()}",
+                    _ => $"{baseSetting.ToBaseUri()}/auth/callback/{provider.ToLower()}/{integration?.ToLower()}" // Do we need this line?
                 };
                 break;
             case AuthorisationRouteType.External:
