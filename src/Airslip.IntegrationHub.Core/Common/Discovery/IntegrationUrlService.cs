@@ -94,7 +94,11 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 replacements.Add("scope", scope);
             }
 
-            if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
+            if (!string.IsNullOrEmpty(sensitiveCallbackInfo.CallbackUrl))
+            {
+                replacements.Add("callbackUrl", sensitiveCallbackInfo.CallbackUrl);
+            } 
+            else if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
             {
                 string callbackUrl = integrationDetails.IntegrationSetting.RequireUrlEncode
                     ? HttpUtility.UrlEncode(integrationDetails.CallbackUrl)
