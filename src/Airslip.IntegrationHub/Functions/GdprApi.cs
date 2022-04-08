@@ -1,16 +1,11 @@
-﻿using Airslip.Common.Auth.Data;
-using Airslip.Common.Auth.Functions.Extensions;
-using Airslip.Common.Types.Configuration;
-using Airslip.Common.Types.Enums;
+﻿using Airslip.Common.Functions.Interfaces;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -20,7 +15,6 @@ using System.Threading.Tasks;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests.GDPR;
-using Microsoft.Extensions.Options;
 
 namespace Airslip.IntegrationHub.Functions
 {
@@ -40,24 +34,14 @@ namespace Airslip.IntegrationHub.Functions
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
-            IProviderDiscoveryService providerDiscoveryService = executionContext.InstanceServices.GetService<IProviderDiscoveryService>() ?? throw new NotImplementedException();
+            IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
 
             try
             {
-                ProviderDetails? providerDetails = providerDiscoveryService.GetProviderDetails(provider);
-
-                if (providerDetails is null)
-                {
-                    logger.Warning("{Provider} is an unsupported provider", provider);
-                    return req.CreateResponse(HttpStatusCode.BadRequest);
-                }
+                IResponse validationResponse = validationService.ValidateRequest(req, provider, AuthRequestTypes.Authorise);
+                if (validationResponse is not ISuccess)
+                    return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
                 
-                if (!validationService.ValidateRequest(providerDetails, req, AuthRequestTypes.GDPR))
-                {
-                    logger.Information("Hmac validation failed for request");
-                    return req.CreateResponse(HttpStatusCode.Unauthorized);
-                }
-
                 GDPRRequest gdprRequest = await req.Body.DeserializeStream<GDPRRequest>();
 
                 logger.Information("GDPR request made for {ShopId} with the body {Body}",

@@ -10,4 +10,5 @@ public class SensitiveCallbackInfo
     public string Shop { get; set; } = string.Empty;
     public bool TestMode { get; set; }
     public string CipheredSensitiveInfo { get; set; } = string.Empty;
+    public string? IntegrationProviderId { get; set; }
 }

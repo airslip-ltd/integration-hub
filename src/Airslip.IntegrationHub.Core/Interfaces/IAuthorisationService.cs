@@ -1,5 +1,5 @@
 ﻿using Airslip.Common.Types.Interfaces;
-using Airslip.IntegrationHub.Core.Models;
+using Microsoft.Azure.Functions.Worker.Http;
 using System.Threading.Tasks;
 
 namespace Airslip.IntegrationHub.Core.Interfaces;
@@ -7,6 +7,6 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 public interface IAuthorisationService
 {
     Task<IResponse> CreateAccount(
-        ProviderDetails providerDetails,
-        IProviderAuthorisation providerAuthorisingDetail);
+        HttpRequestData req,
+        string provider);
 }

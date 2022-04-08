@@ -1,8 +1,9 @@
 ﻿using Airslip.Common.Types.Configuration;
+using Airslip.IntegrationHub.Core.Common;
+using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Functions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -24,8 +25,8 @@ public static class ServiceExtensions
     {
         services
             .Configure<SettingCollection<ProviderSetting>>(configuration.GetSection($"{nameof(ProviderSetting)}s"))
+            .Configure<SettingCollection<IntegrationSetting>>(configuration.GetSection($"{nameof(IntegrationSetting)}s"))
             .AddScoped<IProviderDiscoveryService, ProviderDiscoveryService>()
-            .AddScoped<ICallbackService, CallbackService>()
             .AddScoped<IOAuth2Service, OAuth2Service>()
             .AddScoped<IAuthorisationService, AuthorisationService>()
             .AddScoped<IHmacService, HmacService>()
@@ -33,6 +34,9 @@ public static class ServiceExtensions
             .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()
             .AddScoped<IRequestValidationService, RequestValidationService>()
             .AddScoped<ISensitiveInformationService, SensitiveInformationService>()
+            .AddScoped<IMarketplaceService, MarketplaceService>()
+            .AddScoped<IIntegrationUrlService, IntegrationUrlService>()
+            .AddScoped<IIntegrationDiscoveryService, IntegrationDiscoveryService>()
             .AddScoped<IMarketplaceService, MarketplaceService>();
 
         return services;

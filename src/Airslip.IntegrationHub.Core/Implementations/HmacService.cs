@@ -1,6 +1,5 @@
 ﻿using Airslip.Common.Security.Implementations;
 using Airslip.Common.Types.Enums;
-using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +8,9 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class HmacService : IHmacService
 {
-    public bool Validate(ProviderDetails providerDetails, List<KeyValuePair<string, string>> queryStrings)
+    public bool Validate(string provider, string apiSecret, Dictionary<string, string> queryStrings)
     {
-        string? hmacKey = _getHmacKey(providerDetails.Provider);
+        string? hmacKey = _getHmacKey(provider);
 
         if (hmacKey is null)
             return true;
@@ -21,20 +20,21 @@ public class HmacService : IHmacService
 
         if (!queryStrings.Any(o => o.Key.Equals(hmacKey))) 
             return false;
-        
-        KeyValuePair<string, string> hmacKeyValuePair = queryStrings.Get(hmacKey);
-        
-        string hmacValue = hmacKeyValuePair.Value;
-        queryStrings.Remove(hmacKeyValuePair);
 
-        return HmacCipher.Validate(queryStrings, hmacValue, providerDetails.ProviderSetting.ApiSecret);
+        queryStrings.TryGetValue(hmacKey, out string? hmacValue);
+
+        hmacValue ??= string.Empty;
+        
+        queryStrings.Remove(hmacKey);
+
+        return HmacCipher.Validate(queryStrings, hmacValue, apiSecret);
     }
 
-    private static string? _getHmacKey(PosProviders provider)
+    private static string? _getHmacKey(string provider)
     {
         return provider switch
         {
-            PosProviders.Shopify => "hmac",
+            nameof(PosProviders.Shopify) => "hmac",
             _ => null
         };
     }

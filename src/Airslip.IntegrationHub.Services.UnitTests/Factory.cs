@@ -1,9 +1,7 @@
-using Airslip.Common.Security.Configuration;
 using Airslip.Common.Testing;
 using Airslip.Common.Types.Configuration;
 using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities.Extensions;
-using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -48,15 +46,6 @@ namespace Airslip.IntegrationHub.Services.UnitTests
                     }
                 }
             }
-        };
-
-        public static ShortLivedAuthorisationDetail ShortLivedAuthorisationDetail = new()
-        {
-            ShortLivedCode = "short-lived-code",
-            EncryptedUserInfo = "airslip-user-info",
-            StoreName = "store-name",
-            PermanentAccessUrl = "permanent-access-url",
-            BaseUri = "base-uri",
         };
 
         public static PublicApiSetting GetPublicApiSetting(PosProviders posProvider)

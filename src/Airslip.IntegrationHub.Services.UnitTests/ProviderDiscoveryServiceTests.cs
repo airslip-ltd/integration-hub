@@ -6,7 +6,6 @@ using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using FluentAssertions;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -52,7 +51,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData("AmazonSP", $"{nameof(PosProviders.Api2Cart)}")]
     public void Can_get_provider_details(string provider, string expectedDestination)
     {
-        ProviderDetails providerDetails = _sut.GetProviderDetails(provider)!;
+        ProviderDetails providerDetails = _sut.GetPosProviderDetails(provider)!;
         providerDetails.Provider.Should().Be(provider.ParseIgnoreCase<PosProviders>());
         providerDetails.ProviderSetting.BaseUri.Should().NotBeEmpty();
         providerDetails.ProviderSetting.MiddlewareDestinationAppName.Should().Be(expectedDestination);
@@ -75,7 +74,7 @@ public class ProviderDiscoveryServiceTests
     [InlineData("Ecwid", "https://app.ecwid.com/api/v3/{0}")]
     public void Can_get_providers_default_base_uri(string provider, string expectedBaseUri)
     {
-        ProviderDetails providerDetails = _sut.GetProviderDetails(provider)!;
+        ProviderDetails providerDetails = _sut.GetPosProviderDetails(provider)!;
         providerDetails.ProviderSetting.BaseUri.Should().Be(expectedBaseUri);
     }
 }

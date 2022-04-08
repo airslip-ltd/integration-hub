@@ -1,18 +1,12 @@
 ﻿using Airslip.Common.Types.Enums;
+using Airslip.Common.Types.Failures;
+using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Models.AmazonSP;
-using Airslip.IntegrationHub.Core.Models.BigCommerce;
-using Airslip.IntegrationHub.Core.Models.eBay;
-using Airslip.IntegrationHub.Core.Models.Ecwid;
-using Airslip.IntegrationHub.Core.Models.Etsy;
-using Airslip.IntegrationHub.Core.Models.Shopify;
-using Airslip.IntegrationHub.Core.Models.Squarespace;
-using Airslip.IntegrationHub.Core.Models.ThreeDCart;
-using Airslip.IntegrationHub.Core.Requests;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -20,150 +14,70 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class OAuth2Service : IOAuth2Service
 {
-    private readonly IInternalMiddlewareService _internalMiddlewareService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger _logger;
 
     public OAuth2Service(
-        IInternalMiddlewareService internalMiddlewareService,
         IHttpClientFactory httpClientFactory,
         ILogger logger)
     {
-        _internalMiddlewareService = internalMiddlewareService;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
-    public async Task<MiddlewareAuthorisationRequest> QueryPermanentAccessToken(
-        ProviderDetails providerDetails,
-        ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
+    public async Task<IResponse> ExchangeCodeForAccessToken(string provider, HttpRequestMessage httpRequestMessage)
     {
         try
         {
-            // Change create client name
-            HttpClient httpClient = _httpClientFactory.CreateClient(providerDetails.Provider.ToString());
-
-            HttpRequestMessage httpRequestMessage = GetHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail);
+            HttpClient httpClient = _httpClientFactory.CreateClient();
 
             HttpResponseMessage response = await httpClient.SendAsync(httpRequestMessage);
             string content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
+                // Add error column name object, parse then log proper error
                 _logger.Error(
                     "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, Error: {ErrorResponse}",
-                    shortLivedAuthorisationDetail.PermanentAccessUrl,
+                    httpRequestMessage.RequestUri,
                     response.StatusCode,
                     content);
 
-                return new MiddlewareAuthorisationRequest();
+                return new HandledError(nameof(ExchangeCodeForAccessToken), "Error exchanging code for access token");
             }
 
-            // 101 invalid request
-            BasicAuthorisationDetail basicAuth = ParseResponseMessage(
-                content,
-                providerDetails,
-                shortLivedAuthorisationDetail);
+            Dictionary<string, object> parsedParameters = Json.Deserialize<Dictionary<string, object>>(content);
 
-            return _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
-                providerDetails,
-                basicAuth);
+            Dictionary<string, string> parameters = parsedParameters
+                .ToDictionary(k => k.Key, k => k.Value.ToString()!);
+
+            return new AccessTokenModel(parameters);
         }
         catch (HttpRequestException hre)
         {
             _logger.Error(hre,
-                "Error posting request to OAuth2 request for provider {Provier}, response code: {StatusCode}",
-                providerDetails.Provider, hre.StatusCode);
+                "Error posting request to OAuth2 request for provider {Provider}, response code: {StatusCode}",
+                provider,
+                hre.StatusCode);
 
             throw;
         }
         catch (Exception ee)
         {
-            _logger.Fatal(ee, "Unhandled error posting request to OAuth2 endpoint for provider {Provider}",
-                providerDetails.Provider);
+            _logger.Fatal(ee,
+                "Unhandled error posting request to OAuth2 endpoint for provider {Provider}",
+                provider);
             throw;
         }
     }
+}
 
-    // Step X: Add provider for OAuth2
-    public HttpRequestMessage GetHttpRequestMessage(
-        ProviderDetails providerDetails,
-        ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
+public class AccessTokenModel : ISuccess
+{
+    public Dictionary<string, string> Parameters { get; }
+
+    public AccessTokenModel(Dictionary<string, string> parameters)
     {
-        return providerDetails.Provider switch
-        {
-            PosProviders.Shopify => new ShopifyPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.Squarespace => new SquarespacePermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.EtsyAPIv3 => new EtsyAPIv3PermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.EBay => new EbayPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.BigcommerceApi => new BigCommerceApiPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders._3DCart => new ThreeDCartPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.Ecwid => new EcwidPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            PosProviders.AmazonSP => new AmazonSPPermanentAccessHttpRequestMessage(
-                providerDetails,
-                shortLivedAuthorisationDetail),
-            _ => throw new NotImplementedException()
-        };
-    }
-
-    public BasicAuthorisationDetail ParseResponseMessage(
-        string content,
-        ProviderDetails providerDetails,
-        ShortLivedAuthorisationDetail shortLivedAuthorisationDetail)
-    {
-        BasicAuthorisationDetail basicAuth = new();
-
-        // Step 5: Add case for permanent access token
-        switch (providerDetails.Provider)
-        {
-            case PosProviders.Shopify:
-                basicAuth = Json.Deserialize<ShopifyAuthorisationDetail>(content);
-                basicAuth.Login = providerDetails.ProviderSetting.ApiSecret;
-                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
-                break;
-            case PosProviders.Squarespace:
-                basicAuth = Json.Deserialize<SquarespaceAuthorisationDetail>(content);
-                break;
-            case PosProviders.EBay:
-                basicAuth = Json.Deserialize<EbayAuthorisationDetail>(content);
-                break;
-            case PosProviders.EtsyAPIv3:
-                basicAuth = Json.Deserialize<EtsyAPIv3AuthorisationDetail>(content);
-                break;
-            case PosProviders.BigcommerceApi:
-                basicAuth = Json.Deserialize<BigCommerceApiAuthorisationDetail>(content);
-                break;
-            case PosProviders._3DCart:
-                basicAuth = Json.Deserialize<ThreeDCartAuthorisationDetail>(content);
-                break;
-            case PosProviders.Ecwid:
-                basicAuth = Json.Deserialize<EcwidAuthorisationDetail>(content);
-                break;
-            case PosProviders.AmazonSP:
-                basicAuth = Json.Deserialize<AmazonSPAuthorisationDetail>(content);
-                basicAuth.Login = shortLivedAuthorisationDetail.StoreName;
-                basicAuth.Shop = shortLivedAuthorisationDetail.StoreName;
-                break;
-        }
-        
-        basicAuth.SensitiveCallbackInfo = shortLivedAuthorisationDetail.SensitiveCallbackInfo;
-
-        return basicAuth;
+        Parameters = parameters;
     }
 }

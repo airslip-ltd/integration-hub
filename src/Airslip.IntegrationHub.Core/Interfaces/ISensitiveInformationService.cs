@@ -4,6 +4,6 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface ISensitiveInformationService
 {
-    SensitiveCallbackInfo DeserializeSensitiveInfoQueryString(string queryString);
+    SensitiveCallbackInfo DeserializeQueryString(string queryString);
     SensitiveCallbackInfo DecryptCallbackInfo(string cipherString);
 }

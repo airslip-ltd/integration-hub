@@ -1,7 +1,5 @@
 using Airslip.IntegrationHub.Core.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Airslip.IntegrationHub.Core.Models
 {
@@ -11,6 +9,7 @@ namespace Airslip.IntegrationHub.Core.Models
         public string Scope { get; set; } = string.Empty;
         public string ApiKey { get; set; } = string.Empty;
         public string ApiSecret { get; set; } = string.Empty;
+        public string PublicApiSettingName { get; set; } = string.Empty;
         public string MiddlewareDestinationAppName { get; set; } = string.Empty;
         public ProviderAuthStrategy AuthStrategy { get; set; }
         public string? AppName { get; set; }
