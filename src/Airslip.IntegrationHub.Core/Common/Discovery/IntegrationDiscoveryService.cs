@@ -27,7 +27,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
     {
         _logger.Information("Provider: {Provider}", provider);
 
-        IntegrationSetting integrationSetting = _getIntegrationSetting(provider);
+        IntegrationSetting integrationSetting =  _integrationSettings.GetSettingByName(provider);
 
         _logger.Information("IntegrationSettings: {ProviderSettings}", Json.Serialize(integrationSetting));
 
@@ -72,14 +72,6 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
             apiKey,
             integrationSetting,
             callbackUrl);
-    }
-
-    private IntegrationSetting _getIntegrationSetting(string provider)
-    {
-        IntegrationSetting integrationSetting = _integrationSettings.GetSettingByName(provider);
-        return string.IsNullOrEmpty(integrationSetting.PublicApiSettingName)
-            ? _integrationSettings.GetSettingByName(provider.FirstCharToUpper())
-            : integrationSetting;
     }
 
     private void _formatReturnPage(
