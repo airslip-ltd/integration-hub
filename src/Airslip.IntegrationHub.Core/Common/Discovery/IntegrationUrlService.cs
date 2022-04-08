@@ -170,8 +170,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 return await _internalMiddlewareClient.Authorise(provider, integrationDetails, r);
             }
 
-            var replacements =
-                _authorisationPreparationService.BankingQueryStringReplacer(parameters);
+            Dictionary<string, string> replacements = _authorisationPreparationService.BankingQueryStringReplacer(parameters);
 
             string relativeUrl =
                 integrationDetails.IntegrationSetting.AuthoriseRouteFormat.ApplyReplacements(replacements);
