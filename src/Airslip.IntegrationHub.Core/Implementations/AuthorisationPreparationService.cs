@@ -1,5 +1,6 @@
 ﻿using Airslip.Common.Security.Configuration;
 using Airslip.Common.Security.Implementations;
+using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common;
@@ -22,49 +23,49 @@ namespace Airslip.IntegrationHub.Core.Implementations;
 
 public class AuthorisationPreparationService : IAuthorisationPreparationService
 {
-    private readonly EncryptionSettings _encryptionSettings;
-    private readonly IIntegrationDiscoveryService _discoveryService;
+    private readonly SettingCollection<IntegrationSetting> _integrationSetting;
     private readonly ISensitiveInformationService _sensitiveInformationService;
 
-    public AuthorisationPreparationService(IOptions<EncryptionSettings> encryptionOptions, IIntegrationDiscoveryService discoveryService, ISensitiveInformationService sensitiveInformationService)
+    public AuthorisationPreparationService(
+        IOptions<SettingCollection<IntegrationSetting>> integrationOptions,
+        ISensitiveInformationService sensitiveInformationService)
     {
-        _discoveryService = discoveryService;
         _sensitiveInformationService = sensitiveInformationService;
-        _encryptionSettings = encryptionOptions.Value;
+        _integrationSetting = integrationOptions.Value;
     }
 
-    public SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string,string> parameters)
+    public SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string, string> parameters)
     {
         string? state = GetStateParameter(parameters);
 
-        return state is null 
-            ? null 
+        return state is null
+            ? null
             : _sensitiveInformationService.DecryptCallbackInfo(state);
     }
-    
-    public Dictionary<string,string> BankingQueryStringReplacer(Dictionary<string, string> parameters)
+
+    public Dictionary<string, string> BankingQueryStringReplacer(Dictionary<string, string> parameters)
     {
         Dictionary<string, string> replacements = new();
 
-        if(parameters.TryGetValue("consent", out string? consent))
+        if (parameters.TryGetValue("consent", out string? consent))
             replacements.Add("consent", consent);
-        
-        if(parameters.TryGetValue("application-user-id", out string? appUserId))
+
+        if (parameters.TryGetValue("application-user-id", out string? appUserId))
             replacements.Add("appUserId", appUserId);
-        
-        if(parameters.TryGetValue("user-uuid", out string? userId))
+
+        if (parameters.TryGetValue("user-uuid", out string? userId))
             replacements.Add("userId", userId);
-        
-        if(parameters.TryGetValue("institution", out string? integrationProviderId))
+
+        if (parameters.TryGetValue("institution", out string? integrationProviderId))
             replacements.Add("integrationProviderId", integrationProviderId);
-        
-        if(parameters.TryGetValue("userId", out string? airslipUserId))
+
+        if (parameters.TryGetValue("userId", out string? airslipUserId))
             replacements.Add("airslipUserId", airslipUserId);
-        
-        if(parameters.TryGetValue("entityId", out string? airslipEntityId))
+
+        if (parameters.TryGetValue("entityId", out string? airslipEntityId))
             replacements.Add("airslipEntityId", airslipEntityId);
-        
-        if(parameters.TryGetValue("airslipUserType", out string? airslipUserType))
+
+        if (parameters.TryGetValue("airslipUserType", out string? airslipUserType))
             replacements.Add("airslipUserType", airslipUserType);
 
         return replacements;
@@ -81,32 +82,32 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         string appName)
     {
         Dictionary<string, string> replacements = new();
-        
-        if(parameters.TryGetValue(shopParameter, out string? shop))
+
+        if (parameters.TryGetValue(shopParameter, out string? shop))
             replacements.Add("shop", shop);
-        
-        if(parameters.TryGetValue(codeParameter, out string? code))
+
+        if (parameters.TryGetValue(codeParameter, out string? code))
             replacements.Add("code", HttpUtility.UrlEncode(code));
-        
-        if(!string.IsNullOrEmpty(apiKey))
+
+        if (!string.IsNullOrEmpty(apiKey))
             replacements.Add("apiKey", apiKey);
-        
-        if(!string.IsNullOrEmpty(apiSecret))
+
+        if (!string.IsNullOrEmpty(apiSecret))
             replacements.Add("apiSecret", apiSecret);
 
         if (!string.IsNullOrEmpty(callbackUrl))
             replacements.Add("callbackUrl", callbackUrl);
-        
-        if(!string.IsNullOrEmpty(appName))
+
+        if (!string.IsNullOrEmpty(appName))
             replacements.Add("appName", appName);
 
         string relativeUrl = authoriseRouteFormat.ApplyReplacements(replacements);
-        
+
         return relativeUrl
             .GetQueryParams()
             .ToList();
     }
-    
+
     public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails, Dictionary<string, string> parameters)
     {
         AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
@@ -120,15 +121,15 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             integrationDetails.IntegrationSetting.ApiSecret,
             integrationDetails.CallbackUrl,
             integrationDetails.IntegrationSetting.AppName);
-        
+
         Dictionary<string, string> replacements = new();
-        
-        if(parameters.TryGetValue(authParameterNames.Shop, out string? shop))
+
+        if (parameters.TryGetValue(authParameterNames.Shop, out string? shop))
             replacements.Add("shop", shop);
-        
+
         string requestUri = integrationDetails.IntegrationSetting.AuthoriseBaseUri!.ApplyReplacements(replacements);
 
-        HttpRequestMessage httpRequestMessage =  new()
+        HttpRequestMessage httpRequestMessage = new()
         {
             RequestUri = new Uri(requestUri),
             Method = integrationDetails.IntegrationSetting.ExchangeCodeMethodType switch
@@ -139,7 +140,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             },
             Content = new FormUrlEncodedContent(queryParams)
         };
-        
+
         if (integrationDetails.IntegrationSetting.AuthoriseHeadersRequired)
         {
             ProductInfoHeaderValue productValue = new("Airslip", "1.0");
@@ -148,7 +149,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             httpRequestMessage.Headers.UserAgent.Add(productValue);
             httpRequestMessage.Headers.UserAgent.Add(commentValue);
         }
-        
+
         if (integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Basic)
         {
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -162,44 +163,44 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     public string? GetStateParameter(IReadOnlyDictionary<string, string> parameters)
     {
         parameters.TryGetValue("user_info", out string? state);
-        if (state is not null) 
+        if (state is not null)
             return state;
-        
+
         parameters.TryGetValue("state", out state);
-        if (state is not null) 
+        if (state is not null)
             return state;
-        
+
         parameters.TryGetValue("user_id", out state);
-        if (state is not null) 
+        if (state is not null)
             return state;
 
         return null;
     }
 
     public BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(
-        IntegrationDetails integrationDetails, 
+        IntegrationDetails integrationDetails,
         Dictionary<string, string> parameters)
     {
         AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
-        
+
         parameters.TryGetValue(
             authParameterNames.Login,
             out string? loginValue);
-        
+
         loginValue ??= integrationDetails.IntegrationSetting.ApiSecret;
-        
+
         parameters.TryGetValue(
             authParameterNames.Password,
             out string? passwordValue);
-        
+
         parameters.TryGetValue(
             authParameterNames.AccessScope,
             out string? scopeValue);
-        
+
         parameters.TryGetValue(
             authParameterNames.Shop,
             out string? shopValue);
-        
+
         return new BasicAuthorisationDetail
         {
             Login = loginValue,
@@ -213,10 +214,100 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     {
         if (req.Method == "GET")
             return req.Url.Query.QueryStringToDictionary();
-        
+
         object o = req.Body.DeserializeFunctionStream<object>();
         req.Body.Position = 0;
         string s = Json.Serialize(o);
         return Json.Deserialize<Dictionary<string, string>>(s);
+    }
+
+    public string GenerateMiddlewareDestinationUrl(
+        string provider,
+        IntegrationDetails integrationDetails,
+        Dictionary<string, string> parameters,
+        SensitiveCallbackInfo? sensitiveInfo)
+    {
+        string destinationBaseUri = integrationDetails.IntegrationSetting.PublicApiSetting.ToBaseUri();
+        IntegrationSetting middlewareSetting = _integrationSetting.GetSettingByName(integrationDetails.IntegrationSetting.PublicApiSettingName);
+
+        string url = $"{destinationBaseUri}/{middlewareSetting.AuthoriseRouteFormat}";
+
+        AuthorisationParameterNames providerAuthParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        AuthorisationParameterNames middlewareAuthParameterNames = middlewareSetting.AuthorisationParameterNames;
+
+        Dictionary<string, string> replacements = new();
+
+        if(sensitiveInfo?.EntityId != null)
+            replacements.Add("entityId", sensitiveInfo.EntityId);
+
+        if (sensitiveInfo?.AirslipUserType != null)
+            replacements.Add("airslipUserType", sensitiveInfo.AirslipUserType.ToString().ToLower());
+
+        if (sensitiveInfo?.UserId != null)
+            replacements.Add("userId", sensitiveInfo.UserId);
+
+        replacements.Add("provider", provider);
+
+        parameters.TryGetValue(providerAuthParameterNames.Login, out string? login);
+        login ??= integrationDetails.IntegrationSetting.ApiSecret;
+
+        if (!string.IsNullOrEmpty(login))
+            replacements.Add(middlewareAuthParameterNames.Login, login);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Password, out string? password))
+            replacements.Add(middlewareAuthParameterNames.Password, password);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Context, out string? context))
+            replacements.Add(middlewareAuthParameterNames.Context, context);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Environment, out string? environment))
+            replacements.Add(middlewareAuthParameterNames.Environment, environment);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.IntegrationProviderId, out string? integrationProviderId))
+            replacements.Add(middlewareAuthParameterNames.IntegrationProviderId, integrationProviderId);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.IntegrationUserId, out string? integrationUserId))
+            replacements.Add(middlewareAuthParameterNames.IntegrationUserId, integrationUserId);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Location, out string? location))
+            replacements.Add(middlewareAuthParameterNames.Location, location);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Reference, out string? reference))
+            replacements.Add(middlewareAuthParameterNames.Reference, reference);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.RefreshToken, out string? refreshToken))
+            replacements.Add(middlewareAuthParameterNames.RefreshToken, refreshToken);
+
+        parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop);
+        shop ??= sensitiveInfo?.Shop;
+
+        if (shop != null)
+        {
+            replacements.Add(middlewareAuthParameterNames.Shop, shop);
+
+            string shopUrl = integrationDetails.IntegrationSetting.FormatBaseUri(shop);
+
+            replacements.Add(middlewareAuthParameterNames.StoreUrl, shopUrl);
+        }
+
+        if (parameters.TryGetValue(providerAuthParameterNames.State, out string? state))
+            replacements.Add(middlewareAuthParameterNames.State, state);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.AccessScope, out string? accessScope))
+            replacements.Add(middlewareAuthParameterNames.AccessScope, accessScope);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.Code, out string? code))
+            replacements.Add(middlewareAuthParameterNames.Code, code);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueOne, out string? additionalValueOne))
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueOne, additionalValueOne);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueTwo, out string? additionalValueTwo))
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueTwo, additionalValueTwo);
+
+        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueThree, out string? additionalValueThree))
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueThree, additionalValueThree);
+
+        return url.ApplyReplacements(replacements);
     }
 }

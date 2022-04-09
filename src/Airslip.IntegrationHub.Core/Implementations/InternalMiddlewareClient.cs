@@ -34,49 +34,42 @@ namespace Airslip.IntegrationHub.Core.Implementations
             _logger = logger;
             _publicApiSettings = options.Value;
         }
-        
-        public async Task<IResponse> Authorise(
-            string provider,
-            IntegrationDetails integrationDetails,
-            MiddlewareAuthorisationRequest middlewareAuthorisationRequest)
+
+        public async Task<IResponse> Authorise(string apiKey, string url)
         {
-            PublicApiSetting middlewareSettings = _publicApiSettings.GetSettingByName(integrationDetails.IntegrationSetting.PublicApiSettingName);
-            string url = Endpoints.Authorise(middlewareSettings.ToBaseUri(), provider);
-            
             try
             {
-                _logger.Information("Posting to integration middleware for Url {PostUrl}",
-                    url);
-                
+                _logger.Information("Posting to integration middleware for Url {PostUrl}", url);
+
                 HttpRequestMessage httpRequestMessage = new()
                 {
                     Method = HttpMethod.Post,
                     RequestUri = new Uri(url),
                     Headers =
                     {
-                        { "x-api-key", middlewareSettings.ApiKey}
+                        { "x-api-key", apiKey}
                     },
-                    Content = new StringContent(
-                        Json.Serialize(middlewareAuthorisationRequest),
-                        Encoding.UTF8,
-                        Json.MediaType)
+                    //Content = new StringContent(
+                    //    Json.Serialize(middlewareAuthorisationRequest),
+                    //    Encoding.UTF8,
+                    //    Json.MediaType)
                 };
 
                 HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
-                
+
                 if (response.StatusCode == HttpStatusCode.BadRequest)
                 {
                     string content = await response.Content.ReadAsStringAsync();
-                    
+
                     _logger.Error(
-                        "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, content: {Content}", 
-                        url, 
+                        "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, content: {Content}",
+                        url,
                         response.StatusCode,
                         content);
-                   
-                    return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error authorising in internal middleware {content}");
+
+                    return new ErrorResponse("MIDDLEWARE_ERROR", $"Error authorising in internal middleware {content}");
                 }
-                
+
                 _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
 
                 return await response.CommonResponseHandler<IntegrationResponse>();
@@ -103,7 +96,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 _logger.Information("Posting to integration middleware for Url {PostUrl}",
                     url);
-                
+
                 HttpRequestMessage httpRequestMessage = new()
                 {
                     Method = HttpMethod.Delete,
@@ -125,8 +118,8 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.Error(
-                        "Error sending request to provider for Url {DeleteUrl}, response code: {StatusCode}", 
-                        url, 
+                        "Error sending request to provider for Url {DeleteUrl}, response code: {StatusCode}",
+                        url,
                         response.StatusCode);
 
                     try
@@ -135,10 +128,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     }
                     catch (Exception)
                     {
-                        return new ErrorResponse("MIDDLEWARE_ERROR",  $"Error deleting {content}");
+                        return new ErrorResponse("MIDDLEWARE_ERROR", $"Error deleting {content}");
                     }
                 }
-                
+
                 _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
 
                 return Json.Deserialize<DeleteResponse>(content);
@@ -162,7 +155,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
     {
         public static string Authorise(string baseUri, string provider) =>
             $"{baseUri}/auth/{provider}";
-        
+
         public static string Delete(string baseUri, string provider, string accountId) =>
             $"{baseUri}/delete/{provider}/{accountId}";
     }

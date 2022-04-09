@@ -1,18 +1,13 @@
-using Airslip.Common.Security.Implementations;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
-using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.Common.Utilities.Models;
 using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
-using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Azure.Functions.Worker.Http;
-using Serilog;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -33,9 +28,9 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         public IntegrationUrlService(
             IHttpClientFactory factory,
             IIntegrationDiscoveryService discoveryService,
-            IAuthorisationPreparationService authorisationPreparationService, 
+            IAuthorisationPreparationService authorisationPreparationService,
             IOAuth2Service oauth2Service,
-            IInternalMiddlewareClient internalMiddlewareClient, 
+            IInternalMiddlewareClient internalMiddlewareClient,
             IInternalMiddlewareService internalMiddlewareService)
         {
             _httpClient = factory.CreateClient(nameof(IntegrationUrlService));
@@ -96,7 +91,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             if (!string.IsNullOrEmpty(sensitiveCallbackInfo.CallbackUrl))
             {
                 replacements.Add("callbackUrl", sensitiveCallbackInfo.CallbackUrl);
-            } 
+            }
             else if (!string.IsNullOrEmpty(integrationDetails.CallbackUrl))
             {
                 string callbackUrl = integrationDetails.IntegrationSetting.RequireUrlEncode
@@ -107,7 +102,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             }
 
             url = url.ApplyReplacements(replacements);
-            
+
             IResponse? result;
 
             if (integrationDetails.IntegrationSetting.OAuthRedirect)
@@ -164,37 +159,25 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                     return accessTokenResponse;
             }
 
-            if (integrationDetails.IntegrationSetting.IntegrationType == IntegrationTypes.Commerce)
-            {
-                BasicAuthorisationDetail basicAuthorisationDetail = _authorisationPreparationService
-                    .BuildSuccessfulAuthorisationModel(integrationDetails, parameters);
+            // TODO: @GrahamWhitehoiuse is this needed?
+            //if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
+            //    url =
+            //        $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
 
-                MiddlewareAuthorisationRequest r = _internalMiddlewareService.BuildMiddlewareAuthorisationModel(
-                    provider,
-                    integrationDetails,
-                    sensitiveInfo!,
-                    basicAuthorisationDetail);
+            //if (integrationDetails.IntegrationSetting.AnonymousUsage)
+            //    url += $"&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
 
-                return await _internalMiddlewareClient.Authorise(provider, integrationDetails, r);
-            }
+            //// Get successful auth values and put into a common model
+            //string url = _authorisationPreparationService.GenerateMiddlewareDestinationUrl(provider, integrationDetails, parameters, sensitiveInfo!);
 
-            Dictionary<string, string> replacements = _authorisationPreparationService.BankingQueryStringReplacer(parameters);
+            // Get successful auth values and put into a common model
+            string url = _authorisationPreparationService.GenerateMiddlewareDestinationUrl(provider, integrationDetails, parameters, sensitiveInfo!);
 
-            string relativeUrl =
-                integrationDetails.IntegrationSetting.AuthoriseRouteFormat.ApplyReplacements(replacements);
-            string url = $"{integrationDetails.Uri}/{relativeUrl}";
+            // Send to internal middleware
+            if (integrationDetails.IntegrationSetting.PublicApiMethodType == MethodTypes.POST)
+                return await _internalMiddlewareClient.Authorise(integrationDetails.IntegrationSetting.PublicApiSetting.ApiKey, url);
 
-            if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
-                url =
-                    $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
-
-            if (integrationDetails.IntegrationSetting.AnonymousUsage)
-                url += $"&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
-
-
-            HttpActionResult apiCallResponse = await _httpClient
-                .GetApiRequest<IntegrationResponse>(url, integrationDetails.ApiKey, cancellationToken);
-
+            HttpActionResult apiCallResponse = await _httpClient.GetApiRequest<IntegrationResponse>(url, integrationDetails.ApiKey, cancellationToken);
             return apiCallResponse.StatusCode switch
             {
                 HttpStatusCode.OK => apiCallResponse.Response!,
