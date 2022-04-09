@@ -8,10 +8,7 @@ namespace Airslip.IntegrationHub.Core.Interfaces;
 
 public interface IInternalMiddlewareClient
 {
-    Task<IResponse> Authorise(
-        string provider,
-        IntegrationDetails integrationDetails,
-        MiddlewareAuthorisationRequest middlewareAuthorisationRequest);
+    Task<IResponse> Authorise(string apiKey, string url);
 
     Task<IResponse> Delete(
         string accountId, 

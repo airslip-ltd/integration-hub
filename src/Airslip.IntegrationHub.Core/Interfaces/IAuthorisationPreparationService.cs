@@ -30,4 +30,9 @@ public interface IAuthorisationPreparationService
         string appName);
 
     Dictionary<string, string> BankingQueryStringReplacer(Dictionary<string, string> parameters);
+    string GenerateMiddlewareDestinationUrl(
+        string provider,
+        IntegrationDetails integrationDetails, 
+        Dictionary<string, string> parameters, 
+        SensitiveCallbackInfo sensitiveInfo);
 }

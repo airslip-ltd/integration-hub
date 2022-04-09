@@ -10,6 +10,7 @@ namespace Airslip.IntegrationHub.Core.Common;
 public record IntegrationSetting
 {
     public string PublicApiSettingName { get; init; } = string.Empty;
+    public MethodTypes PublicApiMethodType { get; set; } = MethodTypes.POST;
     public PublicApiSetting PublicApiSetting { get; set; } = new();
     public string AuthorisationRouteFormat { get; init; } = string.Empty;
     public AuthorisationRouteType AuthorisationRouteType { get; init; } = AuthorisationRouteType.Internal;
@@ -80,4 +81,14 @@ public class AuthorisationParameterNames
     public string Code { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
+    public string StoreUrl { get; set; } = string.Empty;
+    public string Environment { get; set; } = string.Empty;
+    public string Reference { get; set; } = string.Empty;
+    public string Context { get; set; } = string.Empty;
+    public string Location { get; set; } = string.Empty;
+    public string AdditionalValueOne { get; set; } = string.Empty;
+    public string AdditionalValueTwo { get; set; } = string.Empty;
+    public string AdditionalValueThree { get; set; } = string.Empty;
+    public string IntegrationUserId { get; set; } = string.Empty;
+    public string IntegrationProviderId { get; set; } = string.Empty;
 }
