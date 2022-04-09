@@ -48,6 +48,8 @@ public static class DeletionApi
         try
         {
             DeleteRequest deleteRequest = await req.Body.DeserializeStream<DeleteRequest>();
+            
+            // Validate
            
             IResponse response = await deletionService.DeleteRecord(provider, accountId, deleteRequest);
 

@@ -86,7 +86,7 @@ namespace Airslip.IntegrationHub.Functions
         [OpenApiOperation("AuthorisationCallback", Summary = "Callback to authorise a service with using OAUTH")]
         [OpenApiParameter("provider", Required = true, In = ParameterLocation.Path, Description = "The name of the provider, must be one of our supported providers")]
         [OpenApiResponseWithBody(HttpStatusCode.BadRequest, Json.MediaType, typeof(ErrorResponse), Description = "Invalid JSON supplied")]
-        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(AccountResponse), Description = "Details of the account that has been setup")]
+        [OpenApiResponseWithBody(HttpStatusCode.OK, Json.MediaType, typeof(IntegrationResponse), Description = "Details of the account that has been setup")]
         [Function("AuthorisationCallback")]
         public static async Task<HttpResponseData> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "v1/auth/callback/{provider}")]
@@ -95,7 +95,6 @@ namespace Airslip.IntegrationHub.Functions
             FunctionContext executionContext)
         {
             ILogger logger = executionContext.InstanceServices.GetService<ILogger>() ?? throw new NotImplementedException();
-            IAuthorisationService authorisationService = executionContext.InstanceServices.GetService<IAuthorisationService>() ?? throw new NotImplementedException();
             IFunctionApiTools functionApiTools = executionContext.InstanceServices.GetService<IFunctionApiTools>() ?? throw new NotImplementedException();
             IRequestValidationService validationService = executionContext.InstanceServices.GetService<IRequestValidationService>() ?? throw new NotImplementedException();
             IIntegrationUrlService integrationUrlService = executionContext.InstanceServices.GetService<IIntegrationUrlService>() ?? throw new NotImplementedException();
@@ -108,9 +107,7 @@ namespace Airslip.IntegrationHub.Functions
                     return await functionApiTools.CommonResponseHandler<ErrorResponse>(req, validationResponse);
 
                 IResponse authorisedResponse = await integrationUrlService.ApproveIntegration(req, provider);
-                //IResponse authorisedResponse = await authorisationService.CreateAccount(req, provider);
-                return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
-                //return await functionApiTools.CommonResponseHandler<AccountResponse>(req, authorisedResponse);
+                return await functionApiTools.CommonResponseHandler<IntegrationResponse>(req, authorisedResponse);
             }
             catch (Exception e)
             {

@@ -17,10 +17,4 @@ public interface IIntegrationUrlService
         HttpRequestData req,
         string provider,
         CancellationToken cancellationToken = default);
-
-    // Task<IResponse> ApproveIntegration(string provider, string integration, Dictionary<string, string> replacements, 
-    //     CancellationToken cancellationToken);
-    //
-    // Task<IResponse> DeleteIntegration(string integrationId, 
-    //     CancellationToken cancellationToken);
 }

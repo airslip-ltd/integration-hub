@@ -25,11 +25,11 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
 
     public IntegrationDetails GetIntegrationDetails(string provider, string? integration = null, bool testMode = false)
     {
-        _logger.Information("Provider: {Provider}", provider);
-
         IntegrationSetting integrationSetting =  _integrationSettings.GetSettingByName(provider);
+        PublicApiSetting integrationDestinationSetting =
+                    _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
 
-        _logger.Information("IntegrationSettings: {ProviderSettings}", Json.Serialize(integrationSetting));
+        integrationSetting.PublicApiSetting = integrationDestinationSetting;
 
         string uri = string.Empty;
         string apiKey = string.Empty;
@@ -37,8 +37,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
         switch (integrationSetting.AuthorisationRouteType)
         {
             case AuthorisationRouteType.Internal:
-                PublicApiSetting integrationDestinationSetting =
-                    _settings.GetSettingByName(integrationSetting.PublicApiSettingName);
+                
                 PublicApiSetting baseSetting = _settings.GetSettingByName("Base");
                 uri = integrationDestinationSetting.ToBaseUri();
                 apiKey = integrationDestinationSetting.ApiKey;

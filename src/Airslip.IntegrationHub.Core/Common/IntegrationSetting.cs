@@ -1,3 +1,4 @@
+using Airslip.Common.Types.Configuration;
 using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
@@ -9,6 +10,7 @@ namespace Airslip.IntegrationHub.Core.Common;
 public record IntegrationSetting
 {
     public string PublicApiSettingName { get; init; } = string.Empty;
+    public PublicApiSetting PublicApiSetting { get; set; } = new();
     public string AuthorisationRouteFormat { get; init; } = string.Empty;
     public AuthorisationRouteType AuthorisationRouteType { get; init; } = AuthorisationRouteType.Internal;
     public string AuthoriseRouteFormat { get; init; } = string.Empty;

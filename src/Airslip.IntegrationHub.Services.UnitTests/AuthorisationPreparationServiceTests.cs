@@ -52,34 +52,6 @@ public class AuthorisationPreparationServiceTests
         errorArgs.ErrorContext.Handled = true;
     }
     
-    [Fact]
-    public void A()
-    {
-        // arrange
-
-        string successContent =
-            "{\"access_token\":\"secret_3ETSQDPV3c86bqBgZWRut2LnUr9QeBi3\",\"token_type\":\"Bearer\",\"scope\":\"read_store_profile read_orders read_catalog read_invoices\",\"store_id\":71467012,\"user_id\":71467012,\"email\":\"tmcdonough@airslip.com\" }";
-        string failedContent = "{\"access_token\":\"secret_3ETSQDPV3c86bqBgZWRut2LnUr9QeBi3\",\"token_type\":\"Bearer\",\"scope\":\"read_store_profile read_orders read_catalog read_invoices\",\"store_id\":71467012,\"user_id\":71467012,\"admin_sso\":{\"role\":\"STORE_OWNER\"},\"email\":\"tmcdonough@airslip.com\"}\n";
-        
-        var settings = new JsonSerializerSettings
-        {
-            Error = (se, ev) => { ev.ErrorContext.Handled = true; }
-        };
-        var dict =   JsonConvert.DeserializeObject<Dictionary<string, object>>(failedContent, settings);
-
-        dict.Should().NotBeNull();
-        successContent.Should().NotBeNull();
-
-        //Dictionary<string, string> parameters = Json.Deserialize<Dictionary<string, string>>(content);
-
-
-        // act
-        //ICollection<KeyValuePair<string, string>> queryParams = _sut.QueryStringReplacer();
-
-        // asset
-
-    }
-    
     public class FakeHttpRequestData : HttpRequestData
     {
         public FakeHttpRequestData(FunctionContext functionContext, Uri url, Stream? body = null) : base(functionContext)
