@@ -132,7 +132,9 @@ module "func_app_host" {
         "IntegrationSettings:Settings:AmazonSP:Location": local.amazon_sp_location,
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldOne": local.amazon_sp_role,
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldTwo": local.amazon_sp_user_id,
-        "IntegrationSettings:Settings:AmazonSP:AdditionalFieldThree": local.amazon_sp_user_secret
+        "IntegrationSettings:Settings:AmazonSP:AdditionalFieldThree": local.amazon_sp_user_secret,
+        "IntegrationSettings:Settings:Xero:ApiKey": local.xero_api_key,
+        "IntegrationSettings:Settings:Xero:ApiSecret": local.xero_api_secret,
       }
     }
   ]
