@@ -12,9 +12,10 @@ public interface IInternalMiddlewareClient
         string provider,
         IntegrationDetails integrationDetails,
         MiddlewareAuthorisationRequest middlewareAuthorisationRequest);
-    
+
     Task<IResponse> Delete(
         string accountId, 
-        ProviderDetails providerDetails,
+        string provider, 
+        IntegrationDetails integrationDetails,
         DeleteRequest deleteRequest);
 }

@@ -79,7 +79,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 
                 _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
 
-                return await response.CommonResponseHandler<AccountResponse>();
+                return await response.CommonResponseHandler<IntegrationResponse>();
             }
             catch (HttpRequestException hre)
             {
@@ -95,9 +95,9 @@ namespace Airslip.IntegrationHub.Core.Implementations
             }
         }
 
-        public async Task<IResponse> Delete(string accountId, ProviderDetails providerDetails, DeleteRequest deleteRequest)
+        public async Task<IResponse> Delete(string accountId, string provider, IntegrationDetails integrationDetails, DeleteRequest deleteRequest)
         {
-            string url = Endpoints.Delete(providerDetails.MiddlewareDestinationBaseUri, providerDetails.Provider, accountId);
+            string url = Endpoints.Delete(integrationDetails.IntegrationSetting.PublicApiSetting.ToBaseUri(), provider, accountId);
 
             try
             {
@@ -110,7 +110,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                     RequestUri = new Uri(url),
                     Headers =
                     {
-                        { "x-api-key", providerDetails.PublicApiSetting.ApiKey}
+                        { "x-api-key", integrationDetails.IntegrationSetting.PublicApiSetting.ApiKey}
                     },
                     Content = new StringContent(
                         Json.Serialize(deleteRequest),
@@ -163,7 +163,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
         public static string Authorise(string baseUri, string provider) =>
             $"{baseUri}/auth/{provider}";
         
-        public static string Delete(string baseUri, PosProviders provider, string accountId) =>
+        public static string Delete(string baseUri, string provider, string accountId) =>
             $"{baseUri}/delete/{provider}/{accountId}";
     }
 }

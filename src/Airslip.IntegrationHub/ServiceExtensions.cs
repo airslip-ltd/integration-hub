@@ -26,9 +26,7 @@ public static class ServiceExtensions
         services
             .Configure<SettingCollection<ProviderSetting>>(configuration.GetSection($"{nameof(ProviderSetting)}s"))
             .Configure<SettingCollection<IntegrationSetting>>(configuration.GetSection($"{nameof(IntegrationSetting)}s"))
-            .AddScoped<IProviderDiscoveryService, ProviderDiscoveryService>()
             .AddScoped<IOAuth2Service, OAuth2Service>()
-            .AddScoped<IAuthorisationService, AuthorisationService>()
             .AddScoped<IHmacService, HmacService>()
             .AddScoped<IInternalMiddlewareService, InternalMiddlewareService>()
             .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()

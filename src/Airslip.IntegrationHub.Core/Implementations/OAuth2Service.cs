@@ -1,8 +1,8 @@
-﻿using Airslip.Common.Types.Enums;
-using Airslip.Common.Types.Failures;
+﻿using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.IntegrationHub.Core.Interfaces;
+using Airslip.IntegrationHub.Core.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -69,15 +69,5 @@ public class OAuth2Service : IOAuth2Service
                 provider);
             throw;
         }
-    }
-}
-
-public class AccessTokenModel : ISuccess
-{
-    public Dictionary<string, string> Parameters { get; }
-
-    public AccessTokenModel(Dictionary<string, string> parameters)
-    {
-        Parameters = parameters;
     }
 }

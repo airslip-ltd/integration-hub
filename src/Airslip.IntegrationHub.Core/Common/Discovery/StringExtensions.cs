@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Airslip.IntegrationHub.Core.Common.Discovery
@@ -14,11 +13,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 string key = match.Groups[1].Value;
                 return replaceWith.ContainsKey(key) ? replaceWith[key] : string.Empty;
             });
-        }
-
-        public static string FirstCharToUpper(this string value)
-        {
-            return string.Concat(value[0].ToString().ToUpper(), value.AsSpan(1));
         }
     }
 }

@@ -2,4 +2,4 @@
 
 namespace Airslip.IntegrationHub.Core.Responses;
 
-public record AccountResponse(string Id) : ISuccess;
+public record IntegrationResponse(string Id) : ISuccess;

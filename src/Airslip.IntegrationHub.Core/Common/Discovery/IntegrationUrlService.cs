@@ -5,7 +5,6 @@ using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.Common.Utilities.Models;
 using Airslip.IntegrationHub.Core.Enums;
-using Airslip.IntegrationHub.Core.Implementations;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Requests;
@@ -153,7 +152,8 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             if (integrationDetails.IntegrationSetting.AuthStrategy == ProviderAuthStrategy.ShortLived)
             {
                 HttpRequestMessage httpRequestMessage =
-                    _authorisationPreparationService.GetHttpRequestMessageForAccessToken(integrationDetails,
+                    _authorisationPreparationService.GetHttpRequestMessageForAccessToken(
+                        integrationDetails,
                         parameters);
 
                 IResponse accessTokenResponse =
@@ -184,21 +184,16 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 integrationDetails.IntegrationSetting.AuthoriseRouteFormat.ApplyReplacements(replacements);
             string url = $"{integrationDetails.Uri}/{relativeUrl}";
 
-            if (integrationDetails.IntegrationSetting.AnonymousUsage)
-            {
-                if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
-                    url =
-                        $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
-
-                url = $"{url}&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
-            }
-            else if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
+            if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
                 url =
                     $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
 
+            if (integrationDetails.IntegrationSetting.AnonymousUsage)
+                url += $"&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
+
 
             HttpActionResult apiCallResponse = await _httpClient
-                .GetApiRequest<AccountResponse>(url, integrationDetails.ApiKey, cancellationToken);
+                .GetApiRequest<IntegrationResponse>(url, integrationDetails.ApiKey, cancellationToken);
 
             return apiCallResponse.StatusCode switch
             {
@@ -209,78 +204,5 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
             };
         }
-
-        // public async Task<IResponse> DeleteIntegration(string integrationId, CancellationToken cancellationToken)
-        // {
-        //     Dictionary<string, string> replacements = new();
-        //     Integration? integration = await _context.GetEntity<Integration>(integrationId);
-        //     if (integration == null) return new NotFoundResponse("Integration", integrationId);
-        //     
-        //     IntegrationProvider? integrationProvider = await _context
-        //         .GetEntity<IntegrationProvider>(integration.IntegrationProviderId);
-        //     if (integrationProvider == null) return new NotFoundResponse("integrationProvider", integration.IntegrationProviderId);
-        //
-        //     IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(integrationProvider.Provider, 
-        //         integrationProvider.Id);
-        //
-        //     string url = $"{integrationDetails.Uri}/delete/{integration}/{integrationId}";
-        //     
-        //     replacements.Add("integration", integrationProvider.Id);
-        //     replacements.Add("integrationId", integrationId);
-        //     
-        //     url = url.ApplyReplacements(replacements);
-        //     
-        //     HttpActionResult apiCallResponse = await _httpClient
-        //         .ApiRequestWithBody<DeleteIntegrationResponse, DeleteIntegrationRequest>(url, integrationDetails.ApiKey,
-        //             new DeleteIntegrationRequest(_userToken.UserId, _userToken.EntityId, _userToken.AirslipUserType), 
-        //             HttpMethod.Delete,
-        //             cancellationToken);
-        //
-        //     return apiCallResponse.StatusCode switch
-        //     {
-        //         HttpStatusCode.OK => apiCallResponse.Response!,
-        //         HttpStatusCode.BadRequest => apiCallResponse.Response ?? 
-        //                                      new ErrorResponse("BadRequest", apiCallResponse.Content),
-        //         HttpStatusCode.Unauthorized => new UnauthorisedResponse(integrationProvider.Provider, "Unauthenticated"),
-        //         _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
-        //     };
-        // }
-        //
-        // private string GetEncryptedUserInformation(SensitiveCallbackInfo info, string passPhraseToken)
-        // {
-        //     string serialisedUserInformation = Json.Serialize(info);
-        //
-        //     string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
-        //         serialisedUserInformation,
-        //         passPhraseToken);
-        //
-        //     return cipheredSensitiveInfo;
-        // }
-
-        // private SensitiveCallbackInfo _decodeCallbackInfo(Dictionary<string, string> queryParams)
-        // {
-        //     SensitiveCallbackInfo info;
-        //     string shopName = queryParams.ContainsKey("shop") ? queryParams["shop"] : string.Empty; 
-        //     
-        //     if (queryParams.ContainsKey("state"))
-        //     {
-        //         string decryptedData = StringCipher.Decrypt(queryParams["state"], 
-        //             _tokenEncryptionSettings.PassPhraseToken);
-        //
-        //         info = Json.Deserialize<SensitiveCallbackInfo>(decryptedData);
-        //     }
-        //     else
-        //     {
-        //         info = new SensitiveCallbackInfo
-        //         {
-        //             AirslipUserType = _userToken.AirslipUserType,
-        //             EntityId = _userToken.EntityId,
-        //             UserId = _userToken.UserId,
-        //             Shop = shopName
-        //         };
-        //     }
-        //
-        //     return info;
-        // }
     }
 }
