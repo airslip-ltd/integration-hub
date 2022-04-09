@@ -168,7 +168,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             if(integrationDetails.IntegrationSetting.PublicApiSettingName == "InProgress")
             {
                 _logger.Information("Successful integration for {Provider} with Parameters {Parameters}", provider, Json.Serialize(parameters));
-                return Success.Instance;
+                return new IntegrationResponse(provider);
             }
 
             // TODO: @GrahamWhitehoiuse is this needed?
