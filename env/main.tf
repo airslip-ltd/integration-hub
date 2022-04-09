@@ -63,6 +63,9 @@ locals {
   amazon_sp_role = var.amazon_sp_role
   amazon_sp_user_id = var.amazon_sp_user_id
   amazon_sp_user_secret = var.amazon_sp_user_secret
+
+  xero_api_key = var.xero_api_key
+  xero_api_secret = var.xero_api_secret
 }
 
 module "ingredient_bowl" {

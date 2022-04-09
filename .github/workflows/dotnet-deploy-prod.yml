@@ -53,6 +53,7 @@ jobs:
         files: '["./env/variables/secrets.tfvars"]'
       env:
         API_KEY: ${{ secrets.API_KEY }}
+        LOGZ_IO_LOG_LEVEL: Information
         CERTIFICATE_PASSWORD: ${{ secrets.AIRSLIP_CERTIFICATE_PASSWORD }}
         SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
         SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
@@ -77,7 +78,8 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
-        LOGZ_IO_LOG_LEVEL: Information
+        XERO_API_KEY: ${{ secrets.XERO_API_KEY }}
+        XERO_API_SECRET: ${{ secrets.XERO_API_SECRET }}
 
     - uses: azure/login@v1
       with:
@@ -187,6 +189,7 @@ jobs:
         files: '["./env/variables/secrets.tfvars"]'
       env:
         API_KEY: ${{ secrets.API_KEY }}
+        LOGZ_IO_LOG_LEVEL: Information
         CERTIFICATE_PASSWORD: ${{ secrets.AIRSLIP_CERTIFICATE_PASSWORD }}
         SHOPIFY_API_KEY: ${{ secrets.SHOPIFY_API_KEY }}
         SHOPIFY_API_SECRET: ${{ secrets.SHOPIFY_API_SECRET }}
@@ -211,7 +214,8 @@ jobs:
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
-        LOGZ_IO_LOG_LEVEL: Information
+        XERO_API_KEY: ${{ secrets.XERO_API_KEY }}
+        XERO_API_SECRET: ${{ secrets.XERO_API_SECRET }}
 
     - uses: azure/login@v1
       with:

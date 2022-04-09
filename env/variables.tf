@@ -22,6 +22,10 @@ variable "admin_group_id" {}
 variable "deployment_agent_group_id" {}
 variable "hostname" {}
 
+variable "log_level" {
+  default = "Warning"
+}
+
 variable "shopify_api_key" {}
 variable "shopify_api_secret" {}
 
@@ -52,6 +56,6 @@ variable "amazon_sp_location" {}
 variable "amazon_sp_role" {}
 variable "amazon_sp_user_id" {}
 variable "amazon_sp_user_secret" {}
-variable "log_level" {
-  default = "Warning"
-}
+
+variable "xero_api_key" {}
+variable "xero_api_secret" {}
