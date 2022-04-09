@@ -24,7 +24,6 @@ public static class ServiceExtensions
         IConfiguration configuration)
     {
         services
-            .Configure<SettingCollection<ProviderSetting>>(configuration.GetSection($"{nameof(ProviderSetting)}s"))
             .Configure<SettingCollection<IntegrationSetting>>(configuration.GetSection($"{nameof(IntegrationSetting)}s"))
             .AddScoped<IOAuth2Service, OAuth2Service>()
             .AddScoped<IHmacService, HmacService>()
