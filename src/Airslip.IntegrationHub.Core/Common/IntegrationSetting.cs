@@ -79,4 +79,5 @@ public class AuthorisationParameterNames
     public string Shop { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty;
 }
