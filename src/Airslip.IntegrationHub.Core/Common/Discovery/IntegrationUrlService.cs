@@ -1,5 +1,7 @@
+using Airslip.Common.Types;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
+using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.Common.Utilities.Models;
 using Airslip.IntegrationHub.Core.Enums;
@@ -7,6 +9,7 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Airslip.IntegrationHub.Core.Responses;
 using Microsoft.Azure.Functions.Worker.Http;
+using Serilog;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -24,6 +27,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         private readonly IOAuth2Service _oauth2Service;
         private readonly IInternalMiddlewareClient _internalMiddlewareClient;
         private readonly IInternalMiddlewareService _internalMiddlewareService;
+        private readonly ILogger _logger;
 
         public IntegrationUrlService(
             IHttpClientFactory factory,
@@ -31,7 +35,8 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             IAuthorisationPreparationService authorisationPreparationService,
             IOAuth2Service oauth2Service,
             IInternalMiddlewareClient internalMiddlewareClient,
-            IInternalMiddlewareService internalMiddlewareService)
+            IInternalMiddlewareService internalMiddlewareService,
+            ILogger logger)
         {
             _httpClient = factory.CreateClient(nameof(IntegrationUrlService));
             _discoveryService = discoveryService;
@@ -39,6 +44,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             _oauth2Service = oauth2Service;
             _internalMiddlewareClient = internalMiddlewareClient;
             _internalMiddlewareService = internalMiddlewareService;
+            _logger = logger;
         }
 
         public async Task<IResponse> GetAuthorisationUrl(
@@ -157,6 +163,12 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                     parameters = accessTokenModel.Parameters;
                 else
                     return accessTokenResponse;
+            }
+
+            if(integrationDetails.IntegrationSetting.PublicApiSettingName == "InProgress")
+            {
+                _logger.Information("Successful integration for {Provider} with Parameters {Parameters}", provider, Json.Serialize(parameters));
+                return Success.Instance;
             }
 
             // TODO: @GrahamWhitehoiuse is this needed?
