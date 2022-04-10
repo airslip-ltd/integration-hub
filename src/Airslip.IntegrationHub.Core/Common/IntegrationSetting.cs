@@ -3,7 +3,6 @@ using Airslip.IntegrationHub.Core.Enums;
 using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using System.Collections.Generic;
-using System.Net;
 
 namespace Airslip.IntegrationHub.Core.Common;   
 
@@ -70,6 +69,13 @@ public record IntegrationSetting
     {
         return AuthorisationBaseUri.Replace("{shop}", shop);
     }
+}
+
+public enum AuthenticationSchemes
+{
+    None,
+    Basic,
+    Bearer
 }
 
 public class AuthorisationParameterNames

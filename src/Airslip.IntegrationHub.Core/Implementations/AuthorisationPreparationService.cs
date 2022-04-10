@@ -13,7 +13,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -153,9 +152,13 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         if (integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Basic)
         {
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
-                "Basic",
+                AuthenticationSchemes.Basic.ToString(),
                 Convert.ToBase64String(Encoding.ASCII.GetBytes($"{integrationDetails.IntegrationSetting.ApiKey}:{integrationDetails.IntegrationSetting.ApiSecret}")));
         }
+        else if(integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Bearer)
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                AuthenticationSchemes.Bearer.ToString(),
+                integrationDetails.IntegrationSetting.ApiSecret);
 
         return httpRequestMessage;
     }
