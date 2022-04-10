@@ -66,6 +66,18 @@ locals {
 
   xero_api_key = var.xero_api_key
   xero_api_secret = var.xero_api_secret
+
+  quickbooksonline_api_key = var.quickbooksonline_api_key
+  quickbooksonline_api_secret = var.quickbooksonline_api_secret
+
+  square_api_key = var.square_api_key
+  square_api_secret = var.square_api_secret
+
+  stripe_api_key = var.stripe_api_key
+  stripe_api_secret = var.stripe_api_secret
+
+  zettle_api_key = var.zettle_api_key
+  zettle_api_secret = var.zettle_api_secret
 }
 
 module "ingredient_bowl" {
@@ -137,6 +149,12 @@ module "func_app_host" {
         "IntegrationSettings:Settings:Xero:ApiSecret": local.xero_api_secret,
         "IntegrationSettings:Settings:QuickBooksOnline:ApiKey": local.quickbooksonline_api_key,
         "IntegrationSettings:Settings:QuickBooksOnline:ApiSecret": local.quickbooksonline_api_secret,
+        "IntegrationSettings:Settings:Square:ApiKey": local.square_api_key,
+        "IntegrationSettings:Settings:Square:ApiSecret": local.square_api_secret,
+        "IntegrationSettings:Settings:Stripe:ApiKey": local.stripe_api_key,
+        "IntegrationSettings:Settings:Stripe:ApiSecret": local.stripe_api_secret,
+        "IntegrationSettings:Settings:Zettle:ApiKey": local.zettle_api_key,
+        "IntegrationSettings:Settings:Zettle:ApiSecret": local.zettle_api_secret
       }
     }
   ]

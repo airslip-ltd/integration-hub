@@ -62,3 +62,12 @@ variable "xero_api_secret" {}
 
 variable "quickbooksonline_api_key" {}
 variable "quickbooksonline_api_secret" {}
+
+variable "square_api_key" {}
+variable "square_api_secret" {}
+
+variable "stripe_api_key" {}
+variable "stripe_api_secret" {}
+
+variable "zettle_api_key" {}
+variable "zettle_api_secret" {}
