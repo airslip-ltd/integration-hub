@@ -84,6 +84,13 @@ jobs:
         XERO_API_SECRET: ${{ secrets.XERO_API_SECRET }}
         QUICKBOOKSONLINE_API_KEY: ${{ secrets.QUICKBOOKSONLINE_API_KEY }}
         QUICKBOOKSONLINE_API_SECRET: ${{ secrets.QUICKBOOKSONLINE_API_SECRET }}
+        STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+        STRIPE_API_SECRET: ${{ secrets.STRIPE_API_SECRET }}
+        ZETTLE_API_KEY: ${{ secrets.ZETTLE_API_KEY }}
+        ZETTLE_API_SECRET: ${{ secrets.ZETTLE_API_SECRET }}
+        SQUARE_API_KEY: ${{ secrets.SQUARE_API_KEY }}
+        SQUARE_API_SECRET: ${{ secrets.SQUARE_API_SECRET }}
+
 
     - uses: azure/login@v1
       with:
