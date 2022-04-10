@@ -135,6 +135,8 @@ module "func_app_host" {
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldThree": local.amazon_sp_user_secret,
         "IntegrationSettings:Settings:Xero:ApiKey": local.xero_api_key,
         "IntegrationSettings:Settings:Xero:ApiSecret": local.xero_api_secret,
+        "IntegrationSettings:Settings:QuickBooksOnline:ApiKey": local.quickbooksonline_api_key,
+        "IntegrationSettings:Settings:QuickBooksOnline:ApiSecret": local.quickbooksonline_api_secret,
       }
     }
   ]

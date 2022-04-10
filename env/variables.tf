@@ -59,3 +59,6 @@ variable "amazon_sp_user_secret" {}
 
 variable "xero_api_key" {}
 variable "xero_api_secret" {}
+
+variable "quickbooksonline_api_key" {}
+variable "quickbooksonline_api_secret" {}
