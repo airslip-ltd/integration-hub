@@ -80,6 +80,8 @@ jobs:
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
         XERO_API_KEY: ${{ secrets.XERO_API_KEY }}
         XERO_API_SECRET: ${{ secrets.XERO_API_SECRET }}
+        QUICKBOOKSONLINE_API_KEY: ${{ secrets.QUICKBOOKSONLINE_API_KEY }}
+        QUICKBOOKSONLINE_API_SECRET: ${{ secrets.QUICKBOOKSONLINE_API_SECRET }}
 
     - uses: azure/login@v1
       with:
@@ -216,6 +218,8 @@ jobs:
         AMAZON_SP_USER_SECRET: ${{ secrets.AMAZON_SP_USER_SECRET }}
         XERO_API_KEY: ${{ secrets.XERO_API_KEY }}
         XERO_API_SECRET: ${{ secrets.XERO_API_SECRET }}
+        QUICKBOOKSONLINE_API_KEY: ${{ secrets.QUICKBOOKSONLINE_API_KEY }}
+        QUICKBOOKSONLINE_API_SECRET: ${{ secrets.QUICKBOOKSONLINE_API_SECRET }}
 
     - uses: azure/login@v1
       with:
