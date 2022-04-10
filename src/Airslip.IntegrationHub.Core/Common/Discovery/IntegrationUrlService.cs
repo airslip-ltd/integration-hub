@@ -171,17 +171,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 return new IntegrationResponse(provider);
             }
 
-            // TODO: @GrahamWhitehoiuse is this needed?
-            //if (integrationDetails.IntegrationSetting.AuthorisePassthrough)
-            //    url =
-            //        $"{url}{(url.IndexOf("?") < 0 ? "?" : "")}{string.Join("&", replacements.Select(o => $"{o.Key}={HttpUtility.UrlEncode(o.Value)}"))}";
-
-            //if (integrationDetails.IntegrationSetting.AnonymousUsage)
-            //    url += $"&user_info={sensitiveInfo?.CipheredSensitiveInfo}";
-
-            //// Get successful auth values and put into a common model
-            //string url = _authorisationPreparationService.GenerateMiddlewareDestinationUrl(provider, integrationDetails, parameters, sensitiveInfo!);
-
             // Get successful auth values and put into a common model
             string url = _authorisationPreparationService.GenerateMiddlewareDestinationUrl(provider, integrationDetails, parameters, sensitiveInfo!);
 
