@@ -14,7 +14,6 @@ public record IntegrationSetting
     public string AuthorisationRouteFormat { get; init; } = string.Empty;
     public AuthorisationRouteType AuthorisationRouteType { get; init; } = AuthorisationRouteType.Internal;
     public string AuthoriseRouteFormat { get; init; } = string.Empty;
-    public SourceType SourceType { get; init; }
     public bool AuthorisePassthrough { get; init; } = false;
     public bool AnonymousUsage { get; init; } = false;
     public bool OAuthRedirect { get; init; } = false;

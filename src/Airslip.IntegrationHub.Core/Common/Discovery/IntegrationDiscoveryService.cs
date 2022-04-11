@@ -41,11 +41,7 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
                 PublicApiSetting baseSetting = _settings.GetSettingByName("Base");
                 uri = integrationDestinationSetting.ToBaseUri();
                 apiKey = integrationDestinationSetting.ApiKey;
-                callbackUrl = integrationSetting.SourceType switch
-                {
-                    SourceType.SingleSource => $"{baseSetting.ToBaseUri()}/auth/callback/{provider.ToLower()}",
-                    _ => $"{baseSetting.ToBaseUri()}/auth/callback/{provider.ToLower()}/{integration?.ToLower()}" // Do we need this line?
-                };
+                callbackUrl = $"{baseSetting.ToBaseUri()}/auth/callback/{provider.ToLower()}";
                 break;
             case AuthorisationRouteType.External:
                 uri = integrationSetting.AuthorisationBaseUri;
