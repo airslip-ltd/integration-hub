@@ -86,7 +86,7 @@ namespace Airslip.IntegrationHub
                         .AddAirslipFunctionAuth(context.Configuration);
 
                     services
-                        .UseHealthChecks();
+                        .UseMonitoring();
 
                     services
                         .AddProviderAuthorisation(context.Configuration)
