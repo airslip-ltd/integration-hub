@@ -12,7 +12,7 @@ jobs:
     environment: Development
     env:
       DOTNET_CORE_VERSION: 6.0.x
-      TERRAFORM_MODULE_VERSION: 6.1.1
+      TERRAFORM_MODULE_VERSION: 6.3.2
       ENVIRONMENT_NAME: Development
       ENVIRONMENT_NAME_SHORT: dev
       BUILD_PATH: ./src/Airslip.IntegrationHub.sln

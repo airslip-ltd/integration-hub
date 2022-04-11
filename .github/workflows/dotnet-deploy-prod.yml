@@ -10,7 +10,7 @@ jobs:
     environment: QA
     env:
       DOTNET_CORE_VERSION: 6.0.x
-      TERRAFORM_MODULE_VERSION: 6.1.1
+      TERRAFORM_MODULE_VERSION: 6.3.2
       ENVIRONMENT_NAME: QA
       ENVIRONMENT_NAME_SHORT: qa
       BUILD_PATH: ./src/Airslip.IntegrationHub.sln
@@ -154,7 +154,7 @@ jobs:
     environment: Production
     env:
       DOTNET_CORE_VERSION: 6.0.x
-      TERRAFORM_MODULE_VERSION: 6.1.1
+      TERRAFORM_MODULE_VERSION: 6.3.2
       ENVIRONMENT_NAME: Production
       ENVIRONMENT_NAME_SHORT: prod
       BUILD_PATH: ./src/Airslip.IntegrationHub.sln
