@@ -284,7 +284,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop);
         shop ??= sensitiveInfo?.Shop;
 
-        if (shop != null)
+        if (!string.IsNullOrWhiteSpace(shop))
         {
             replacements.Add(middlewareAuthParameterNames.Shop, shop);
 
