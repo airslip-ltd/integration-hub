@@ -65,9 +65,16 @@ variable "quickbooksonline_api_secret" {}
 
 variable "square_api_key" {}
 variable "square_api_secret" {}
+variable "square_authorisation_base_uri" {}
+variable "square_authorise_path_uri" {}
 
 variable "stripe_api_key" {}
 variable "stripe_api_secret" {}
 
 variable "zettle_api_key" {}
 variable "zettle_api_secret" {}
+
+variable "clover_api_key" {}
+variable "clover_api_secret" {}
+variable "clover_authorisation_base_uri" {}
+variable "clover_authorise_path_uri" {}

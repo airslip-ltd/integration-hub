@@ -72,12 +72,19 @@ locals {
 
   square_api_key = var.square_api_key
   square_api_secret = var.square_api_secret
+  square_authorisation_base_uri = var.square_authorisation_base_uri
+  square_authorise_path_uri = var.square_authorise_path_uri
 
   stripe_api_key = var.stripe_api_key
   stripe_api_secret = var.stripe_api_secret
 
   zettle_api_key = var.zettle_api_key
   zettle_api_secret = var.zettle_api_secret
+
+  clover_api_key = var.clover_api_key
+  clover_api_secret = var.clover_api_secret
+  clover_authorisation_base_uri = var.clover_authorisation_base_uri
+  clover_authorise_path_uri = var.clover_authorise_path_uri
 }
 
 module "ingredient_bowl" {
@@ -151,10 +158,16 @@ module "func_app_host" {
         "IntegrationSettings:Settings:QuickBooksOnline:ApiSecret": local.quickbooksonline_api_secret,
         "IntegrationSettings:Settings:Square:ApiKey": local.square_api_key,
         "IntegrationSettings:Settings:Square:ApiSecret": local.square_api_secret,
+        "IntegrationSettings:Settings:Square:AuthorisationBaseUri": local.square_authorisation_base_uri,
+        "IntegrationSettings:Settings:Square:AuthorisePathUri": local.square_authorise_path_uri,
         "IntegrationSettings:Settings:Stripe:ApiKey": local.stripe_api_key,
         "IntegrationSettings:Settings:Stripe:ApiSecret": local.stripe_api_secret,
         "IntegrationSettings:Settings:Zettle:ApiKey": local.zettle_api_key,
-        "IntegrationSettings:Settings:Zettle:ApiSecret": local.zettle_api_secret
+        "IntegrationSettings:Settings:Zettle:ApiSecret": local.zettle_api_secret,
+        "IntegrationSettings:Settings:Clover:ApiKey": local.clover_api_key,
+        "IntegrationSettings:Settings:Clover:ApiSecret": local.clover_api_secret,
+        "IntegrationSettings:Settings:Clover:AuthorisationBaseUri": local.clover_authorisation_base_uri,
+        "IntegrationSettings:Settings:Clover:AuthorisePathUri": local.clover_authorise_path_uri
       }
     }
   ]
