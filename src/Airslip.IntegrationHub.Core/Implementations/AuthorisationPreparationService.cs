@@ -42,34 +42,6 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             : _sensitiveInformationService.DecryptCallbackInfo(state);
     }
 
-    public Dictionary<string, string> BankingQueryStringReplacer(Dictionary<string, string> parameters)
-    {
-        Dictionary<string, string> replacements = new();
-
-        if (parameters.TryGetValue("consent", out string? consent))
-            replacements.Add("consent", consent);
-
-        if (parameters.TryGetValue("application-user-id", out string? appUserId))
-            replacements.Add("appUserId", appUserId);
-
-        if (parameters.TryGetValue("user-uuid", out string? userId))
-            replacements.Add("userId", userId);
-
-        if (parameters.TryGetValue("institution", out string? integrationProviderId))
-            replacements.Add("integrationProviderId", integrationProviderId);
-
-        if (parameters.TryGetValue("userId", out string? airslipUserId))
-            replacements.Add("airslipUserId", airslipUserId);
-
-        if (parameters.TryGetValue("entityId", out string? airslipEntityId))
-            replacements.Add("airslipEntityId", airslipEntityId);
-
-        if (parameters.TryGetValue("airslipUserType", out string? airslipUserType))
-            replacements.Add("airslipUserType", airslipUserType);
-
-        return replacements;
-    }
-
     public ICollection<KeyValuePair<string, string>> CommerceQueryStringReplacer(
         Dictionary<string, string> parameters,
         string authoriseRouteFormat,
@@ -126,7 +98,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         if (parameters.TryGetValue(authParameterNames.Shop, out string? shop))
             replacements.Add("shop", shop);
 
-        string requestUri = integrationDetails.IntegrationSetting.AuthoriseBaseUri!.ApplyReplacements(replacements);
+        string requestUri = integrationDetails.IntegrationSetting.AuthorisePathUri!.ApplyReplacements(replacements);
 
         HttpRequestMessage httpRequestMessage = new()
         {

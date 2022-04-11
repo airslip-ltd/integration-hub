@@ -24,9 +24,7 @@ public record IntegrationSetting
     public AuthenticationSchemes? AuthoriseScheme { get; set; } = AuthenticationSchemes.None;
     public bool AuthoriseHeadersRequired { get; set; }
     public string AuthorisationBaseUri { get; set; } = string.Empty;
-
-    public string? AuthoriseBaseUri { get; set; }
-
+    public string? AuthorisePathUri { get; set; }
     public string ApiKey { get; set; } = string.Empty;
     public string AppName { get; set; } = string.Empty;
     public string ApiSecret { get; set; } = string.Empty;
