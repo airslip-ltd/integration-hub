@@ -86,8 +86,8 @@ locals {
   clover_authorisation_base_uri = var.clover_authorisation_base_uri
   clover_authorise_path_uri = var.clover_authorise_path_uri
 
-  speedlight_api_key = var.speedlight_api_key
-  speedlight_api_secret = var.speedlight_api_secret
+  lsrseries_api_key = var.lsrseries_api_key
+  lsrseries_api_secret = var.lsrseries_api_secret
 }
 
 module "ingredient_bowl" {
@@ -171,8 +171,8 @@ module "func_app_host" {
         "IntegrationSettings:Settings:Clover:ApiSecret": local.clover_api_secret,
         "IntegrationSettings:Settings:Clover:AuthorisationBaseUri": local.clover_authorisation_base_uri,
         "IntegrationSettings:Settings:Clover:AuthorisePathUri": local.clover_authorise_path_uri,
-        "IntegrationSettings:Settings:SpeedLight:ApiKey": local.speedlight_api_key,
-        "IntegrationSettings:Settings:SpeedLight:ApiSecret": local.speedlight_api_secret,
+        "IntegrationSettings:Settings:LSrSeries:ApiKey": local.lsrseries_api_key,
+        "IntegrationSettings:Settings:LSrSeries:ApiSecret": local.lsrseries_api_secret,
       }
     }
   ]

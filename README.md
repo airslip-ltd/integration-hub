@@ -186,3 +186,13 @@ A user is required to be created in AWS with a policy and role.
 | AdditionalFieldOne | amazon_sp_aws_role_arn |
 | AdditionalFieldTwo | amazon_sp_aws_user_key_id |
 | AdditionalFieldThree | amazon_sp_aws_user_secret |
+
+
+## Lightspeed API
+
+Lightspeed have a lot of different systems that uses different APIs
+
+- Lightspeed Retail is now Lightspeed Retail POS (R-Series) [API Reference](https://developers.lightspeedhq.com/retail/introduction/introduction)
+- Lightspeed eCom is Lightspeed eCom (C-Series)
+- ShopKeep by Lightspeed is Lightspeed POS (S-Series)
+- Lightspeed Restaurant is Lightspeed Restaurant POS (L-Series)
