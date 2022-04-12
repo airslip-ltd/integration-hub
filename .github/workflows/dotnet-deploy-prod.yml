@@ -94,8 +94,8 @@ jobs:
         CLOVER_API_SECRET: ${{ secrets.CLOVER_API_SECRET }}
         CLOVER_AUTHORISATION_BASE_URI: ${{ secrets.CLOVER_AUTHORISATION_BASE_URI }}
         CLOVER_AUTHORISE_PATH_URI: ${{ secrets.CLOVER_AUTHORISE_PATH_URI }}
-        SPEEDLIGHT_API_KEY: ${{ secrets.SPEEDLIGHT_API_KEY }}
-        SPEEDLIGHT_API_SECRET: ${{ secrets.SPEEDLIGHT_API_SECRET }}
+        LSRSERIES_API_KEY: ${{ secrets.LSRSERIES_API_KEY }}
+        LSRSERIES_API_SECRET: ${{ secrets.LSRSERIES_API_SECRET }}
 
     - uses: azure/login@v1
       with:
@@ -246,8 +246,8 @@ jobs:
         CLOVER_API_SECRET: ${{ secrets.CLOVER_API_SECRET }}
         CLOVER_AUTHORISATION_BASE_URI: ${{ secrets.CLOVER_AUTHORISATION_BASE_URI }}
         CLOVER_AUTHORISE_PATH_URI: ${{ secrets.CLOVER_AUTHORISE_PATH_URI }}
-        SPEEDLIGHT_API_KEY: ${{ secrets.SPEEDLIGHT_API_KEY }}
-        SPEEDLIGHT_API_SECRET: ${{ secrets.SPEEDLIGHT_API_SECRET }}
+        LSRSERIES_API_KEY: ${{ secrets.LSRSERIES_API_KEY }}
+        LSRSERIES_API_SECRET: ${{ secrets.LSRSERIES_API_SECRET }}
 
     - uses: azure/login@v1
       with:

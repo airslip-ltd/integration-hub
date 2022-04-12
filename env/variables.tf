@@ -79,5 +79,5 @@ variable "clover_api_secret" {}
 variable "clover_authorisation_base_uri" {}
 variable "clover_authorise_path_uri" {}
 
-variable "speedlight_api_key" {}
-variable "speedlight_api_secret" {}
+variable "lsrseries_api_key" {}
+variable "lsrseries_api_secret" {}
