@@ -60,10 +60,6 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</None>
 
-		<Content Include="appsettings.Local.json">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-
 		<Content Include="appsettings.Production.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
