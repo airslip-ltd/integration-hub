@@ -154,10 +154,3 @@ jobs:
         app-name: ${{ steps.terraform_update.outputs.processor_app_service_name }}
         package: ./ProcessorApp
         publish-profile: ${{ steps.publishprofile_processor.outputs.profile }}
-
-    - name: Verify security headers
-      uses: marcuslindblom/security-headers@main
-      with:
-        url: ${{ secrets.SECURITY_HEADERS_URL }}
-        followRedirects: true
-        grade: A
