@@ -98,6 +98,8 @@ jobs:
         CLOVER_AUTHORISE_PATH_URI: ${{ secrets.CLOVER_AUTHORISE_PATH_URI }}
         LSRSERIES_API_KEY: ${{ secrets.LSRSERIES_API_KEY }}
         LSRSERIES_API_SECRET: ${{ secrets.LSRSERIES_API_SECRET }}
+        SUMUP_API_KEY: ${{ secrets.SUMUP_API_KEY }}
+        SUMUP_API_SECRET: ${{ secrets.SUMUP_API_SECRET }}
 
 
     - uses: azure/login@v1

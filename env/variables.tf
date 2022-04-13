@@ -81,3 +81,6 @@ variable "clover_authorise_path_uri" {}
 
 variable "lsrseries_api_key" {}
 variable "lsrseries_api_secret" {}
+
+variable "sumup_api_key" {}
+variable "sumup_api_secret" {}
