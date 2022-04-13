@@ -26,8 +26,8 @@ public class IntegrationDiscoveryService : IIntegrationDiscoveryService
     public IntegrationDetails GetIntegrationDetails(string provider, string? integration = null, bool testMode = false)
     {
         IntegrationSetting integrationSetting =  _integrationSettings.GetSettingByName(provider);
-
-        if (integrationSetting == null)
+        
+        if (integrationSetting == null || integrationSetting.PublicApiSettingName == string.Empty)
             return new IntegrationNotFound();
 
         PublicApiSetting integrationDestinationSetting =

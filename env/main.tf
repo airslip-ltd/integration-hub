@@ -88,6 +88,9 @@ locals {
 
   lsrseries_api_key = var.lsrseries_api_key
   lsrseries_api_secret = var.lsrseries_api_secret
+
+  sumup_api_key = var.sumup_api_key
+  sumup_api_secret = var.sumup_api_secret
 }
 
 module "ingredient_bowl" {
@@ -173,6 +176,8 @@ module "func_app_host" {
         "IntegrationSettings:Settings:Clover:AuthorisePathUri": local.clover_authorise_path_uri,
         "IntegrationSettings:Settings:LSrSeries:ApiKey": local.lsrseries_api_key,
         "IntegrationSettings:Settings:LSrSeries:ApiSecret": local.lsrseries_api_secret,
+        "IntegrationSettings:Settings:SumUp:ApiKey": local.sumup_api_key,
+        "IntegrationSettings:Settings:SumUp:ApiSecret": local.sumup_api_secret,
       }
     }
   ]
