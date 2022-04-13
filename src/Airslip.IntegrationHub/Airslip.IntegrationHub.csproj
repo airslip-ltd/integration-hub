@@ -56,7 +56,6 @@
 		<None Remove="appsettings.Production.json" />
 
 		<None Update="appsettings.Local.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</None>
 
