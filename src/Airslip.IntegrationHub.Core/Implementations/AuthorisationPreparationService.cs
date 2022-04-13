@@ -189,11 +189,24 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     {
         if (req.Method == "GET")
             return req.Url.Query.QueryStringToDictionary();
-
-        object o = req.Body.DeserializeFunctionStream<object>();
-        req.Body.Position = 0;
+        
+        object o;
+        try
+        {
+            o = req.Body.DeserializeFunctionStream<object>();
+            req.Body.Position = 0;
+        }
+        catch (Exception)
+        {
+            o = req.Url.Query.QueryStringToDictionary();
+        }
+            
         string s = Json.Serialize(o);
-        return Json.Deserialize<Dictionary<string, string>>(s);
+
+        Dictionary<string, object> parsedParameters = Json.Deserialize<Dictionary<string, object>>(s);
+
+        return parsedParameters
+            .ToDictionary(k => k.Key, k => k.Value.ToString()!);
     }
 
     public string GenerateMiddlewareDestinationUrl(
