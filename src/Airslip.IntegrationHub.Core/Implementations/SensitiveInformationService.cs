@@ -1,4 +1,5 @@
 using Airslip.Common.Security.Configuration;
+using Airslip.Common.Security.Enums;
 using Airslip.Common.Security.Implementations;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
@@ -32,7 +33,8 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
                 serialisedUserInformation,
-                _encryptionSettings.PassPhraseToken);
+                _encryptionSettings.PassPhraseToken,
+                ConversionType.Hex);
 
             sensitiveCallbackInfo.CipheredSensitiveInfo = cipheredSensitiveInfo;
 
@@ -44,7 +46,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             string decryptedUserInfo;
             try
             {
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken);
+                decryptedUserInfo = _stringCipherDecrypt(cipherString);
                 return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
             }
             catch (Exception e)
@@ -58,7 +60,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 if (cipherString.Contains(' '))
                     cipherString = cipherString.Replace(" ", "+");
 
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken);
+                decryptedUserInfo = _stringCipherDecrypt(cipherString);
                 return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
             }
             catch (Exception e)
@@ -71,7 +73,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
                 if (cipherString.Last().ToString() != "=")
                     cipherString += "=";
                 
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken);
+                decryptedUserInfo = _stringCipherDecrypt(cipherString);
                 return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
             }
             catch (Exception e)
@@ -83,7 +85,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             {
                 cipherString += "=";
                 
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken);
+                decryptedUserInfo = _stringCipherDecrypt(cipherString);
             }
             catch (Exception e)
             {
@@ -93,60 +95,10 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
             return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
         }
-        
-        public static SensitiveCallbackInfo DecryptCallbackInfo(string cipherString, string passPhrase)
+
+        private string _stringCipherDecrypt(string cipherString)
         {
-            string decryptedUserInfo;
-            try
-            {
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, passPhrase);
-                return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
-            }
-            catch (Exception e)
-            {
-                Log.Debug("Error: {ErrorMessage}", e.Message);
-            }
-
-            try
-            {
-                // WooCommerce replaces the Encoded values with spaces and removes the equals sign
-                if (cipherString.Contains(' '))
-                    cipherString = cipherString.Replace(" ", "+");
-
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, passPhrase);
-                return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
-            }
-            catch (Exception e)
-            {
-                Log.Debug("Error: {ErrorMessage}", e.Message);
-            }
-
-            try
-            {
-                if (cipherString.Last().ToString() != "=")
-                    cipherString += "=";
-                
-                decryptedUserInfo = StringCipher.Decrypt(cipherString, passPhrase);
-                return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
-            }
-            catch (Exception e)
-            {
-                Log.Debug("Error: {ErrorMessage}", e.Message);
-            }
-
-            try
-            {
-                cipherString += "=";
-                
-                decryptedUserInfo =StringCipher.Decrypt(cipherString, passPhrase);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-            return Json.Deserialize<SensitiveCallbackInfo>(decryptedUserInfo);
+            return StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken, ConversionType.Hex);
         }
     }
 }
