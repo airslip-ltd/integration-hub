@@ -28,7 +28,6 @@ locals {
   admin_group_id            = var.admin_group_id
   certificate_name          = var.certificate_name
   certificate_path          = var.certificate_path
-  certificate_password      = var.certificate_password
   deployment_agent_group_id = var.deployment_agent_group_id
   hostname                  = var.hostname
   log_level                 = var.log_level
@@ -196,9 +195,6 @@ module "frontdoor" {
     short_environment    = local.short_environment,
     location             = module.ingredient_bowl.location,
     tags                 = local.tags,
-    certificate_name     = local.certificate_name,
-    certificate_path     = local.certificate_path,
-    certificate_password = local.certificate_password,
     tenant_id            = data.azurerm_client_config.current.tenant_id,
     admin_group_id       = local.admin_group_id,
     deployer_id          = local.deployment_agent_group_id
