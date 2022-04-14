@@ -26,8 +26,6 @@ locals {
   integrations_hostname = var.integrations_hostname
   ui_hostname = var.ui_hostname
   admin_group_id            = var.admin_group_id
-  certificate_name          = var.certificate_name
-  certificate_path          = var.certificate_path
   deployment_agent_group_id = var.deployment_agent_group_id
   hostname                  = var.hostname
   log_level                 = var.log_level
