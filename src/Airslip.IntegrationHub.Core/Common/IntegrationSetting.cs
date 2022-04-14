@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Airslip.IntegrationHub.Core.Common;   
 
-public record IntegrationSetting
+public record IntegrationSetting : IIntegrationSettingError
 {
     public string PublicApiSettingName { get; init; } = string.Empty;
     public MethodTypes PublicApiMethodType { get; set; } = MethodTypes.POST;
@@ -40,7 +40,9 @@ public record IntegrationSetting
     public string? AdditionalFieldThree { get; set; }
     public MethodTypes ExchangeCodeMethodType { get; set; } = MethodTypes.POST;
     public AuthorisationParameterNames AuthorisationParameterNames { get; set; } = new();
-  
+    public string Error { get; set; } = string.Empty;
+    public AuthenticationSchemes TokenType { get; set; }
+
 
     public void FormatReturnPage(string baseUri)
     {
@@ -66,32 +68,10 @@ public record IntegrationSetting
     {
         return AuthorisationBaseUri.Replace("{shop}", shop);
     }
+
 }
 
-public enum AuthenticationSchemes
+public interface IIntegrationSettingError
 {
-    None,
-    Basic,
-    Bearer
-}
-
-public class AuthorisationParameterNames
-{
-    public string Login { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public string AccessScope { get; set; } = string.Empty;
-    public string Shop { get; set; } = string.Empty;
-    public string Code { get; set; } = string.Empty;
-    public string State { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
-    public string StoreUrl { get; set; } = string.Empty;
-    public string Environment { get; set; } = string.Empty;
-    public string Reference { get; set; } = string.Empty;
-    public string Context { get; set; } = string.Empty;
-    public string Location { get; set; } = string.Empty;
-    public string AdditionalValueOne { get; set; } = string.Empty;
-    public string AdditionalValueTwo { get; set; } = string.Empty;
-    public string AdditionalValueThree { get; set; } = string.Empty;
-    public string IntegrationUserId { get; set; } = string.Empty;
-    public string IntegrationProviderId { get; set; } = string.Empty;
+    public string Error { get; set; }
 }
