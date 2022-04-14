@@ -1,5 +1,4 @@
 api_key = "#{API_KEY}#"
-certificate_password = "#{CERTIFICATE_PASSWORD}#"
 log_level = "#{LOGZ_IO_LOG_LEVEL}#"
 shopify_api_key = "#{SHOPIFY_API_KEY}#"
 shopify_api_secret = "#{SHOPIFY_API_SECRET}#"

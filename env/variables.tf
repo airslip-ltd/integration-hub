@@ -11,13 +11,6 @@ variable "api_key" {}
 variable "integrations_hostname" {}
 variable "ui_hostname" {}
 
-variable "certificate_path" {
-  default = "./Certificates/airslip.com.pfx"
-}
-variable "certificate_password" {}
-variable "certificate_name" {
-  default = "airslip-com-certificate"
-}
 variable "admin_group_id" {}
 variable "deployment_agent_group_id" {}
 variable "hostname" {}
