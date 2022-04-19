@@ -9,6 +9,8 @@ variable "environment" {
 }
 variable "api_key" {}
 variable "integrations_hostname" {}
+variable "yapilymatching_hostname" {}
+variable "mockdata_hostname" {}
 variable "ui_hostname" {}
 
 variable "admin_group_id" {}
