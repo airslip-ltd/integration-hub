@@ -88,6 +88,9 @@ locals {
 
   sumup_api_key = var.sumup_api_key
   sumup_api_secret = var.sumup_api_secret
+
+  lsxseries_api_key = var.lsxseries_api_key
+  lsxseries_api_secret = var.lsxseries_api_secret
 }
 
 module "ingredient_bowl" {
@@ -175,6 +178,8 @@ module "func_app_host" {
         "IntegrationSettings:Settings:LSrSeries:ApiSecret": local.lsrseries_api_secret,
         "IntegrationSettings:Settings:SumUp:ApiKey": local.sumup_api_key,
         "IntegrationSettings:Settings:SumUp:ApiSecret": local.sumup_api_secret,
+        "IntegrationSettings:Settings:LSxSeries:ApiKey": local.lsxseries_api_key,
+        "IntegrationSettings:Settings:LSxSeries:ApiSecret": local.lsxseries_api_secret,
       }
     }
   ]
