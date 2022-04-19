@@ -77,3 +77,6 @@ variable "lsrseries_api_secret" {}
 
 variable "sumup_api_key" {}
 variable "sumup_api_secret" {}
+
+variable "lsxseries_api_key" {}
+variable "lsxseries_api_secret" {}

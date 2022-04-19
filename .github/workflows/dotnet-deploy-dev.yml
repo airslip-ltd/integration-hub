@@ -99,6 +99,8 @@ jobs:
         LSRSERIES_API_SECRET: ${{ secrets.LSRSERIES_API_SECRET }}
         SUMUP_API_KEY: ${{ secrets.SUMUP_API_KEY }}
         SUMUP_API_SECRET: ${{ secrets.SUMUP_API_SECRET }}
+        LSXSERIES_API_KEY: ${{ secrets.LSXSERIES_API_KEY }}
+        LSXSERIES_API_SECRET: ${{ secrets.LSXSERIES_API_SECRET }}
 
 
     - uses: azure/login@v1
