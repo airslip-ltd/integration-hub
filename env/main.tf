@@ -24,8 +24,6 @@ locals {
   location = var.location
   api_key = var.api_key
   integrations_hostname = var.integrations_hostname
-  mockdata_hostname = var.mockdata_hostname
-  yapilymatching_hostname = var.yapilymatching_hostname
   ui_hostname = var.ui_hostname
   admin_group_id            = var.admin_group_id
   deployment_agent_group_id = var.deployment_agent_group_id
@@ -135,10 +133,10 @@ module "func_app_host" {
         "PublicApiSettings:Settings:Api2Cart:BaseUri": local.integrations_hostname,
         "PublicApiSettings:Settings:Api2Cart:UriSuffix": "api2cart",
         "PublicApiSettings:Settings:Api2Cart:ApiKey": local.api_key,
-        "PublicApiSettings:Settings:YapilyMatching:BaseUri": local.yapilymatching_hostname,
+        "PublicApiSettings:Settings:YapilyMatching:BaseUri": "https://airslip-${local.short_environment}-mock-data-producer-proc-app.azurewebsites.net",
         "PublicApiSettings:Settings:YapilyMatching:UriSuffix": "",
         "PublicApiSettings:Settings:YapilyMatching:ApiKey": local.api_key,
-        "PublicApiSettings:Settings:MockData:BaseUri": local.mockdata_hostname,
+        "PublicApiSettings:Settings:MockData:BaseUri": "https://airslip-${local.short_environment}-matching-yapily-processor-app.azurewebsites.net",
         "PublicApiSettings:Settings:MockData:UriSuffix": "",
         "PublicApiSettings:Settings:MockData:ApiKey": local.api_key,
         "PublicApiSettings:Settings:Vend:BaseUri": local.integrations_hostname,
