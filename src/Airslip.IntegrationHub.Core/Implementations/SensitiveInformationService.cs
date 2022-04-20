@@ -34,7 +34,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
             string cipheredSensitiveInfo = StringCipher.EncryptForUrl(
                 serialisedUserInformation,
                 _encryptionSettings.PassPhraseToken,
-                ConversionType.Hex);
+                conversionType: ConversionType.Hex);
 
             sensitiveCallbackInfo.CipheredSensitiveInfo = cipheredSensitiveInfo;
 
@@ -98,7 +98,7 @@ namespace Airslip.IntegrationHub.Core.Implementations
 
         private string _stringCipherDecrypt(string cipherString)
         {
-            return StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken, ConversionType.Hex);
+            return StringCipher.Decrypt(cipherString, _encryptionSettings.PassPhraseToken,   conversionType:  ConversionType.Hex);
         }
     }
 }
