@@ -73,6 +73,7 @@ jobs:
         AMAZON_SP_API_SECRET: ${{ secrets.AMAZON_SP_API_SECRET }}
         AMAZON_SP_APP_NAME: ${{ secrets.AMAZON_SP_APP_NAME }}
         AMAZON_SP_ENVIRONMENT: ${{ secrets.AMAZON_SP_ENVIRONMENT }}
+        AMAZON_SP_VERSION: ${{ secrets.AMAZON_SP_VERSION }}
         AMAZON_SP_LOCATION: ${{ secrets.AMAZON_SP_LOCATION }}
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
@@ -369,6 +370,7 @@ jobs:
         AMAZON_SP_API_SECRET: ${{ secrets.AMAZON_SP_API_SECRET }}
         AMAZON_SP_APP_NAME: ${{ secrets.AMAZON_SP_APP_NAME }}
         AMAZON_SP_ENVIRONMENT: ${{ secrets.AMAZON_SP_ENVIRONMENT }}
+        AMAZON_SP_VERSION: ${{ secrets.AMAZON_SP_VERSION }}
         AMAZON_SP_LOCATION: ${{ secrets.AMAZON_SP_LOCATION }}
         AMAZON_SP_ROLE: ${{ secrets.AMAZON_SP_ROLE }}
         AMAZON_SP_USER_ID: ${{ secrets.AMAZON_SP_USER_ID }}
