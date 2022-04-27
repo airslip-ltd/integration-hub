@@ -243,10 +243,12 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             replacements.Add(middlewareAuthParameterNames.Login, login);
 
         if (parameters.TryGetValue(providerAuthParameterNames.Password, out string? password))
-            replacements.Add(middlewareAuthParameterNames.Password, password);
+            replacements.Add(middlewareAuthParameterNames.Password, 
+                _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, password));
 
         if (parameters.TryGetValue(providerAuthParameterNames.Context, out string? context))
-            replacements.Add(middlewareAuthParameterNames.Context, context);
+            replacements.Add(middlewareAuthParameterNames.Context, 
+                _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, context));
 
         if (parameters.TryGetValue(providerAuthParameterNames.Environment, out string? environment))
             replacements.Add(middlewareAuthParameterNames.Environment, environment);
@@ -264,25 +266,27 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             replacements.Add(middlewareAuthParameterNames.Reference, reference);
 
         if (parameters.TryGetValue(providerAuthParameterNames.RefreshToken, out string? refreshToken))
-            replacements.Add(middlewareAuthParameterNames.RefreshToken, refreshToken);
+            replacements.Add(middlewareAuthParameterNames.RefreshToken, 
+                _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, refreshToken));
 
         parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop);
         shop ??= sensitiveInfo?.Shop;
-
+        string? shopUrl = null;
         if (!string.IsNullOrWhiteSpace(shop))
         {
             replacements.Add(middlewareAuthParameterNames.Shop, shop);
-
-            string shopUrl = integrationDetails.IntegrationSetting.FormatBaseUri(shop);
-
-            replacements.Add(middlewareAuthParameterNames.StoreUrl, shopUrl);
+            
+            shopUrl = integrationDetails.IntegrationSetting.FormatBaseUri(shop);
         }
+        
+        replacements.Add(middlewareAuthParameterNames.StoreUrl, shopUrl ?? integrationDetails.IntegrationSetting.AuthorisationBaseUri);
 
         if (parameters.TryGetValue(providerAuthParameterNames.State, out string? state))
             replacements.Add(middlewareAuthParameterNames.State, state);
 
         if (parameters.TryGetValue(providerAuthParameterNames.AccessScope, out string? accessScope))
-            replacements.Add(middlewareAuthParameterNames.AccessScope, accessScope);
+            replacements.Add(middlewareAuthParameterNames.AccessScope, 
+                _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, accessScope));
 
         if (parameters.TryGetValue(providerAuthParameterNames.Code, out string? code))
             replacements.Add(middlewareAuthParameterNames.Code, code);
@@ -297,5 +301,12 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             replacements.Add(middlewareAuthParameterNames.AdditionalValueThree, additionalValueThree);
 
         return url.ApplyReplacements(replacements);
+    }
+
+    private string _urlEncode(bool requireEncode, string value)
+    {
+        return requireEncode
+            ? HttpUtility.UrlEncode(value)
+            : value;
     }
 }
