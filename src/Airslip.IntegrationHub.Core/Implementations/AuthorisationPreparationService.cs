@@ -1,6 +1,4 @@
-﻿using Airslip.Common.Security.Configuration;
-using Airslip.Common.Security.Implementations;
-using Airslip.Common.Types.Configuration;
+﻿using Airslip.Common.Types.Configuration;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common;
@@ -79,9 +77,11 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             .ToList();
     }
 
-    public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails, Dictionary<string, string> parameters)
+    public HttpRequestMessage GetHttpRequestMessageForAccessToken(IntegrationDetails integrationDetails,
+        Dictionary<string, string> parameters)
     {
-        AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        AuthorisationParameterNames authParameterNames =
+            integrationDetails.IntegrationSetting.AuthorisationParameterNames;
 
         ICollection<KeyValuePair<string, string>> queryParams = CommerceQueryStringReplacer(
             parameters,
@@ -125,9 +125,10 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         {
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
                 AuthenticationSchemes.Basic.ToString(),
-                Convert.ToBase64String(Encoding.ASCII.GetBytes($"{integrationDetails.IntegrationSetting.ApiKey}:{integrationDetails.IntegrationSetting.ApiSecret}")));
+                Convert.ToBase64String(Encoding.ASCII.GetBytes(
+                    $"{integrationDetails.IntegrationSetting.ApiKey}:{integrationDetails.IntegrationSetting.ApiSecret}")));
         }
-        else if(integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Bearer)
+        else if (integrationDetails.IntegrationSetting.AuthoriseScheme == AuthenticationSchemes.Bearer)
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(
                 AuthenticationSchemes.Bearer.ToString(),
                 integrationDetails.IntegrationSetting.ApiSecret);
@@ -156,7 +157,8 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         IntegrationDetails integrationDetails,
         Dictionary<string, string> parameters)
     {
-        AuthorisationParameterNames authParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        AuthorisationParameterNames authParameterNames =
+            integrationDetails.IntegrationSetting.AuthorisationParameterNames;
 
         parameters.TryGetValue(
             authParameterNames.Login,
@@ -189,7 +191,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     {
         if (req.Method == "GET")
             return req.Url.Query.QueryStringToDictionary();
-        
+
         object o;
         try
         {
@@ -200,7 +202,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         {
             o = req.Url.Query.QueryStringToDictionary();
         }
-            
+
         string s = Json.Serialize(o);
 
         Dictionary<string, object> parsedParameters = Json.Deserialize<Dictionary<string, object>>(s);
@@ -216,16 +218,18 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         SensitiveCallbackInfo? sensitiveInfo)
     {
         string destinationBaseUri = integrationDetails.IntegrationSetting.PublicApiSetting.ToBaseUri();
-        IntegrationSetting middlewareSetting = _integrationSetting.GetSettingByName(integrationDetails.IntegrationSetting.PublicApiSettingName);
+        IntegrationSetting middlewareSetting =
+            _integrationSetting.GetSettingByName(integrationDetails.IntegrationSetting.PublicApiSettingName);
 
         string url = $"{destinationBaseUri}/{middlewareSetting.AuthoriseRouteFormat}";
 
-        AuthorisationParameterNames providerAuthParameterNames = integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        AuthorisationParameterNames providerAuthParameterNames =
+            integrationDetails.IntegrationSetting.AuthorisationParameterNames;
         AuthorisationParameterNames middlewareAuthParameterNames = middlewareSetting.AuthorisationParameterNames;
 
         Dictionary<string, string> replacements = new();
 
-        if(sensitiveInfo?.EntityId != null)
+        if (sensitiveInfo?.EntityId != null)
             replacements.Add("entityId", sensitiveInfo.EntityId);
 
         if (sensitiveInfo?.AirslipUserType != null)
@@ -243,15 +247,15 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             replacements.Add(middlewareAuthParameterNames.Login, login);
 
         if (parameters.TryGetValue(providerAuthParameterNames.Password, out string? password))
-            replacements.Add(middlewareAuthParameterNames.Password, 
+            replacements.Add(middlewareAuthParameterNames.Password,
                 _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, password));
 
         if (parameters.TryGetValue(providerAuthParameterNames.Context, out string? context))
-            replacements.Add(middlewareAuthParameterNames.Context, 
+            replacements.Add(middlewareAuthParameterNames.Context,
                 _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, context));
 
-        if (parameters.TryGetValue(providerAuthParameterNames.Environment, out string? environment))
-            replacements.Add(middlewareAuthParameterNames.Environment, environment);
+        if (integrationDetails.IntegrationSetting.Environment != null)
+            replacements.Add(middlewareAuthParameterNames.Environment, integrationDetails.IntegrationSetting.Environment);
 
         if (parameters.TryGetValue(providerAuthParameterNames.IntegrationProviderId, out string? integrationProviderId))
             replacements.Add(middlewareAuthParameterNames.IntegrationProviderId, integrationProviderId);
@@ -259,14 +263,14 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         if (parameters.TryGetValue(providerAuthParameterNames.IntegrationUserId, out string? integrationUserId))
             replacements.Add(middlewareAuthParameterNames.IntegrationUserId, integrationUserId);
 
-        if (parameters.TryGetValue(providerAuthParameterNames.Location, out string? location))
-            replacements.Add(middlewareAuthParameterNames.Location, location);
+        if (integrationDetails.IntegrationSetting.Location != null)
+            replacements.Add(middlewareAuthParameterNames.Location, integrationDetails.IntegrationSetting.Location );
 
         if (parameters.TryGetValue(providerAuthParameterNames.Reference, out string? reference))
             replacements.Add(middlewareAuthParameterNames.Reference, reference);
 
         if (parameters.TryGetValue(providerAuthParameterNames.RefreshToken, out string? refreshToken))
-            replacements.Add(middlewareAuthParameterNames.RefreshToken, 
+            replacements.Add(middlewareAuthParameterNames.RefreshToken,
                 _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, refreshToken));
 
         parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop);
@@ -275,30 +279,34 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
         if (!string.IsNullOrWhiteSpace(shop))
         {
             replacements.Add(middlewareAuthParameterNames.Shop, shop);
-            
+
             shopUrl = integrationDetails.IntegrationSetting.FormatBaseUri(shop);
         }
-        
-        replacements.Add(middlewareAuthParameterNames.StoreUrl, shopUrl ?? integrationDetails.IntegrationSetting.AuthorisationBaseUri);
+
+        replacements.Add(middlewareAuthParameterNames.StoreUrl,
+            shopUrl ?? integrationDetails.IntegrationSetting.AuthorisationBaseUri);
 
         if (parameters.TryGetValue(providerAuthParameterNames.State, out string? state))
             replacements.Add(middlewareAuthParameterNames.State, state);
 
         if (parameters.TryGetValue(providerAuthParameterNames.AccessScope, out string? accessScope))
-            replacements.Add(middlewareAuthParameterNames.AccessScope, 
+            replacements.Add(middlewareAuthParameterNames.AccessScope,
                 _urlEncode(integrationDetails.IntegrationSetting.RequireUrlEncode, accessScope));
 
         if (parameters.TryGetValue(providerAuthParameterNames.Code, out string? code))
             replacements.Add(middlewareAuthParameterNames.Code, code);
 
-        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueOne, out string? additionalValueOne))
-            replacements.Add(middlewareAuthParameterNames.AdditionalValueOne, additionalValueOne);
+        if (integrationDetails.IntegrationSetting.AdditionalFieldOne != null)
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueOne,
+                integrationDetails.IntegrationSetting.AdditionalFieldOne);
 
-        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueTwo, out string? additionalValueTwo))
-            replacements.Add(middlewareAuthParameterNames.AdditionalValueTwo, additionalValueTwo);
+        if (integrationDetails.IntegrationSetting.AdditionalFieldTwo != null)
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueTwo,
+                integrationDetails.IntegrationSetting.AdditionalFieldTwo);
 
-        if (parameters.TryGetValue(providerAuthParameterNames.AdditionalValueThree, out string? additionalValueThree))
-            replacements.Add(middlewareAuthParameterNames.AdditionalValueThree, additionalValueThree);
+        if (integrationDetails.IntegrationSetting.AdditionalFieldThree != null)
+            replacements.Add(middlewareAuthParameterNames.AdditionalValueThree,
+                integrationDetails.IntegrationSetting.AdditionalFieldThree);
 
         return url.ApplyReplacements(replacements);
     }

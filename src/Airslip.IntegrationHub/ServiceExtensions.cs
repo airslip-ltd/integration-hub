@@ -27,7 +27,6 @@ public static class ServiceExtensions
             .Configure<SettingCollection<IntegrationSetting>>(configuration.GetSection($"{nameof(IntegrationSetting)}s"))
             .AddScoped<IOAuth2Service, OAuth2Service>()
             .AddScoped<IHmacService, HmacService>()
-            .AddScoped<IInternalMiddlewareService, InternalMiddlewareService>()
             .AddScoped<IAuthorisationPreparationService, AuthorisationPreparationService>()
             .AddScoped<IRequestValidationService, RequestValidationService>()
             .AddScoped<ISensitiveInformationService, SensitiveInformationService>()
