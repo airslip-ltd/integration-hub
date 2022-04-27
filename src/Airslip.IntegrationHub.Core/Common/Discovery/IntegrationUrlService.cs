@@ -1,4 +1,3 @@
-using Airslip.Common.Types;
 using Airslip.Common.Types.Failures;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
@@ -26,7 +25,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
         private readonly IAuthorisationPreparationService _authorisationPreparationService;
         private readonly IOAuth2Service _oauth2Service;
         private readonly IInternalMiddlewareClient _internalMiddlewareClient;
-        private readonly IInternalMiddlewareService _internalMiddlewareService;
         private readonly ILogger _logger;
 
         public IntegrationUrlService(
@@ -35,7 +33,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             IAuthorisationPreparationService authorisationPreparationService,
             IOAuth2Service oauth2Service,
             IInternalMiddlewareClient internalMiddlewareClient,
-            IInternalMiddlewareService internalMiddlewareService,
             ILogger logger)
         {
             _httpClient = factory.CreateClient(nameof(IntegrationUrlService));
@@ -43,7 +40,6 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             _authorisationPreparationService = authorisationPreparationService;
             _oauth2Service = oauth2Service;
             _internalMiddlewareClient = internalMiddlewareClient;
-            _internalMiddlewareService = internalMiddlewareService;
             _logger = logger;
         }
 
