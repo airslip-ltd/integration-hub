@@ -56,6 +56,7 @@ locals {
   amazon_sp_api_secret = var.amazon_sp_api_secret
   amazon_sp_app_name = var.amazon_sp_app_name
   amazon_sp_environment = var.amazon_sp_environment
+  amazon_sp_version = var.amazon_sp_version
   amazon_sp_location = var.amazon_sp_location
   amazon_sp_role = var.amazon_sp_role
   amazon_sp_user_id = var.amazon_sp_user_id
@@ -161,6 +162,7 @@ module "func_app_host" {
         "IntegrationSettings:Settings:AmazonSP:AppName": local.amazon_sp_app_name,
         "IntegrationSettings:Settings:AmazonSP:Environment": local.amazon_sp_environment,
         "IntegrationSettings:Settings:AmazonSP:Location": local.amazon_sp_location,
+        "IntegrationSettings:Settings:AmazonSP:Version": local.amazon_sp_version,
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldOne": local.amazon_sp_role,
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldTwo": local.amazon_sp_user_id,
         "IntegrationSettings:Settings:AmazonSP:AdditionalFieldThree": local.amazon_sp_user_secret,
