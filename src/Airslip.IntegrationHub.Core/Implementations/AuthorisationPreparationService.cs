@@ -8,6 +8,7 @@ using Airslip.IntegrationHub.Core.Interfaces;
 using Airslip.IntegrationHub.Core.Models;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
 {
     private readonly SettingCollection<IntegrationSetting> _integrationSetting;
     private readonly ISensitiveInformationService _sensitiveInformationService;
+    private readonly ILogger _logger;
 
     public AuthorisationPreparationService(
         IOptions<SettingCollection<IntegrationSetting>> integrationOptions,
@@ -29,6 +31,7 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     {
         _sensitiveInformationService = sensitiveInformationService;
         _integrationSetting = integrationOptions.Value;
+        _logger = Log.Logger;
     }
 
     public SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string, string> parameters)
@@ -275,6 +278,10 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
 
         parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop);
         shop ??= sensitiveInfo?.Shop;
+
+        if (string.IsNullOrWhiteSpace(shop))
+            _logger.Error("Shop is empty for {Provider}", provider);
+        
         string? shopUrl = null;
         if (!string.IsNullOrWhiteSpace(shop))
         {
@@ -309,6 +316,17 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
                 integrationDetails.IntegrationSetting.AdditionalFieldThree);
 
         return url.ApplyReplacements(replacements);
+    }
+
+    public SensitiveCallbackInfo AddDynamicShopName(IntegrationDetails integrationDetails, Dictionary<string, string> parameters,
+        SensitiveCallbackInfo sensitiveInfo)
+    {
+        AuthorisationParameterNames providerAuthParameterNames =
+            integrationDetails.IntegrationSetting.AuthorisationParameterNames;
+        if (parameters.TryGetValue(providerAuthParameterNames.Shop, out string? shop))
+            sensitiveInfo.Shop = shop;
+
+        return sensitiveInfo;
     }
 
     private string _urlEncode(bool requireEncode, string value)

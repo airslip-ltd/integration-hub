@@ -36,7 +36,7 @@ public class RequestValidationService : IRequestValidationService
     {
         Dictionary<string, string> parameters = _authorisationPreparation.GetParameters(req);
 
-        IntegrationDetails? integrationDetails = _discoveryService.GetIntegrationDetails(provider);
+        IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider);
         if (integrationDetails is IntegrationNotFound)
             return new NotFoundResponse(nameof(provider), provider);
         
