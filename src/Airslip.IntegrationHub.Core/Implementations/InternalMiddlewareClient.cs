@@ -1,20 +1,13 @@
 ﻿using Airslip.Common.Deletion.Models;
-using Airslip.Common.Types.Configuration;
-using Airslip.Common.Types.Enums;
 using Airslip.Common.Types.Failures;
-using Airslip.Common.Types.Hateoas;
 using Airslip.Common.Types.Interfaces;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common.Discovery;
 using Airslip.IntegrationHub.Core.Interfaces;
-using Airslip.IntegrationHub.Core.Requests;
 using Airslip.IntegrationHub.Core.Responses;
-using Microsoft.Extensions.Options;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -48,11 +41,7 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
                 Headers =
                 {
                     { "x-api-key", apiKey}
-                },
-                //Content = new StringContent(
-                //    Json.Serialize(middlewareAuthorisationRequest),
-                //    Encoding.UTF8,
-                //    Json.MediaType)
+                }
             };
 
             HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
