@@ -34,4 +34,6 @@ public interface IAuthorisationPreparationService
        IntegrationDetails integrationDetails,
        Dictionary<string, string> parameters,
        SensitiveCallbackInfo? sensitiveInfo);
+
+    SensitiveCallbackInfo AddDynamicShopName(IntegrationDetails integrationDetails, Dictionary<string, string> parameters, SensitiveCallbackInfo sensitiveInfo);
 }

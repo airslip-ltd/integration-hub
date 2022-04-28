@@ -146,6 +146,9 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                     sensitiveInfo.IntegrationProviderId,
                     sensitiveInfo.TestMode);
 
+            if (string.IsNullOrEmpty(sensitiveInfo?.Shop))
+                sensitiveInfo = _authorisationPreparationService.AddDynamicShopName(integrationDetails, parameters, sensitiveInfo!);
+
             if (integrationDetails.IntegrationSetting.AuthStrategy == ProviderAuthStrategy.ShortLived)
             {
                 HttpRequestMessage httpRequestMessage =
