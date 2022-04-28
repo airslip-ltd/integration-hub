@@ -11,8 +11,8 @@
 		<PackageReference Include="Airslip.Common.Functions" Version="6.0.6" />
 		<PackageReference Include="Airslip.Common.Monitoring" Version="6.1.1" />
 		<PackageReference Include="Airslip.Common.Security" Version="6.1.1" />
-		<PackageReference Include="Airslip.Common.Types" Version="6.2.16" />
-		<PackageReference Include="Airslip.Common.Utilities" Version="6.1.3" />
+		<PackageReference Include="Airslip.Common.Types" Version="6.2.17" />
+		<PackageReference Include="Airslip.Common.Utilities" Version="6.1.4" />
 		<PackageReference Include="Airslip.Common.Auth.AspNetCore" Version="6.0.7" />
 		<PackageReference Include="Airslip.Common.Services.AutoMapper" Version="6.0.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="10.3.6" />

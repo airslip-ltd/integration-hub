@@ -65,17 +65,7 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
             if (response.IsSuccessStatusCode)
                 return Json.Deserialize<IntegrationResponse>(content);
 
-            // TODO: This needs updating in the common library to return common handler
-            ErrorResponse errorObject = Json.Deserialize<ErrorResponse>(content);
-            if(string.IsNullOrEmpty(errorObject.ErrorCode))
-                return Json.Deserialize<ErrorResponses>(content);
-
-            return errorObject.ErrorCode switch
-            {
-                "RESOURCE_EXISTS" => Json.Deserialize<ConflictResponse>(content),
-                "RESOURCE_NOT_FOUND" => Json.Deserialize<NotFoundResponse>(content),
-                _ => errorObject
-            };
+            return ErrorResponseSerializer.TransformToConcreteType(content, response.StatusCode);
         }
         catch (HttpRequestException hre)
         {
