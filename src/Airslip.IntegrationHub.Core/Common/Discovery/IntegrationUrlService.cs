@@ -53,6 +53,37 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 sensitiveCallbackInfo.IntegrationProviderId,
                 sensitiveCallbackInfo.TestMode);
 
+            string url = _generateCallbackUrl(provider, sensitiveCallbackInfo, integrationDetails);
+
+            IResponse? result;
+
+            if (integrationDetails.IntegrationSetting.OAuthRedirect)
+            {
+                result = new AuthorisationResponse(url);
+            }
+            else
+            {
+                HttpActionResult apiCallResponse = await _httpClient
+                    .GetApiRequest<AuthorisationResponse>(url, integrationDetails.ApiKey, cancellationToken);
+
+                result = apiCallResponse.StatusCode switch
+                {
+                    HttpStatusCode.OK => apiCallResponse.Response!,
+                    HttpStatusCode.BadRequest => apiCallResponse.Response ??
+                                                 new ErrorResponse("BadRequest", apiCallResponse.Content),
+                    HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
+                    _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
+                };
+            }
+
+            return result;
+        }
+
+        private static string _generateCallbackUrl(
+            string provider, 
+            SensitiveCallbackInfo sensitiveCallbackInfo,
+            IntegrationDetails integrationDetails)
+        {
             string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";
             Dictionary<string, string> replacements = new();
             // Apply some dynamic replacement
@@ -102,31 +133,9 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
 
                 replacements.Add("callbackUrl", callbackUrl);
             }
-
+            
             url = url.ApplyReplacements(replacements);
-
-            IResponse? result;
-
-            if (integrationDetails.IntegrationSetting.OAuthRedirect)
-            {
-                result = new AuthorisationResponse(url);
-            }
-            else
-            {
-                HttpActionResult apiCallResponse = await _httpClient
-                    .GetApiRequest<AuthorisationResponse>(url, integrationDetails.ApiKey, cancellationToken);
-
-                result = apiCallResponse.StatusCode switch
-                {
-                    HttpStatusCode.OK => apiCallResponse.Response!,
-                    HttpStatusCode.BadRequest => apiCallResponse.Response ??
-                                                 new ErrorResponse("BadRequest", apiCallResponse.Content),
-                    HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
-                    _ => new ErrorResponse("BadRequest", apiCallResponse.Content)
-                };
-            }
-
-            return result;
+            return url;
         }
 
         public async Task<IResponse> ApproveIntegration(

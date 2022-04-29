@@ -40,30 +40,22 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
                 RequestUri = new Uri(url),
                 Headers =
                 {
-                    { "x-api-key", apiKey}
+                    {"x-api-key", apiKey}
                 }
             };
 
             HttpResponseMessage response = await _httpClient.SendAsync(httpRequestMessage);
-                
+
             string content = await response.Content.ReadAsStringAsync();
-
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-
-                _logger.Error(
-                    "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, content: {Content}",
-                    url,
-                    response.StatusCode,
-                    content);
-
-                return new ErrorResponse("MIDDLEWARE_ERROR", $"Error authorising in internal middleware {content}");
-            }
-
-            _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
 
             if (response.IsSuccessStatusCode)
                 return Json.Deserialize<IntegrationResponse>(content);
+
+            _logger.Error(
+                "Error posting request to provider for Url {PostUrl}, response code: {StatusCode}, content: {Content}",
+                url,
+                response.StatusCode,
+                content);
 
             return ErrorResponseSerializer.TransformToConcreteType(content, response.StatusCode);
         }
@@ -81,9 +73,11 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
         }
     }
 
-    public async Task<IResponse> Delete(string accountId, string provider, IntegrationDetails integrationDetails, DeleteRequest deleteRequest)
+    public async Task<IResponse> Delete(string accountId, string provider, IntegrationDetails integrationDetails,
+        DeleteRequest deleteRequest)
     {
-        string url = Endpoints.Delete(integrationDetails.IntegrationSetting.PublicApiSetting.ToBaseUri(), provider, accountId);
+        string url = Endpoints.Delete(integrationDetails.IntegrationSetting.PublicApiSetting.ToBaseUri(), provider,
+            accountId);
 
         try
         {
@@ -96,7 +90,7 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
                 RequestUri = new Uri(url),
                 Headers =
                 {
-                    { "x-api-key", integrationDetails.IntegrationSetting.PublicApiSetting.ApiKey}
+                    {"x-api-key", integrationDetails.IntegrationSetting.PublicApiSetting.ApiKey}
                 },
                 Content = new StringContent(
                     Json.Serialize(deleteRequest),
@@ -125,7 +119,9 @@ public class InternalMiddlewareClient : IInternalMiddlewareClient
                 }
             }
 
-            _logger.Information("Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url, response.StatusCode);
+            _logger.Information(
+                "Got response for post to integration middleware for Url {PostUrl}, response code: {StatusCode}", url,
+                response.StatusCode);
 
             return Json.Deserialize<DeleteResponse>(content);
         }
