@@ -69,6 +69,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
                 result = apiCallResponse.StatusCode switch
                 {
                     HttpStatusCode.OK => apiCallResponse.Response!,
+                     HttpStatusCode.Conflict => apiCallResponse.Response!,
                     HttpStatusCode.BadRequest => apiCallResponse.Response ??
                                                  new ErrorResponse("BadRequest", apiCallResponse.Content),
                     HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
@@ -190,6 +191,7 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             return apiCallResponse.StatusCode switch
             {
                 HttpStatusCode.OK => apiCallResponse.Response!,
+                  HttpStatusCode.Conflict => apiCallResponse.Response!,
                 HttpStatusCode.BadRequest => apiCallResponse.Response ??
                                              new ErrorResponse("BadRequest", apiCallResponse.Content),
                 HttpStatusCode.Unauthorized => new UnauthorisedResponse(provider, "Unauthenticated"),
