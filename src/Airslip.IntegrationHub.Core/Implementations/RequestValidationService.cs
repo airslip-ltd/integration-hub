@@ -39,6 +39,10 @@ public class RequestValidationService : IRequestValidationService
         IntegrationDetails integrationDetails = _discoveryService.GetIntegrationDetails(provider);
         if (integrationDetails is IntegrationNotFound)
             return new NotFoundResponse(nameof(provider), provider);
+
+        if (authRequestType == AuthRequestTypes.Generate
+            && integrationDetails.IntegrationSetting.AuthorisationRouteType == AuthorisationRouteType.PassThrough)
+            return new HandledError(nameof(ValidateRequest), "Must use callback URL");
         
         // May need to validate 
         if(integrationDetails.IntegrationSetting.IntegrationType == IntegrationTypes.Banking)

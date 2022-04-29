@@ -1,4 +1,5 @@
 ﻿using Airslip.Common.Types.Configuration;
+using Airslip.Common.Types.Enums;
 using Airslip.Common.Utilities;
 using Airslip.Common.Utilities.Extensions;
 using Airslip.IntegrationHub.Core.Common;
@@ -38,9 +39,28 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
     {
         string? state = GetStateParameter(parameters);
 
-        return state is null
-            ? null
-            : _sensitiveInformationService.DecryptCallbackInfo(state);
+        if(state != null)
+            return _sensitiveInformationService.DecryptCallbackInfo(state);
+        
+        parameters.TryGetValue("airslipUserType", out string? userType);
+        parameters.TryGetValue("entityId", out string? entityId);
+        parameters.TryGetValue("userId", out string? userId);
+        parameters.TryGetValue("shop", out string? shop);
+
+        if (userType is null || entityId is null || userId is null)
+            return null;
+        
+        bool canParse = Enum.TryParse(userType, true, out AirslipUserType airslipUserType);
+        if (!canParse)
+            return null;
+        
+        return new SensitiveCallbackInfo
+        {
+            AirslipUserType = airslipUserType,
+            EntityId = entityId,
+            UserId = userId,
+            Shop = shop ?? string.Empty
+        };
     }
 
     public ICollection<KeyValuePair<string, string>> CommerceQueryStringReplacer(
@@ -154,40 +174,6 @@ public class AuthorisationPreparationService : IAuthorisationPreparationService
             return state;
 
         return null;
-    }
-
-    public BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(
-        IntegrationDetails integrationDetails,
-        Dictionary<string, string> parameters)
-    {
-        AuthorisationParameterNames authParameterNames =
-            integrationDetails.IntegrationSetting.AuthorisationParameterNames;
-
-        parameters.TryGetValue(
-            authParameterNames.Login,
-            out string? loginValue);
-
-        loginValue ??= integrationDetails.IntegrationSetting.ApiSecret;
-
-        parameters.TryGetValue(
-            authParameterNames.Password,
-            out string? passwordValue);
-
-        parameters.TryGetValue(
-            authParameterNames.AccessScope,
-            out string? scopeValue);
-
-        parameters.TryGetValue(
-            authParameterNames.Shop,
-            out string? shopValue);
-
-        return new BasicAuthorisationDetail
-        {
-            Login = loginValue,
-            Password = passwordValue ?? string.Empty,
-            AccessScope = scopeValue ?? string.Empty,
-            Shop = shopValue
-        };
     }
 
     public Dictionary<string, string> GetParameters(HttpRequestData req)

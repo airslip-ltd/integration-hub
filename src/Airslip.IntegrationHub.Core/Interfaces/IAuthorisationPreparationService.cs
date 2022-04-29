@@ -11,14 +11,13 @@ public interface IAuthorisationPreparationService
     HttpRequestMessage GetHttpRequestMessageForAccessToken(
         IntegrationDetails integrationDetails,
         Dictionary<string, string> parameters);
-
+   
     Dictionary<string, string> GetParameters(HttpRequestData req);
-
+    
     string? GetStateParameter(IReadOnlyDictionary<string, string> parameters);
+   
     SensitiveCallbackInfo? TransformParametersToSensitiveCallbackInfo(Dictionary<string, string> parameters);
-
-    BasicAuthorisationDetail BuildSuccessfulAuthorisationModel(IntegrationDetails integrationDetails, Dictionary<string, string> parameters);
-
+  
     ICollection<KeyValuePair<string, string>> CommerceQueryStringReplacer(
         Dictionary<string, string> parameters,
         string authoriseRouteFormat,
