@@ -17,6 +17,7 @@ public record IntegrationSetting : IIntegrationSettingError
     public bool AnonymousUsage { get; init; } = false;
     public bool OAuthRedirect { get; init; } = false;
     public bool RequiresStoreName { get; set; }
+    public string? AppListingUrl { get; set; }
     public bool RequireUrlEncode { get; set; }
     public string Version { get; set; } = string.Empty;
     public AuthenticationSchemes? AuthoriseScheme { get; set; } = AuthenticationSchemes.None;

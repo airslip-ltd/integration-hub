@@ -85,7 +85,9 @@ namespace Airslip.IntegrationHub.Core.Common.Discovery
             SensitiveCallbackInfo sensitiveCallbackInfo,
             IntegrationDetails integrationDetails)
         {
-            string url = $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";
+            string url = integrationDetails.IntegrationSetting.AppListingUrl 
+                         ?? $"{integrationDetails.Uri}/{integrationDetails.IntegrationSetting.AuthorisationRouteFormat}";
+            
             Dictionary<string, string> replacements = new();
             // Apply some dynamic replacement
             replacements.Add("entityId", sensitiveCallbackInfo.EntityId);
